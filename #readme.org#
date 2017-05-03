@@ -1,0 +1,16 @@
+* Lesson 1
+** Part 1
+  Introducing the series and setting up the package manager
+  - Show Melpa
+  - Setup Melpa
+** Part 2
+  - Installed use-package
+  - Installed try
+  - Installed which-key
+* Lesson 2
+  Show some org-mode
+  - review init.el
+  - setup package.org
+* Links
+  [[https://imalamin.wordpress.com][Alamin's Personal Blog]]
+  
