@@ -16,7 +16,11 @@
 ;; loading all required files for my configuration
 (add-to-list 'load-path "~/.emacs.d/custom/")
 
-;; load your modules
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+(menu-bar-mode -1)
+
+(require 'setup-cedet)
 (require 'setup-applications)
 (require 'setup-communication)
 (require 'setup-convenience)
@@ -25,16 +29,12 @@
 (require 'setup-editing)
 (require 'setup-environment)
 (require 'setup-external)
-(require 'setup-faces-and-ui)
+;(require 'setup-faces-and-ui)
 (require 'setup-files)
 (require 'setup-help)
 (require 'setup-programming)
 (require 'setup-text)
 (require 'setup-local)
-
-(if (version< emacs-version "24.4")
-    (require 'setup-ivy-counsel)
-  (require 'setup-helm)
-  (require 'setup-helm-gtags))
-;; (require 'setup-ggtags)
-(require 'setup-cedet)
+;; load your modules
+(require 'setup-helm)
+(require 'setup-helm-gtags)

@@ -1,0 +1,1 @@
+("c:/Users/anamika/Desktop/Daily_Rituals/" "c:/Users/anamika/Desktop/Emacs-Org-Mode-Training/")

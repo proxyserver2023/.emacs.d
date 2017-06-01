@@ -71,10 +71,8 @@
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 (fringe-mode 0)
 
-
 ;; Package zygospore
 (use-package zygospore
   :bind (("C-x 1" . zygospore-toggle-delete-other-windows)
          ("RET" .   newline-and-indent)))
 
-      
