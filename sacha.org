@@ -1,0 +1,15 @@
+#+TITLE: Sacha Chua's Emacs configuration
+#+OPTIONS: toc:4 h:4
+#+STARTUP: showeverything
+
+* Configuration
+** About this file
+   :PROPERTIES:
+   :CUSTOM_ID: babel-init
+   :END:
+<<babel-init>>
+
+=*scratch*= =emacs-lisp-mode=. 
+=M-x eval-buffer=
+[[https://www.gnu.org/software/emacs/manual/html_mono/eintr.html][An Introduction to programming in Emacs Lisp]]
+

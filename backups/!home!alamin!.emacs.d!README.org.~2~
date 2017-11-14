@@ -1,0 +1,21 @@
+#+TITLE: My Emacs Journey
+#+STARTUP: overview indent inlineimages
+#+OPTIONS: H:5 num:nil tags:nil toc:nil timestamp:t
+#+LAYOUT: post
+
+
+* Why Emacs?
+Cause great programmers use Emacs. Thanks for [[tuhdo.github.io][tuhdo's]] excellent guides Many of the resources has taken from his guide.
+
+** Performance
+Editing a 39MB C Source file with no problem. But well, it's not  your favourite editor's fault, if it crashes from editing such a large source file.
+
+[[https://tuhdo.github.io/static/performance.gif]]
+** Programming
+*** Jump to any header file
+[[https://tuhdo.github.io/static/jump_headers.gif]]
+*** Autocompletion
+Pay attention to completion candidates when =include<linux/printk.h>= is present and when it's not.
+*** Showing function arguments
+[[https://tuhdo.github.io/static/func_args.jpg]]
+*** 
