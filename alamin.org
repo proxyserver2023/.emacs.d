@@ -180,7 +180,6 @@ Don't know why this important?
 (setq disabled-command-function nil)
 #+END_SRC
 
-
 * Editing
 ** Mark ring
 #+BEGIN_SRC emacs-lisp
@@ -407,11 +406,8 @@ _Usage_       : If point is on a line, the command duplicates the current line. 
 
 ** volatile-highlights
 _Author_      : Keitalo Miyazaki, =keitaro.miyazaki@gmail.com=
-
 _Homepage_    : [[http://www.emacswiki.org/emacs/VolatileHighlights][Emacswiki]]
-
 _Features_    : 'Volatile Highlights' highlights changes to the buffer caused by commands such as ‘undo’, ‘yank’/’yank-pop’, etc. The highlight disappears at the next command. The highlighting gives useful visual feedback for what your operation actually changed in the buffer.
-
 _Installation_: 
 #+BEGIN_SRC emacs-lisp
 (use-package volatile-highlights
@@ -420,7 +416,6 @@ _Installation_:
 (require 'volatile-highlights)
 (volatile-highlights-mode t))
 #+END_SRC
-
 _Usage_       : When you yank (paste) something, the yanked region will be highlighted.
 
 ** smartparens
@@ -488,7 +483,7 @@ _Installation_:
  ("C-c ("  . wrap-with-parens)
  ("C-c ["  . wrap-with-brackets)
  ("C-c {"  . wrap-with-braces)
- ("C-c '"  . wrap-with-single-quotes)
+ ("C-c M-'"  . wrap-with-single-quotes)
  ("C-c \"" . wrap-with-double-quotes)
  ("C-c _"  . wrap-with-underscores)
  ("C-c `"  . wrap-with-back-quotes))
@@ -630,75 +625,683 @@ hippie-expand-try-functions-list
 #+BEGIN_SRC emacs-lisp
 (windmove-default-keybindings)
 #+END_SRC
-** yasnippet
+** company
 _Author_:
 _Homepage_:
 _Features_:
 _Installation_:
+#+BEGIN_SRC emacs-lisp
+(use-package company
+:ensure t
+:config
+(add-hook 'after-init-hook 'global-company-mode))
+#+END_SRC
 _usage_:
-** yasnippet
+** expand-region
 _Author_:
 _Homepage_:
 _Features_:
 _Installation_:
+#+BEGIN_SRC emacs-lisp
+(use-package expand-region
+:ensure t
+:config
+(require 'expand-region)
+(global-set-key (kbd "M-m") 'er/expand-region))
+#+END_SRC
 _usage_:
-** yasnippet
+** ibuffer-vc
 _Author_:
 _Homepage_:
 _Features_:
 _Installation_:
+#+BEGIN_SRC emacs-lisp
+  (use-package ibuffer-vc
+    :ensure t
+    :config
+    (add-hook 'ibuffer-hook
+              (lambda ()
+                (ibuffer-vc-set-filter-groups-by-vc-root)
+                (unless (eq ibuffer-sorting-mode 'alphabetic)
+                  (ibuffer-do-sort-by-alphabetic))))
+  (setq ibuffer-formats
+        '((mark modified read-only vc-status-mini " "
+                (name 18 18 :left :elide)
+                " "
+                (size 9 -1 :right)
+                " "
+                (mode 16 16 :left :elide)
+                " "
+                (vc-status 16 16 :left)
+                " "
+                filename-and-process))))
+
+#+END_SRC
 _usage_:
-** yasnippet
+** projectile
 _Author_:
 _Homepage_:
 _Features_:
+project interaction lib
+- jump to a file in project
+- jump to a directory in a project
+- jump to file in a dir
+- jump to a project buffer
+- jump to a test in project
+- toggle between code and its test
+- jump to recently visited files in the project
+- switch between projects you have worked on
+- kill all project buffers
+- replace in project
+- multi-occur in project buffers
+- grep in project
+- regenerate project etags or gtags
+- visit project in dired
+- run make in a project with a single key chord
+- check for dirty repos
 _Installation_:
+#+BEGIN_SRC emacs-lisp
+(use-package projectile
+:ensure t
+:config
+(projectile-global-mode))
+#+END_SRC
 _usage_:
-** yasnippet
+* Helm
 _Author_:
-_Homepage_:
+- Tamas Patrovic (original author), from 2007. At this time, Helm was named =Anything=
+- rubikitch =rubikitch@ruby-lang.org=, from 2008-2011. Helm was still named =Anything=
+- [[https://github.com/thierryvolpiatto][Thierry Volpiatto]] (current maintainer). =thierry.volpiatto@gmail.com=, from 2011-present. =Anything= was renamed to =Helm= during this period.
+_Homepage_: [[https://github.com/emacs-helm/helm][Github]]
 _Features_:
+=Helm= is an incremental completion and selection narrowing framework for Emacs. It will help steer you in the right direction when you're looking for stuff in Emacs (like buffers, files, etc).
+
+Helm is a fork of =anything.el= (originally written by Tamas Patrovic) and can be considered to be its successor. =Helm= sets out to clean up the legacy code in =anything.el= and provide a cleaner, leaner and more modular tool, that's not tied in the trap of backward compatibility.
+
 _Installation_:
-_usage_:
-** yasnippet
-_Author_:
-_Homepage_:
-_Features_:
-_Installation_:
-_usage_:
-** yasnippet
-_Author_:
-_Homepage_:
-_Features_:
-_Installation_:
-_usage_:
-** yasnippet
-_Author_:
-_Homepage_:
-_Features_:
-_Installation_:
-_usage_:
-** yasnippet
-_Author_:
-_Homepage_:
-_Features_:
-_Installation_:
-_usage_:
-** yasnippet
-_Author_:
-_Homepage_:
-_Features_:
-_Installation_:
-_usage_:
+#+BEGIN_SRC emacs-lisp
+
+  (use-package helm
+    :ensure t
+    :config
+    (require 'helm)
+    (require 'helm-config)
+
+    ;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs.
+    ;; Changed to "C-c h". Note: We must set "C-c h" globally, because we
+    ;; cannot change `helm-command-prefix-key' once `helm-config' is loaded.
+    (global-set-key (kbd "C-c h") 'helm-command-prefix)
+    (global-unset-key (kbd "C-x c"))
+
+    (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebind tab to run persistent action
+    (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB work in terminal
+    (define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
+
+    (when (executable-find "curl")
+      (setq helm-google-suggest-use-curl-p t))
+
+    (setq helm-split-window-in-side-p           t ; open helm buffer inside current window, not occupy whole other window
+        helm-move-to-line-cycle-in-source     t ; move to end or beginning of source when reaching top or bottom of source.
+        helm-ff-search-library-in-sexp        t ; search for library in `require' and `declare-function' sexp.
+        helm-scroll-amount                    8 ; scroll 8 lines other window using M-<next>/M-<prior>
+        helm-ff-file-name-history-use-recentf t
+        helm-echo-input-in-header-line t)
+
+    (defun spacemacs//helm-hide-minibuffer-maybe ()
+    "Hide minibuffer in Helm session if we use the header line as input field."
+    (when (with-helm-buffer helm-echo-input-in-header-line)
+      (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
+        (overlay-put ov 'window (selected-window))
+        (overlay-put ov 'face
+                     (let ((bg-color (face-background 'default nil)))
+                       `(:background ,bg-color :foreground ,bg-color)))
+        (setq-local cursor-type nil))))
+
+
+    (add-hook 'helm-minibuffer-set-up-hook
+              'spacemacs//helm-hide-minibuffer-maybe)
+
+    (setq helm-autoresize-max-height 0)
+    (setq helm-autoresize-min-height 20)
+    (helm-autoresize-mode 1)
+    (helm-mode 1))
+#+END_SRC
+
+_Usage_:
+*** Exploring Large Projects with Projectile and Helm Projectile
+**** Demos
+- Select and open multiple files
+[[http://tuhdo.github.io/static/helm-projectile/helm-projectile-find-files-1.gif]] 
+- Open file at point anywhere
+[[http://tuhdo.github.io/static/helm-projectile/helm-projectile-find-files-dwim-1.gif]]
+- Copy files anywhere
+[[http://tuhdo.github.io/static/helm-projectile/helm-projectile-find-file-copy.gif]]
+- Delete files anywhere
+[[http://tuhdo.github.io/static/helm-projectile/helm-projectile-find-file-delete.gif]]
+- Switch between current file and other files with same names but different extensions
+[[http://tuhdo.github.io/static/helm-projectile/helm-projectile-find-other-file.gif]]
+**** Installation and configuration
+#+BEGIN_SRC emacs-lisp
+(setq projectile-completion-system 'helm)
+(use-package helm-projectile
+:ensure t
+:config
+(helm-projectile-on))
+#+END_SRC
+All projectile commands has prefix =C-c p=.
+**** helm-projectile, C-c p h
+_Usage_:
+- =helm-projectile-switch-to-buffer=
+- =helm-projectile-find-file=
+- =helm-projectile-switch-project=
+**** Enter project portal
+#+BEGIN_SRC emacs-lisp
+(setq projectile-switch-project-action 'helm-projectile)
+#+END_SRC
+**** File Management
+- find file
+- find file as root
+- move / rename
+- copy / delete
+- search / replace
+- misc.
+  - insert as org link
+  - ediff file
+  - ediff merge file
+  - etags
+  - switch to eshell
+  - eshell command on files
+  - symlink files
+  - relsymlink files
+  - hardlink files
+  - checksum file
+  - print file
+- Caching
+#+BEGIN_SRC emacs-lisp
+(setq projectile-enable-caching t)
+#+END_SRC
+**** virtual directory manager
+- create dired buffer from files
+- add files to a dired buffer
+- remove entry(s) from Dired buffer
+**** Buffer management
+helm-projectile-switch-to-buffer C-c p b
+**** Search in project
+- helm-projectile-grep, C-c p s g
+**** Summary of keybindings
+| Key Binding | Command                                     | Description                                                         |
+|-------------+---------------------------------------------+---------------------------------------------------------------------|
+| C-c p h     | helm-projectile                             | Helm interface to projectile                                        |
+| C-c p p     | helm-projectile-switch-project              | Switches to another projectile project                              |
+| C-c p f     | helm-projectile-find-file                   | Lists all files in a project                                        |
+| C-c p F     | helm-projectile-find-file-in-known-projects | Find file in all known projects                                     |
+| C-c p g     | helm-projectile-find-file-dwim              | find file base on context at point                                  |
+| C-c p d     | helm-projectile-find-dir                    | Lists available directories in current project                      |
+| C-c p e     | helm-projectile-recentf                     | Lists recently opened files with same name but different extensions |
+| C-c p a     | helm-projectile-find-other-file             | Switch between files with same name but different extensions        |
+| C-c p i     | projectile-invalidate-cache                 | Invalidate cache                                                    |
+| C-c p z     | projectile-cache-current-file               | add the file of current selected buffer to cache                    |
+| C-c p b     | helm-projectile-switch-to-buffer            | List all open buffers in current project                            |
+| C-c p s g   | helm-projectile-grep                        | Searches for symbol starting from project root                      |
+| C-c p s a   | helm-projectile-ack                         | Searches as above but using ack                                     |
+| C-c p s s   | helm-projectile-ag                          | Searches as above but using ag                                      |
+|-------------+---------------------------------------------+---------------------------------------------------------------------|
+*** Autoresize
+#+BEGIN_SRC emacs-lisp
+(helm-autoresize-mode t)
+#+END_SRC
+*** =helm-M-x=
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "M-x") 'helm-M-x)
+(setq helm-M-x-fuzzy-match t) ;; optional fuzzy matching for helm-M-x
+#+END_SRC
+*** =helm-mini=
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-x b") 'helm-mini)
+#+END_SRC
+To enable fuzzy matching, add the following settings
+#+BEGIN_SRC emacs-lisp
+  (setq helm-buffers-fuzzy-matching t
+        helm-recentf-fuzzy-match    t)
+#+END_SRC
+*** =helm-ff-do-grep=, live grep in Helm
+#+BEGIN_SRC emacs-lisp
+  (when (executable-find "ack-grep")
+  (setq helm-grep-default-command "ack-grep -Hn --no-group --no-color %e %p %f"
+        helm-grep-default-recurse-command "ack-grep -H --no-group --no-color %e %p %f"))
+#+END_SRC
+*** =helm-semantic-or-imenu=
+#+BEGIN_SRC emacs-lisp
+(setq helm-semantic-fuzzy-match t
+      helm-imenu-fuzzy-match    t)
+#+END_SRC
+*** =helm-man-woman=
+_Key binding_:
+<prefix> m
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'helm-sources-using-default-as-input 'helm-source-man-pages)
+#+END_SRC
+*** =helm-find=
+_Key binding_:
+<prefix> / (prefix is C-x c by default, or C-c h if set).
+*** =helm-locate=
+_Key binding_:
+<prefix> l
+#+BEGIN_SRC emacs-lisp
+(setq helm-locate-fuzzy-match t)
+#+END_SRC
+*** =helm-occur=
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-c h o") 'helm-occur)
+#+END_SRC
+*** =helm-descbinds=
+#+BEGIN_SRC emacs-lisp
+(use-package helm-descbinds
+:ensure t
+:config
+(require 'helm-descbinds)
+(helm-descbinds-mode))
+#+END_SRC
+
 * Files
+
+** large-file-warning
+#+BEGIN_SRC emacs-lisp
+(setq large-file-warning-threshold 100000000) ;; size in bytes
+#+END_SRC
+** Backup
+#+BEGIN_SRC emacs-lisp
+(defvar backup-directory "~/.backups")
+(if (not (file-exists-p backup-directory))
+    (make-directory backup-directory t))
+(setq
+ make-backup-files t        ; backup a file the first time it is saved
+ backup-directory-alist `((".*" . ,backup-directory)) ; save backup files in ~/.backups
+ backup-by-copying t     ; copy the current file into backup directory
+ version-control t   ; version numbers for backup files
+ delete-old-versions t   ; delete unnecessary versions
+ kept-old-versions 6     ; oldest versions to keep when a new numbered backup is made (default: 2)
+ kept-new-versions 9 ; newest versions to keep when a new numbered backup is made (default: 2)
+ auto-save-default t ; auto-save every buffer that visits a file
+ auto-save-timeout 20 ; number of seconds idle time before auto-save (default: 30)
+ auto-save-interval 200 ; number of keystrokes between auto-saves (default: 300)
+ )
+
+#+END_SRC
+
+** Dired
+#+BEGIN_SRC emacs-lisp
+(setq
+ dired-dwim-target t            ; if another Dired buffer is visible in another window, use that directory as target for Rename/Copy
+ dired-recursive-copies 'always         ; "always" means no asking
+ dired-recursive-deletes 'top           ; "top" means ask once for top level directory
+ dired-listing-switches "-lha"          ; human-readable listing
+ )
+#+END_SRC
+Automatically refresh dired buffer on changes
+#+BEGIN_SRC emacs-lisp
+(add-hook 'dired-mode-hook 'auto-revert-mode)
+#+END_SRC
+If it is not windows, use the following listing switches
+#+BEGIN_SRC emacs-lisp
+;; if it is not Windows, use the following listing switches
+(when (not (eq system-type 'windows-nt))
+  (setq dired-listing-switches "-lha --group-directories-first"))
+(require 'dired-x)
+#+END_SRC
+Wdired allows you to edit a Dired buffer and write changes to disk
+#+BEGIN_SRC emacs-lisp
+;; - Switch to Wdired by C-x C-q
+;; - Edit the Dired buffer, i.e. change filenames
+;; - Commit by C-c C-c, abort by C-c C-k
+(require 'wdired)
+(setq
+ wdired-allow-to-change-permissions t   ; allow to edit permission bits
+ wdired-allow-to-redirect-links t       ; allow to edit symlinks
+ )
+#+END_SRC
+** Recentf
+#+BEGIN_SRC emacs-lisp
+(use-package recentf-mode
+:ensure t
+:config
+(recentf-mode)
+(setq
+recentf-max-menu-items 30
+recentf-max-saved-items 5000
+))
+#+END_SRC
+** Dired+
+_Author_:
+_Homepage_:
+_Features_:
+_Installation_:
+#+BEGIN_SRC emacs-lisp
+(use-package dired+
+:ensure t
+:config
+(require 'dired+))
+
+#+END_SRC
+
+_usage_:
+** recentf-ext
+
+_Author_:
+_Homepage_:
+_Features_:
+Extension of `recentf` package.
+- `dired` buffers can be handled
+- switching to file buffer considers it as most recent file.
+_Installation_:
+#+BEGIN_SRC emacs-lisp
+(use-package recentf-ext
+:ensure t
+:config
+(require 'recentf-ext))
+#+END_SRC
+
+_usage_:
+** ztree
+_Author_:
+_Homepage_:
+_Features_:
+Ztree is a project dedicated to implementation of several text-tree applications inside Emacs. It consists of 2 sub-projects: ztree-diff and ztree-dir(the basis of ztree-diff).
+_Installation_:
+#+BEGIN_SRC emacs-lisp
+(use-package ztree
+:ensure t
+:config 
+(require 'ztree-diff)
+(require 'ztree-dir))
+#+END_SRC
+_usage_:
+** vlf
+_Author_:
+_Homepage_:
+_Features_:
+Emacs minor mode that allows viewing, editing, searching and comparing large files in batches. Batch size can be adjusted on the fly and bounds the memory that is to be used for operations on the file. This way multiple large files (like terabytes or whatever) can be instantly and simultaneously accessed without swapping and degraded performance.
+
+regular expression search on whole file (in constant memory determined by current batch size)
+chunk editing (if size has changed, saving is done in constant memory determined by current batch size)
+Occur like indexing
+options to jump to beginning, end or arbitrary file chunk
+ability to jump/insert given number of batches at once
+newly added content is acknowledged if file has changed size meanwhile
+automatic scrolling of batches
+as a minor mode, font locking and functionality of the respective major mode is also present
+by batch Ediff comparison
+can be added as option to automatically open large files
+smooth integration with hexl-mode
+works with TRAMP so accessing network files is fine
+
+_Installation_:
+_usage_:
+
 * Text
 * Data
+#+BEGIN_SRC emacs-lisp
+;; saveplace remembers your location in a file when saving files
+(require 'saveplace)
+(setq-default save-place t)
+#+END_SRC
 * External
+** Processes
+*** Flyspell
+#+BEGIN_SRC emacs-lisp
+(if (executable-find "aspell")
+    (progn
+      (setq ispell-program-name "aspell")
+      (setq ispell-extra-args '("--sug-mode=ultra")))
+  (setq ispell-program-name "ispell"))
+
+(add-hook 'text-mode-hook 'flyspell-mode)
+(add-hook 'org-mode-hook 'flyspell-mode)
+(add-hook 'prog-mode-hook 'flyspell-prog-mode)
+#+END_SRC
+*** Gud
+#+BEGIN_SRC emacs-lisp
+(setq gud-chdir-before-run nil)
+#+END_SRC
+** term mode
+#+BEGIN_SRC emacs-lisp
+(defun my-term-setup ()
+  (interactive)
+  (define-key term-raw-map (kbd "C-y") 'term-send-raw)
+  (define-key term-raw-map (kbd "C-p") 'term-send-raw)
+  (define-key term-raw-map (kbd "C-n") 'term-send-raw)
+  (define-key term-raw-map (kbd "C-s") 'term-send-raw)
+  (define-key term-raw-map (kbd "C-r") 'term-send-raw)
+  (define-key term-raw-map (kbd "M-w") 'kill-ring-save)
+  (define-key term-raw-map (kbd "M-y") 'helm-show-kill-ring)
+  (define-key term-raw-map (kbd "M-d") (lambda () (interactive) (term-send-raw-string "\ed")))
+  (define-key term-raw-map (kbd "<C-backspace>") (lambda () (interactive) (term-send-raw-string "\e\C-?")))
+  (define-key term-raw-map (kbd "M-p") (lambda () (interactive) (term-send-raw-string "\ep")))
+  (define-key term-raw-map (kbd "M-n") (lambda () (interactive) (term-send-raw-string "\en")))
+  (define-key term-raw-map (kbd "M-,") 'term-send-input)
+  (define-key term-raw-map (kbd "C-c y") 'term-paste)
+  (define-key term-raw-map (kbd "C-S-y") 'term-paste)
+  (define-key term-raw-map (kbd "C-h") nil) ; unbind C-h
+  (define-key term-raw-map (kbd "M-x") nil) ; unbind M-x
+  (define-key term-raw-map (kbd "C-c C-b") 'helm-mini)
+  (define-key term-raw-map (kbd "C-1") 'zygospore-toggle-delete-other-windows)
+  (define-key term-raw-map (kbd "C-2") 'split-window-below)
+  (define-key term-raw-map (kbd "C-3") 'split-window-right)
+  (define-key term-mode-map (kbd "C-0") 'delete-window))
+(add-hook 'term-mode-hook 'my-term-setup t)
+(setq term-buffer-maximum-size 0)
+(require 'term)
+#+END_SRC
+** ansi-term
+#+BEGIN_SRC emacs-lisp
+(defun visit-ansi-term ()
+  "If the current buffer is:
+     1) a running ansi-term named *ansi-term*, rename it.
+     2) a stopped ansi-term, kill it and create a new one.
+     3) a non ansi-term, go to an already running ansi-term
+        or start a new one while killing a defunt one"
+  (interactive)
+  (let ((is-term (string= "term-mode" major-mode))
+        (is-running (term-check-proc (buffer-name)))
+        (term-cmd "/bin/zsh")
+        (anon-term (get-buffer "*ansi-term*")))
+    (if is-term
+        (if is-running
+            (if (string= "*ansi-term*" (buffer-name))
+                ;; (call-interactively 'rename-buffer)
+                (ansi-term term-cmd)
+              (if anon-term
+                  (switch-to-buffer "*ansi-term*")
+                (ansi-term term-cmd)))
+          (kill-buffer (buffer-name))
+          (ansi-term term-cmd))
+      (if anon-term
+          (if (term-check-proc "*ansi-term*")
+              (switch-to-buffer "*ansi-term*")
+            (kill-buffer "*ansi-term*")
+            (ansi-term term-cmd))
+        (ansi-term term-cmd)))))
+
+(global-set-key (kbd "<f2>") 'visit-ansi-term)
+#+END_SRC
+** shell-pop
+#+BEGIN_SRC emacs-lisp
+(use-package shell-pop
+:ensure t
+:config
+(require 'shell-pop)
+(global-set-key (kbd "C-c t") 'shell-pop))
+#+END_SRC
 * Communication
+This group allows to customize communications, networking and remote access to files. For example ftp, ldap, dig, whois, netstat.... I only enable =goto-address-mode= to enable URL highlighting and able to click it in any buffer. 
+** goto-address-mode
+#+BEGIN_SRC emacs-lisp
+;; go-to-address-mode
+(add-hook 'prog-mode-hook 'goto-address-mode)
+(add-hook 'text-mode-hook 'goto-address-mode)
+#+END_SRC
 * Programming
+** Languages
+*** C
+**** default-style
+;; Available C style:
+;; “gnu”: The default style for GNU projects
+;; “k&r”: What Kernighan and Ritchie, the authors of C used in their book
+;; “bsd”: What BSD developers use, aka “Allman style” after Eric Allman.
+;; “whitesmith”: Popularized by the examples that came with Whitesmiths C, an early commercial C compiler.
+;; “stroustrup”: What Stroustrup, the author of C++ used in his book
+;; “ellemtel”: Popular C++ coding standards as defined by “Programming in C++, Rules and Recommendations,” Erik Nyquist and Mats Henricson, Ellemtel
+;; “linux”: What the Linux developers use for kernel development
+;; “python”: What Python developers use for extension modules
+;; “java”: The default style for java-mode (see below)
+;; “user”: When you want to define your own style 
+#+BEGIN_SRC emacs-lisp
+(setq c-default-style "linux" ; set style to "linux"
+      c-basic-offset 4)
+#+END_SRC
+** Tools
+*** GDB
+#+BEGIN_SRC emacs-lisp
+  (setq gdb-many-windows t
+        gdb-show-main t)
+#+END_SRC
+
+*** Compilation
+#+BEGIN_SRC emacs-lisp
+  ;; Compilation from Emacs
+  (defun prelude-colorize-compilation-buffer ()
+    "Colorize a compilation mode buffer."
+    (interactive)
+    ;; we don't want to mess with child modes such as grep-mode, ack, ag, etc
+    (when (eq major-mode 'compilation-mode)
+      (let ((inhibit-read-only t))
+        (ansi-color-apply-on-region (point-min) (point-max)))))
+
+  ;; setup compilation-mode used by `compile' command
+  (require 'compile)
+  (setq compilation-ask-about-save nil ; just save before compiling
+        compilation-always-kill t      ; just kill old compile process before starting the new one
+        compilation-scroll-output 'first-error) ; automatically scroll to first
+  (global-set-key (kbd "<f5>") 'compile)
+#+END_SRC
+*** Makefile
+#+BEGIN_SRC emacs-lisp
+;; takenn from prelude-c.el:48: https://github.com/bbatsov/prelude/blob/master/modules/prelude-c.el
+(defun prelude-makefile-mode-defaults ()
+  (whitespace-toggle-options '(tabs))
+  (setq indent-tabs-mode t))
+
+(setq prelude-makefile-mode-hook 'prelude-makefile-mode-defaults)
+
+(add-hook 'makefile-mode-hook (lambda ()
+                                (run-hooks 'prelude-makefile-mode-hook)))
+
+#+END_SRC
+*** Ediff
+#+BEGIN_SRC emacs-lisp
+(setq ediff-diff-options "-w"
+      ediff-split-window-function 'split-window-horizontally
+      ediff-window-setup-function 'ediff-setup-windows-plain)
+
+#+END_SRC
+*** diff-hl
+_Author_:
+_Homepage_:
+_Features_:
+=diff-hl-mode= highlights uncommitted changes on the left side of the window, allows you to jump between and revert them selectively.
+[[https://tuhdo.github.io/static/part3/diff-hl-buffer.png]]
+- =diff-hl-dired-mode= provides similar func in Dired.
+[[https://tuhdo.github.io/static/part3/diff-hl-dired.png]]
+- =diff-hl-margin-mode= changes the highlighting function to use the margin instead of the fringe
+[[https://tuhdo.github.io/static/part3/diff-hl-margin.png]]
+- =diff-hl-amend-mode= shifts the reference revision back by one
+_Installation_:
+#+BEGIN_SRC use-package
+(use-package diff-hl
+:ensure t
+:config
+(global-diff-hl-mode)
+(add-hook 'dired-mode-hook 'diff-hl-dired-mode))
+#+END_SRC
+*** magit
+_Author_:
+_Homepage_:
+_Features_:
+Magit is an interface to the version control system Git, implemented as an Emacs extension.
+_Installation_:
+#+BEGIN_SRC emacs-lisp
+    (use-package magit
+    :ensure t
+    :config
+    (require 'magit)
+    (set-default 'magit-stage-all-confirm nil)
+
+   ;; full screen magit-status
+  (defadvice magit-status (around magit-fullscreen activate)
+    (window-configuration-to-register :magit-fullscreen)
+    ad-do-it
+    (delete-other-windows))
+
+  (global-unset-key (kbd "C-x g"))
+  (global-set-key (kbd "C-x g h") 'magit-log)
+  (global-set-key (kbd "C-x g f") 'magit-file-log)
+  (global-set-key (kbd "C-x g b") 'magit-blame-mode)
+  (global-set-key (kbd "C-x g m") 'magit-branch-manager)
+  (global-set-key (kbd "C-x g c") 'magit-branch)
+  (global-set-key (kbd "C-x g s") 'magit-status)
+  (global-set-key (kbd "C-x g r") 'magit-reflog)
+  (global-set-key (kbd "C-x g t") 'magit-tag))
+#+END_SRC
 * Application
 * Development
 * Environment
+** windows
+*** golden-ratio
+_Author_:
+_Homepage_:
+_Features_:
+_Automatic resizing of Emacs windows to the golden ratio
+When working with many windows at the same time, each window has a size that is not convenient for editing.
+[[https://tuhdo.github.io/static/part3/golden-ratio.gif]]
+_Installation_:
+#+BEGIN_SRC emacs-lisp
+(use-package golden-ratio
+:ensure t
+:config
+(require 'golden-ratio)
+
+(add-to-list 'golden-ratio-exclude-modes "ediff-mode")
+(add-to-list 'golden-ratio-exclude-modes "helm-mode")
+(add-to-list 'golden-ratio-exclude-modes "dired-mode")
+(add-to-list 'golden-ratio-inhibit-functions 'pl/helm-alive-p)
+
+(defun pl/helm-alive-p ()
+  (if (boundp 'helm-alive-p)
+      (symbol-value 'helm-alive-p)))
+
+;; do not enable golden-raio in thses modes
+(setq golden-ratio-exclude-modes '("ediff-mode"
+                                   "gud-mode"
+                                   "gdb-locals-mode"
+                                   "gdb-registers-mode"
+                                   "gdb-breakpoints-mode"
+                                   "gdb-threads-mode"
+                                   "gdb-frames-mode"
+                                   "gdb-inferior-io-mode"
+                                   "gud-mode"
+                                   "gdb-inferior-io-mode"
+                                   "gdb-disassembly-mode"
+                                   "gdb-memory-mode"
+                                   "magit-log-mode"
+                                   "magit-reflog-mode"
+                                   "magit-status-mode"
+                                   "IELM"
+                                   "eshell-mode" "dired-mode"))
+
+(golden-ratio-mode))
+#+END_SRC
+_Usage_:
+=C-x o= and see your windows being resized.
 * Faces
 * Help
 * Multimedia
@@ -1386,18 +1989,6 @@ D_SRC
 (delete-selection-mode)
 (global-set-key (kbd "RET") 'newline-and-indent)
 #+END_SRC
-* Helm
-_Author_:
-- Tamas Patrovic (original author), from 2007. At this time, Helm was named =Anything=
-- rubikitch =rubikitch@ruby-lang.org=, from 2008-2011. Helm was still named =Anything=
-- [[https://github.com/thierryvolpiatto][Thierry Volpiatto]] (current maintainer). =thierry.volpiatto@gmail.com=, from 2011-present. =Anything= was renamed to =Helm= during this period.
-_Homepage_: [[https://github.com/emacs-helm/helm][Github]]
-_Features_:
-=Helm= is an incremental completion and selection narrowing framework for Emacs. It will help steer you in the right direction when you're looking for stuff in Emacs (like buffers, files, etc).
-
-Helm is a fork of =anything.el= (originally written by Tamas Patrovic) and can be considered to be its successor. =Helm= sets out to clean up the legacy code in =anything.el= and provide a cleaner, leaner and more modular tool, that's not tied in the trap of backward compatibility.
-
-_Installation_:
 * Rebox2
 #+BEGIN_SRC emacs-lisp
 (use-package rebox2

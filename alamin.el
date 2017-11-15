@@ -355,10 +355,31 @@ Position the cursor at it's beginning, according to the current mode."
  ("C-c ("  . wrap-with-parens)
  ("C-c ["  . wrap-with-brackets)
  ("C-c {"  . wrap-with-braces)
- ("C-c '"  . wrap-with-single-quotes)
+ ("C-c M-'"  . wrap-with-single-quotes)
  ("C-c \"" . wrap-with-double-quotes)
  ("C-c _"  . wrap-with-underscores)
  ("C-c `"  . wrap-with-back-quotes))
+
+(use-package clean-aindent-mode
+:ensure t
+:config
+(require 'clean-aindent-mode))
+
+(add-hook 'prog-mode-hook 'clean-aindent-mode)
+
+(use-package undo-tree
+:ensure t
+:config
+(require 'undo-tree)
+(global-undo-tree-mode))
+
+(use-package yasnippet
+:ensure t
+:config
+(require 'yasnippet)
+(yas-global-mode 1))
+
+(global-auto-revert-mode)
 
 (use-package workgroups2
 :ensure t
@@ -381,6 +402,375 @@ Position the cursor at it's beginning, according to the current mode."
       wg-mode-line-decor-right-brace "]"
       wg-mode-line-decor-divider ":")
 (workgroups-mode 1))
+
+(global-set-key (kbd "M-/") 'hippie-expand) ;; replace dabbrev-expand
+(setq
+hippie-expand-try-functions-list
+'(try-expand-dabbrev ;; Try to expand word "dynamically", searching the current buffer.
+   try-expand-dabbrev-all-buffers ;; Try to expand word "dynamically", searching all other buffers.
+   try-expand-dabbrev-from-kill ;; Try to expand word "dynamically", searching the kill ring.
+   try-complete-file-name-partially ;; Try to complete text as a file name, as many characters as unique.
+   try-complete-file-name ;; Try to complete text as a file name.
+   try-expand-all-abbrevs ;; Try to expand word before point according to all abbrev tables.
+   try-expand-list ;; Try to complete the current line to an entire line in the buffer.
+   try-expand-line ;; Try to complete the current line to an entire line in the buffer.
+   try-complete-lisp-symbol-partially ;; Try to complete as an Emacs Lisp symbol, as many characters as unique.
+   try-complete-lisp-symbol) ;; Try to complete word as an Emacs Lisp symbol. 
+)
+
+(global-hl-line-mode)
+
+(setq ibuffer-use-other-window t) ;; always display ibuffer in another window
+
+(add-hook 'prog-mode-hook 'linum-mode) ;; enable linum only in programmin modes
+
+;; whenever you create useless whitespace, the whitespace is highlighted
+(add-hook 'prog-mode-hook (lambda () (interactive) (setq show-trailing-whitespace 1)))
+
+;; activate whitespace-mode to view all whitespace characters
+(global-set-key (kbd "C-c w") 'whitespace-mode)
+
+(windmove-default-keybindings)
+
+(use-package company
+:ensure t
+:config
+(add-hook 'after-init-hook 'global-company-mode))
+
+(use-package expand-region
+:ensure t
+:config
+(require 'expand-region)
+(global-set-key (kbd "M-m") 'er/expand-region))
+
+(use-package ibuffer-vc
+  :ensure t
+  :config
+  (add-hook 'ibuffer-hook
+            (lambda ()
+              (ibuffer-vc-set-filter-groups-by-vc-root)
+              (unless (eq ibuffer-sorting-mode 'alphabetic)
+                (ibuffer-do-sort-by-alphabetic))))
+(setq ibuffer-formats
+      '((mark modified read-only vc-status-mini " "
+              (name 18 18 :left :elide)
+              " "
+              (size 9 -1 :right)
+              " "
+              (mode 16 16 :left :elide)
+              " "
+              (vc-status 16 16 :left)
+              " "
+              filename-and-process))))
+
+(use-package projectile
+:ensure t
+:config
+(projectile-global-mode))
+
+(use-package helm
+  :ensure t
+  :config
+  (require 'helm)
+  (require 'helm-config)
+
+  ;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs.
+  ;; Changed to "C-c h". Note: We must set "C-c h" globally, because we
+  ;; cannot change `helm-command-prefix-key' once `helm-config' is loaded.
+  (global-set-key (kbd "C-c h") 'helm-command-prefix)
+  (global-unset-key (kbd "C-x c"))
+
+  (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebind tab to run persistent action
+  (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB work in terminal
+  (define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
+
+  (when (executable-find "curl")
+    (setq helm-google-suggest-use-curl-p t))
+
+  (setq helm-split-window-in-side-p           t ; open helm buffer inside current window, not occupy whole other window
+      helm-move-to-line-cycle-in-source     t ; move to end or beginning of source when reaching top or bottom of source.
+      helm-ff-search-library-in-sexp        t ; search for library in `require' and `declare-function' sexp.
+      helm-scroll-amount                    8 ; scroll 8 lines other window using M-<next>/M-<prior>
+      helm-ff-file-name-history-use-recentf t
+      helm-echo-input-in-header-line t)
+
+  (defun spacemacs//helm-hide-minibuffer-maybe ()
+  "Hide minibuffer in Helm session if we use the header line as input field."
+  (when (with-helm-buffer helm-echo-input-in-header-line)
+    (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
+      (overlay-put ov 'window (selected-window))
+      (overlay-put ov 'face
+                   (let ((bg-color (face-background 'default nil)))
+                     `(:background ,bg-color :foreground ,bg-color)))
+      (setq-local cursor-type nil))))
+
+
+  (add-hook 'helm-minibuffer-set-up-hook
+            'spacemacs//helm-hide-minibuffer-maybe)
+
+  (setq helm-autoresize-max-height 0)
+  (setq helm-autoresize-min-height 20)
+  (helm-autoresize-mode 1)
+  (helm-mode 1))
+
+(setq projectile-completion-system 'helm)
+(use-package helm-projectile
+:ensure t
+:config
+(helm-projectile-on))
+
+(setq projectile-switch-project-action 'helm-projectile)
+
+(setq projectile-enable-caching t)
+
+(helm-autoresize-mode t)
+
+(global-set-key (kbd "M-x") 'helm-M-x)
+(setq helm-M-x-fuzzy-match t) ;; optional fuzzy matching for helm-M-x
+
+(global-set-key (kbd "C-x b") 'helm-mini)
+
+(setq helm-buffers-fuzzy-matching t
+      helm-recentf-fuzzy-match    t)
+
+(when (executable-find "ack-grep")
+(setq helm-grep-default-command "ack-grep -Hn --no-group --no-color %e %p %f"
+      helm-grep-default-recurse-command "ack-grep -H --no-group --no-color %e %p %f"))
+
+(setq helm-semantic-fuzzy-match t
+      helm-imenu-fuzzy-match    t)
+
+(add-to-list 'helm-sources-using-default-as-input 'helm-source-man-pages)
+
+(setq helm-locate-fuzzy-match t)
+
+(global-set-key (kbd "C-c h o") 'helm-occur)
+
+(use-package helm-descbinds
+:ensure t
+:config
+(require 'helm-descbinds)
+(helm-descbinds-mode))
+
+(setq large-file-warning-threshold 100000000) ;; size in bytes
+
+(defvar backup-directory "~/.backups")
+(if (not (file-exists-p backup-directory))
+    (make-directory backup-directory t))
+(setq
+ make-backup-files t        ; backup a file the first time it is saved
+ backup-directory-alist `((".*" . ,backup-directory)) ; save backup files in ~/.backups
+ backup-by-copying t     ; copy the current file into backup directory
+ version-control t   ; version numbers for backup files
+ delete-old-versions t   ; delete unnecessary versions
+ kept-old-versions 6     ; oldest versions to keep when a new numbered backup is made (default: 2)
+ kept-new-versions 9 ; newest versions to keep when a new numbered backup is made (default: 2)
+ auto-save-default t ; auto-save every buffer that visits a file
+ auto-save-timeout 20 ; number of seconds idle time before auto-save (default: 30)
+ auto-save-interval 200 ; number of keystrokes between auto-saves (default: 300)
+ )
+
+(setq
+ dired-dwim-target t            ; if another Dired buffer is visible in another window, use that directory as target for Rename/Copy
+ dired-recursive-copies 'always         ; "always" means no asking
+ dired-recursive-deletes 'top           ; "top" means ask once for top level directory
+ dired-listing-switches "-lha"          ; human-readable listing
+ )
+
+(add-hook 'dired-mode-hook 'auto-revert-mode)
+
+;; if it is not Windows, use the following listing switches
+(when (not (eq system-type 'windows-nt))
+  (setq dired-listing-switches "-lha --group-directories-first"))
+(require 'dired-x)
+
+;; - Switch to Wdired by C-x C-q
+;; - Edit the Dired buffer, i.e. change filenames
+;; - Commit by C-c C-c, abort by C-c C-k
+(require 'wdired)
+(setq
+ wdired-allow-to-change-permissions t   ; allow to edit permission bits
+ wdired-allow-to-redirect-links t       ; allow to edit symlinks
+ )
+
+(use-package recentf-mode
+:ensure t
+:config
+(recentf-mode)
+(setq
+recentf-max-menu-items 30
+recentf-max-saved-items 5000
+))
+
+(use-package dired+
+:ensure t
+:config
+(require 'dired+))
+
+(use-package recentf-ext
+:ensure t
+:config
+(require 'recentf-ext))
+
+(use-package ztree
+:ensure t
+:config 
+(require 'ztree-diff)
+(require 'ztree-dir))
+
+;; saveplace remembers your location in a file when saving files
+(require 'saveplace)
+(setq-default save-place t)
+
+(if (executable-find "aspell")
+    (progn
+      (setq ispell-program-name "aspell")
+      (setq ispell-extra-args '("--sug-mode=ultra")))
+  (setq ispell-program-name "ispell"))
+
+(add-hook 'text-mode-hook 'flyspell-mode)
+(add-hook 'org-mode-hook 'flyspell-mode)
+(add-hook 'prog-mode-hook 'flyspell-prog-mode)
+
+(setq gud-chdir-before-run nil)
+
+(defun my-term-setup ()
+  (interactive)
+  (define-key term-raw-map (kbd "C-y") 'term-send-raw)
+  (define-key term-raw-map (kbd "C-p") 'term-send-raw)
+  (define-key term-raw-map (kbd "C-n") 'term-send-raw)
+  (define-key term-raw-map (kbd "C-s") 'term-send-raw)
+  (define-key term-raw-map (kbd "C-r") 'term-send-raw)
+  (define-key term-raw-map (kbd "M-w") 'kill-ring-save)
+  (define-key term-raw-map (kbd "M-y") 'helm-show-kill-ring)
+  (define-key term-raw-map (kbd "M-d") (lambda () (interactive) (term-send-raw-string "\ed")))
+  (define-key term-raw-map (kbd "<C-backspace>") (lambda () (interactive) (term-send-raw-string "\e\C-?")))
+  (define-key term-raw-map (kbd "M-p") (lambda () (interactive) (term-send-raw-string "\ep")))
+  (define-key term-raw-map (kbd "M-n") (lambda () (interactive) (term-send-raw-string "\en")))
+  (define-key term-raw-map (kbd "M-,") 'term-send-input)
+  (define-key term-raw-map (kbd "C-c y") 'term-paste)
+  (define-key term-raw-map (kbd "C-S-y") 'term-paste)
+  (define-key term-raw-map (kbd "C-h") nil) ; unbind C-h
+  (define-key term-raw-map (kbd "M-x") nil) ; unbind M-x
+  (define-key term-raw-map (kbd "C-c C-b") 'helm-mini)
+  (define-key term-raw-map (kbd "C-1") 'zygospore-toggle-delete-other-windows)
+  (define-key term-raw-map (kbd "C-2") 'split-window-below)
+  (define-key term-raw-map (kbd "C-3") 'split-window-right)
+  (define-key term-mode-map (kbd "C-0") 'delete-window))
+(add-hook 'term-mode-hook 'my-term-setup t)
+(setq term-buffer-maximum-size 0)
+(require 'term)
+
+(defun visit-ansi-term ()
+  "If the current buffer is:
+     1) a running ansi-term named *ansi-term*, rename it.
+     2) a stopped ansi-term, kill it and create a new one.
+     3) a non ansi-term, go to an already running ansi-term
+        or start a new one while killing a defunt one"
+  (interactive)
+  (let ((is-term (string= "term-mode" major-mode))
+        (is-running (term-check-proc (buffer-name)))
+        (term-cmd "/bin/zsh")
+        (anon-term (get-buffer "*ansi-term*")))
+    (if is-term
+        (if is-running
+            (if (string= "*ansi-term*" (buffer-name))
+                ;; (call-interactively 'rename-buffer)
+                (ansi-term term-cmd)
+              (if anon-term
+                  (switch-to-buffer "*ansi-term*")
+                (ansi-term term-cmd)))
+          (kill-buffer (buffer-name))
+          (ansi-term term-cmd))
+      (if anon-term
+          (if (term-check-proc "*ansi-term*")
+              (switch-to-buffer "*ansi-term*")
+            (kill-buffer "*ansi-term*")
+            (ansi-term term-cmd))
+        (ansi-term term-cmd)))))
+
+(global-set-key (kbd "<f2>") 'visit-ansi-term)
+
+(use-package shell-pop
+:ensure t
+:config
+(require 'shell-pop)
+(global-set-key (kbd "C-c t") 'shell-pop))
+
+;; go-to-address-mode
+(add-hook 'prog-mode-hook 'goto-address-mode)
+(add-hook 'text-mode-hook 'goto-address-mode)
+
+(setq c-default-style "linux" ; set style to "linux"
+      c-basic-offset 4)
+
+(setq gdb-many-windows t
+      gdb-show-main t)
+
+;; Compilation from Emacs
+(defun prelude-colorize-compilation-buffer ()
+  "Colorize a compilation mode buffer."
+  (interactive)
+  ;; we don't want to mess with child modes such as grep-mode, ack, ag, etc
+  (when (eq major-mode 'compilation-mode)
+    (let ((inhibit-read-only t))
+      (ansi-color-apply-on-region (point-min) (point-max)))))
+
+;; setup compilation-mode used by `compile' command
+(require 'compile)
+(setq compilation-ask-about-save nil ; just save before compiling
+      compilation-always-kill t      ; just kill old compile process before starting the new one
+      compilation-scroll-output 'first-error) ; automatically scroll to first
+(global-set-key (kbd "<f5>") 'compile)
+
+;; takenn from prelude-c.el:48: https://github.com/bbatsov/prelude/blob/master/modules/prelude-c.el
+(defun prelude-makefile-mode-defaults ()
+  (whitespace-toggle-options '(tabs))
+  (setq indent-tabs-mode t))
+
+(setq prelude-makefile-mode-hook 'prelude-makefile-mode-defaults)
+
+(add-hook 'makefile-mode-hook (lambda ()
+                                (run-hooks 'prelude-makefile-mode-hook)))
+
+(setq ediff-diff-options "-w"
+      ediff-split-window-function 'split-window-horizontally
+      ediff-window-setup-function 'ediff-setup-windows-plain)
+
+(use-package golden-ratio
+:ensure t
+:config
+(require 'golden-ratio)
+
+(add-to-list 'golden-ratio-exclude-modes "ediff-mode")
+(add-to-list 'golden-ratio-exclude-modes "helm-mode")
+(add-to-list 'golden-ratio-exclude-modes "dired-mode")
+(add-to-list 'golden-ratio-inhibit-functions 'pl/helm-alive-p)
+
+(defun pl/helm-alive-p ()
+  (if (boundp 'helm-alive-p)
+      (symbol-value 'helm-alive-p)))
+
+;; do not enable golden-raio in thses modes
+(setq golden-ratio-exclude-modes '("ediff-mode"
+                                   "gud-mode"
+                                   "gdb-locals-mode"
+                                   "gdb-registers-mode"
+                                   "gdb-breakpoints-mode"
+                                   "gdb-threads-mode"
+                                   "gdb-frames-mode"
+                                   "gdb-inferior-io-mode"
+                                   "gud-mode"
+                                   "gdb-inferior-io-mode"
+                                   "gdb-disassembly-mode"
+                                   "gdb-memory-mode"
+                                   "magit-log-mode"
+                                   "magit-reflog-mode"
+                                   "magit-status-mode"
+                                   "IELM"
+                                   "eshell-mode" "dired-mode"))
+
+(golden-ratio-mode))
 
 (setq initial-scratch-message "Alamin <3 Emacs")
 
