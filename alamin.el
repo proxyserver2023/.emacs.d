@@ -263,7 +263,9 @@
 (use-package ace-window
   :ensure t
   :config
-  (global-set-key (kbd "C-x o") 'ace-window))
+  (setq aw-keys '(?a ?s ?d ?f ?j ?k ?l ?o))
+  (global-set-key (kbd "C-x o") 'ace-window)
+:diminish ace-window-mode)
 
 (use-package ace-jump-mode
   :ensure t

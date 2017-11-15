@@ -8,20 +8,20 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (mode-icons auth-password-store pass htmlize
-		(use-package "melpa" . "https://melpa.org/packages/")
-		(use-package "melpa" . "https://melpa.org/packages/")
-		(use-package "melpa" . "https://melpa.org/packages/")
-		(use-package "melpa" . "https://melpa.org/packages/")
-		(use-package "melpa" . "https://melpa.org/packages/")
-		(use-package "melpa" . "https://melpa.org/packages/")
-		(use-package "melpa" . "https://melpa.org/packages/")
-		(use-package "melpa" . "https://melpa.org/packages/")
-		(use-package "melpa" . "https://melpa.org/packages/")
-		(use-package "melpa" . "https://melpa.org/packages/")
-		(use-package "melpa" . "https://melpa.org/packages/")
-		(use-package "melpa" . "https://melpa.org/packages/")
-		request command-log-mode ace-jump-mode ivy-hydra counsel-projectile counsel bm material-theme better-defaults powerline origami better-shell exec-path-from-shell flycheck pug-mode aggressive-indent markdown-mode guide-key undo-tree color-theme-solarized color-theme miniedit smart-mode-line helm indium restclient impatient-mode emmet-mode skewer-mode web-beautify which-key web-mode use-package try org-bullets auto-complete ace-window))))
+    (rebox2 mode-icons auth-password-store pass htmlize
+            (use-package "melpa" . "https://melpa.org/packages/")
+            (use-package "melpa" . "https://melpa.org/packages/")
+            (use-package "melpa" . "https://melpa.org/packages/")
+            (use-package "melpa" . "https://melpa.org/packages/")
+            (use-package "melpa" . "https://melpa.org/packages/")
+            (use-package "melpa" . "https://melpa.org/packages/")
+            (use-package "melpa" . "https://melpa.org/packages/")
+            (use-package "melpa" . "https://melpa.org/packages/")
+            (use-package "melpa" . "https://melpa.org/packages/")
+            (use-package "melpa" . "https://melpa.org/packages/")
+            (use-package "melpa" . "https://melpa.org/packages/")
+            (use-package "melpa" . "https://melpa.org/packages/")
+            request command-log-mode ace-jump-mode ivy-hydra counsel-projectile counsel bm material-theme better-defaults powerline origami better-shell exec-path-from-shell flycheck pug-mode aggressive-indent markdown-mode guide-key undo-tree color-theme-solarized color-theme miniedit smart-mode-line helm indium restclient impatient-mode emmet-mode skewer-mode web-beautify which-key web-mode use-package try org-bullets auto-complete ace-window))))
 
 ;(custom-set-faces
 ; ;; custom-set-faces was added by Custom.
