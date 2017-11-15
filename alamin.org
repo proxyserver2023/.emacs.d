@@ -210,6 +210,31 @@ Don't know why this important?
 #+END_SRC
 
 * Convenience
+** Workgroups2
+#+BEGIN_SRC emacs-lisp
+  (use-package workgroups2
+  :ensure t
+  :config
+  (require 'workgroups2)
+  ;; Change prefix key
+  (setq wg-prefix-key (kbd "C-c z"))
+  ;; Change workgroups session file
+  (setq wg-session-file "~/.emacs.d/.emacs_workgroups")
+
+  ;; What to do on Emacs Exit / Workgroups-mode exit?
+  (setq wg-emacs-exit-save-behavior 'save)
+  (setq wg-workgroups-mode-exit-save-behavior 'save)
+
+  ;; Mode line changes
+  ;; Display workgroups in mode line?
+  (setq wg-mode-line-display-on t)
+  (setq wg-flag-modified t)
+  (setq wg-mode-line-decor-left-brace "["
+        wg-mode-line-decor-right-brace "]"
+        wg-mode-line-decor-divider ":")
+
+  (workgroups-mode 1))
+#+END_SRC
 * Files
 * Text
 * Data
