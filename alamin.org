@@ -1230,6 +1230,7 @@ _Features_:
 Magit is an interface to the version control system Git, implemented as an Emacs extension.
 _Installation_:
 #+BEGIN_SRC emacs-lisp
+
     (use-package magit
     :ensure t
     :config
@@ -1252,8 +1253,100 @@ _Installation_:
   (global-set-key (kbd "C-x g r") 'magit-reflog)
   (global-set-key (kbd "C-x g t") 'magit-tag))
 #+END_SRC
+_Usage_:
+Getting started with Magit is really easy:
+
+- M-x magit-status to see git status, and in the status buffer:
+- s to stage files
+- c c to commit, type in your commit message then C-c C-c to save the message and commit, C-c C-k to abort current commit message and go back magit-status.
+- b b to switch to a branch.
+
+Other handy keys:
+
+- P P to do a git push
+- F F to do a git pull
+- try to press TAB on entries.
+If you want to view the raw git commands, i.e. you want to know how git push is doing, press $.
+
+*** flycheck
+_Author_:
+_Homepage_:
+_Features_:
+- Supports over 30 programming and markup languages with more than 60 different syntax checking tools
+- Fully automatic, fail-safe, on-the-fly syntax checking in background
+- Nice error indication and highlighting
+- Optional error list popup
+- Many customization options
+- A comprehensive manual
+- A simple interface to define new syntax checkers
+- A “doesn't get in your way” guarantee
+- Many 3rd party extensions
+_Installation_:
+#+BEGIN_SRC emacs-lisp
+(use-package flycheck
+:ensure t
+:config
+(require 'flycheck)
+(add-hook 'after-init-hook #'global-flycheck-mode))
+#+END_SRC
+
+*** flycheck-tip
+_Author_: 
+_Homepage_:
+_Features_: Show flycheck error by popup.
+_Installation_:
+#+BEGIN_SRC emacs-lisp
+(use-package flycheck-tip
+:ensure t)
+(require 'flycheck-tip)
+;(flycheck-tip-use-timer 'verbose)
+#+END_SRC
 * Application
+** Eshell
+#+BEGIN_SRC emacs-lisp
+(require 'eshell)
+(require 'em-alias)
+(require 'cl)
+
+;; Advise find-file-other-window to accept more than one file
+(defadvice find-file-other-window (around find-files activate)
+  "Also find all files within a list of files. This even works recursively."
+  (if (listp filename)
+      (loop for f in filename do (find-file-other-window f wildcards))
+    ad-do-it))
+
+;; In Eshell, you can run the commands in M-x
+;; Here are the aliases to the commands.
+;; $* means accepts all arguments.
+(eshell/alias "o" "")
+(eshell/alias "o" "find-file-other-window $*")
+(eshell/alias "vi" "find-file-other-window $*")
+(eshell/alias "vim" "find-file-other-window $*")
+(eshell/alias "emacs" "find-file-other-windpow $*")
+(eshell/alias "em" "find-file-other-window $*")
+
+(add-hook
+ 'eshell-mode-hook
+ (lambda ()
+   (setq pcomplete-cycle-completions nil)))
+
+;; change listing switches based on OS
+(when (not (eq system-type 'windows-nt))
+  (eshell/alias "ls" "ls --color -h --group-directories-first $*"))
+#+END_SRC
 * Development
+** Extensions
+*** Eldoc
+#+BEGIN_SRC emacs-lisp
+(add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
+(add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
+(add-hook 'ielm-mode-hook 'turn-on-eldoc-mode)
+#+END_SRC
+** Internal
+Start Garbage Collection every 100MB to improve Emacs performance
+#+BEGIN_SRC emacs-lisp
+(setq gc-cons-threshold 100000000)
+#+END_SRC
 * Environment
 ** windows
 *** golden-ratio
