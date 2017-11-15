@@ -208,7 +208,30 @@ Don't know why this important?
  kill-whole-line t  ; if NIL, kill whole line and move the next line up
  )
 #+END_SRC
+** Misc
+#+BEGIN_SRC emacs-lisp
+(delete-selection-mode)
+(global-set-key (kbd "RET") 'newline-and-indent)
+#+END_SRC
 
+Show important whitespace in diff-mode
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'diff-mode-hook 
+            (lambda ()
+              (setq-local
+               whitespace-style
+               '(
+                 face
+                 tabs
+                 spaces
+                 space-mark
+                 trailing
+                 indentation::space
+                 indentation::tab
+                 newline
+                 newline-mark))
+              (whitespace-mode 1)))
+#+END_SRC
 * Convenience
 ** Workgroups2
 #+BEGIN_SRC emacs-lisp
