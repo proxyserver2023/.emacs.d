@@ -1348,7 +1348,24 @@ Start Garbage Collection every 100MB to improve Emacs performance
 (setq gc-cons-threshold 100000000)
 #+END_SRC
 * Environment
-** windows
+** initialization
+#+BEGIN_SRC emacs-lisp
+(setq inhibit-startup-screen t)
+#+END_SRC
+** Minibuffer
+*** icomplete
+#+BEGIN_SRC emacs-lisp
+;(icomplete-mode)
+#+END_SRC
+*** Savehist
+#+BEGIN_SRC emacs-lisp
+;; savehist saves minibuffer history by defaults
+(setq savehist-additional-variables '(search ring regexp-search-ring) ; also save your regexp search queries
+      savehist-autosave-interval 60     ; save every minute
+      )
+
+#+END_SRC
+** Windows
 *** golden-ratio
 _Author_:
 _Homepage_:
@@ -1395,13 +1412,56 @@ _Installation_:
 #+END_SRC
 _Usage_:
 =C-x o= and see your windows being resized.
+
+*** winner
+#+BEGIN_SRC emacs-lisp
+(winner-mode 1)
+#+END_SRC
+** Mode Line
+#+BEGIN_SRC emacs-lisp
+(column-number-mode 1)
+#+END_SRC
+
+** Frames
+*** Nyan
+#+BEGIN_SRC emacs-lisp
+(use-package nyan-mode
+:ensure t
+:config
+(case window-system
+  ((x w32) (nyan-mode)))
+)
+#+END_SRC
 * Faces
+
 * Help
 * Multimedia
 * Local
 * Display Settings
 #+BEGIN_SRC emacs-lisp
 (setq initial-scratch-message "Alamin <3 Emacs")
+#+END_SRC
+
+* Environment
+#+BEGIN_SRC emacs-lisp
+(if (or
+     (eq system-type 'darwin)
+     (eq system-type 'berkeley-unix))
+    (setq system-name (car (split-string system-name "\\."))))
+
+(setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
+(push "/usr/local/bin" exec-path)
+
+;; /usr/libexec/java_home
+;;(setenv "JAVA_HOME" "/Library/Java/JavaVirtualMachines/jdk1.8.0_05.jdk/Contents/Home")
+#+END_SRC
+* discover-ability
+#+BEGIN_SRC emacs-lisp
+(use-package which-key
+  :ensure t
+  :diminish which-key-mode
+  :config
+  (which-key-mode))
 #+END_SRC
 * Moving Around
 ** bm
@@ -1475,28 +1535,6 @@ Bookmarks are very useful for quickly jumping around files.
 #+BEGIN_SRC emacs-lisp
 (setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil)))
 (setq mouse-wheel-progressive-speed nil)
-#+END_SRC
-* discover-ability
-#+BEGIN_SRC emacs-lisp
-(use-package which-key
-  :ensure t
-  :diminish which-key-mode
-  :config
-  (which-key-mode))
-#+END_SRC
-
-* Environment
-#+BEGIN_SRC emacs-lisp
-(if (or
-     (eq system-type 'darwin)
-     (eq system-type 'berkeley-unix))
-    (setq system-name (car (split-string system-name "\\."))))
-
-(setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
-(push "/usr/local/bin" exec-path)
-
-;; /usr/libexec/java_home
-;;(setenv "JAVA_HOME" "/Library/Java/JavaVirtualMachines/jdk1.8.0_05.jdk/Contents/Home")
 #+END_SRC
 
 * GUI

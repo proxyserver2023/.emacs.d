@@ -737,6 +737,84 @@ recentf-max-saved-items 5000
       ediff-split-window-function 'split-window-horizontally
       ediff-window-setup-function 'ediff-setup-windows-plain)
 
+(use-package magit
+  :ensure t
+  :config
+  (require 'magit)
+  (set-default 'magit-stage-all-confirm nil)
+
+ ;; full screen magit-status
+(defadvice magit-status (around magit-fullscreen activate)
+  (window-configuration-to-register :magit-fullscreen)
+  ad-do-it
+  (delete-other-windows))
+
+(global-unset-key (kbd "C-x g"))
+(global-set-key (kbd "C-x g h") 'magit-log)
+(global-set-key (kbd "C-x g f") 'magit-file-log)
+(global-set-key (kbd "C-x g b") 'magit-blame-mode)
+(global-set-key (kbd "C-x g m") 'magit-branch-manager)
+(global-set-key (kbd "C-x g c") 'magit-branch)
+(global-set-key (kbd "C-x g s") 'magit-status)
+(global-set-key (kbd "C-x g r") 'magit-reflog)
+(global-set-key (kbd "C-x g t") 'magit-tag))
+
+(use-package flycheck
+:ensure t
+:config
+(require 'flycheck)
+(add-hook 'after-init-hook #'global-flycheck-mode))
+
+(use-package flycheck-tip
+:ensure t)
+(require 'flycheck-tip)
+;(flycheck-tip-use-timer 'verbose)
+
+(require 'eshell)
+(require 'em-alias)
+(require 'cl)
+
+;; Advise find-file-other-window to accept more than one file
+(defadvice find-file-other-window (around find-files activate)
+  "Also find all files within a list of files. This even works recursively."
+  (if (listp filename)
+      (loop for f in filename do (find-file-other-window f wildcards))
+    ad-do-it))
+
+;; In Eshell, you can run the commands in M-x
+;; Here are the aliases to the commands.
+;; $* means accepts all arguments.
+(eshell/alias "o" "")
+(eshell/alias "o" "find-file-other-window $*")
+(eshell/alias "vi" "find-file-other-window $*")
+(eshell/alias "vim" "find-file-other-window $*")
+(eshell/alias "emacs" "find-file-other-windpow $*")
+(eshell/alias "em" "find-file-other-window $*")
+
+(add-hook
+ 'eshell-mode-hook
+ (lambda ()
+   (setq pcomplete-cycle-completions nil)))
+
+;; change listing switches based on OS
+(when (not (eq system-type 'windows-nt))
+  (eshell/alias "ls" "ls --color -h --group-directories-first $*"))
+
+(add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
+(add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
+(add-hook 'ielm-mode-hook 'turn-on-eldoc-mode)
+
+(setq gc-cons-threshold 100000000)
+
+(setq inhibit-startup-screen t)
+
+;(icomplete-mode)
+
+;; savehist saves minibuffer history by defaults
+(setq savehist-additional-variables '(search ring regexp-search-ring) ; also save your regexp search queries
+      savehist-autosave-interval 60     ; save every minute
+      )
+
 (use-package golden-ratio
 :ensure t
 :config
@@ -772,7 +850,28 @@ recentf-max-saved-items 5000
 
 (golden-ratio-mode))
 
+(winner-mode 1)
+
+(column-number-mode 1)
+
 (setq initial-scratch-message "Alamin <3 Emacs")
+
+(if (or
+     (eq system-type 'darwin)
+     (eq system-type 'berkeley-unix))
+    (setq system-name (car (split-string system-name "\\."))))
+
+(setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
+(push "/usr/local/bin" exec-path)
+
+;; /usr/libexec/java_home
+;;(setenv "JAVA_HOME" "/Library/Java/JavaVirtualMachines/jdk1.8.0_05.jdk/Contents/Home")
+
+(use-package which-key
+  :ensure t
+  :diminish which-key-mode
+  :config
+  (which-key-mode))
 
 (use-package bm
   :ensure t
@@ -836,23 +935,6 @@ recentf-max-saved-items 5000
 
 (setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil)))
 (setq mouse-wheel-progressive-speed nil)
-
-(use-package which-key
-  :ensure t
-  :diminish which-key-mode
-  :config
-  (which-key-mode))
-
-(if (or
-     (eq system-type 'darwin)
-     (eq system-type 'berkeley-unix))
-    (setq system-name (car (split-string system-name "\\."))))
-
-(setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
-(push "/usr/local/bin" exec-path)
-
-;; /usr/libexec/java_home
-;;(setenv "JAVA_HOME" "/Library/Java/JavaVirtualMachines/jdk1.8.0_05.jdk/Contents/Home")
 
 (menu-bar-mode -1)
 (tool-bar-mode -1)
