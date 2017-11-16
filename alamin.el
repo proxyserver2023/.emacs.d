@@ -137,7 +137,7 @@
 (delete-selection-mode)
 (global-set-key (kbd "RET") 'newline-and-indent)
 
-(add-hook 'diff-mode-hook 
+(add-hook 'diff-mode-hook
           (lambda ()
             (setq-local
              whitespace-style
@@ -307,7 +307,7 @@ Position the cursor at it's beginning, according to the current mode."
 (use-package smartparens-config
 :ensure smartparens
 :config
-(progn 
+(progn
 (show-smartparens-global-mode t)))
 
 (add-hook 'prog-mode-hook 'turn-on-smartparens-strict-mode)
@@ -379,6 +379,49 @@ Position the cursor at it's beginning, according to the current mode."
 (require 'yasnippet)
 (yas-global-mode 1))
 
+(use-package origami
+:ensure t
+:config
+(require 'origami)
+(add-hook 'prog-mode-hook 'origami-mode)
+(define-key origami-mode-map (kbd "C-c f") 'origami-recursively-toggle-node)
+(define-key origami-mode-map (kbd "C-c F") 'origami-toggle-all-nodes))
+
+(use-package rebox2
+:ensure t
+:config
+(rebox-mode) 1)
+
+(use-package dtrt-indent
+  :ensure t
+:init
+  (dtrt-indent-mode 1)
+  (setq dtrt-indent-verbosity 0))
+
+(use-package ws-butler
+:ensure t
+  :init
+  (add-hook 'prog-mode-hook 'ws-butler-mode)
+  (add-hook 'text-mode 'ws-butler-mode)
+  (add-hook 'fundamental-mode 'ws-butler-mode))
+
+(use-package comment-dwim-2
+:ensure t
+:config
+(global-set-key (kbd "M-;") 'comment-dwim-2))
+
+(use-package iedit
+  :bind (("C-;" . iedit-mode))
+  :init
+  (setq iedit-toggle-key-default nil))
+
+(use-package function-args
+:ensure t
+:config
+(require 'function-args)
+(fa-config-default)
+)
+
 (global-auto-revert-mode)
 
 (use-package workgroups2
@@ -415,14 +458,14 @@ hippie-expand-try-functions-list
    try-expand-list ;; Try to complete the current line to an entire line in the buffer.
    try-expand-line ;; Try to complete the current line to an entire line in the buffer.
    try-complete-lisp-symbol-partially ;; Try to complete as an Emacs Lisp symbol, as many characters as unique.
-   try-complete-lisp-symbol) ;; Try to complete word as an Emacs Lisp symbol. 
+   try-complete-lisp-symbol) ;; Try to complete word as an Emacs Lisp symbol.
 )
 
 (global-hl-line-mode)
 
 (setq ibuffer-use-other-window t) ;; always display ibuffer in another window
 
-(add-hook 'prog-mode-hook 'linum-mode) ;; enable linum only in programmin modes
+(add-hook 'prog-mode-hook 'linum-mode) ;; enable linum only in programming modes
 
 ;; whenever you create useless whitespace, the whitespace is highlighted
 (add-hook 'prog-mode-hook (lambda () (interactive) (setq show-trailing-whitespace 1)))
@@ -468,56 +511,221 @@ hippie-expand-try-functions-list
 :config
 (projectile-global-mode))
 
-(use-package helm
+(global-set-key (kbd "C-x k") 'kill-this-buffer)
+
+(use-package bm
+  :ensure t
+  :bind (("C-c =" . bm-toggle)
+         ("C-c [" . bm-previous)
+         ("C-c ]" . bm-next)))
+
+(use-package ace-window
   :ensure t
   :config
-  (require 'helm)
-  (require 'helm-config)
+  (setq aw-keys '(?a ?s ?d ?f ?j ?k ?l ?o))
+  (global-set-key (kbd "C-x o") 'ace-window)
+:diminish ace-window-mode)
 
-  ;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs.
-  ;; Changed to "C-c h". Note: We must set "C-c h" globally, because we
-  ;; cannot change `helm-command-prefix-key' once `helm-config' is loaded.
-  (global-set-key (kbd "C-c h") 'helm-command-prefix)
-  (global-unset-key (kbd "C-x c"))
+(use-package ace-jump-mode
+  :ensure t
+  :config
+  (define-key global-map (kbd "C-c SPC") 'ace-jump-mode))
 
-  (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebind tab to run persistent action
-  (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB work in terminal
-  (define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
+(setq inhibit-startup-message t)
 
-  (when (executable-find "curl")
-    (setq helm-google-suggest-use-curl-p t))
+(defun iwb ()
+  "indent whole buffer"
+  (interactive)
+  (delete-trailing-whitespace)
+  (indent-region (point-min) (point-max) nil)
+  (untabify (point-min) (point-max)))
 
-  (setq helm-split-window-in-side-p           t ; open helm buffer inside current window, not occupy whole other window
-      helm-move-to-line-cycle-in-source     t ; move to end or beginning of source when reaching top or bottom of source.
-      helm-ff-search-library-in-sexp        t ; search for library in `require' and `declare-function' sexp.
-      helm-scroll-amount                    8 ; scroll 8 lines other window using M-<next>/M-<prior>
-      helm-ff-file-name-history-use-recentf t
-      helm-echo-input-in-header-line t)
+(global-set-key (kbd "C-c n") 'iwb)
 
-  (defun spacemacs//helm-hide-minibuffer-maybe ()
-  "Hide minibuffer in Helm session if we use the header line as input field."
-  (when (with-helm-buffer helm-echo-input-in-header-line)
-    (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
-      (overlay-put ov 'window (selected-window))
-      (overlay-put ov 'face
-                   (let ((bg-color (face-background 'default nil)))
-                     `(:background ,bg-color :foreground ,bg-color)))
-      (setq-local cursor-type nil))))
+(use-package command-log-mode
+  :ensure t)
 
-
-  (add-hook 'helm-minibuffer-set-up-hook
-            'spacemacs//helm-hide-minibuffer-maybe)
-
-  (setq helm-autoresize-max-height 0)
-  (setq helm-autoresize-min-height 20)
-  (helm-autoresize-mode 1)
-  (helm-mode 1))
-
-(setq projectile-completion-system 'helm)
-(use-package helm-projectile
+(use-package zygospore
 :ensure t
-:config
-(helm-projectile-on))
+  :bind (("C-x 1" . zygospore-toggle-delete-other-windows)
+         ("RET" .   newline-and-indent)))
+
+(use-package helm
+  :ensure t
+  :init
+  (progn
+    (require 'helm-config)
+    (require 'helm-grep)
+    ;; To fix error at compile:
+    ;; Error (bytecomp): Forgot to expand macro with-helm-buffer in
+    ;; (with-helm-buffer helm-echo-input-in-header-line)
+    (if (version< "26.0.50" emacs-version)
+        (eval-when-compile (require 'helm-lib)))
+
+    (defun helm-hide-minibuffer-maybe ()
+      (when (with-helm-buffer helm-echo-input-in-header-line)
+        (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
+          (overlay-put ov 'window (selected-window))
+          (overlay-put ov 'face (let ((bg-color (face-background 'default nil)))
+                                  `(:background ,bg-color :foreground ,bg-color)))
+          (setq-local cursor-type nil))))
+
+    (add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
+    ;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs.
+    ;; Changed to "C-c h". Note: We must set "C-c h" globally, because we
+    ;; cannot change `helm-command-prefix-key' once `helm-config' is loaded.
+    (global-set-key (kbd "C-c h") 'helm-command-prefix)
+    (global-unset-key (kbd "C-x c"))
+
+    (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebihnd tab to do persistent action
+    (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB works in terminal
+    (define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
+
+    (define-key helm-grep-mode-map (kbd "<return>")  'helm-grep-mode-jump-other-window)
+    (define-key helm-grep-mode-map (kbd "n")  'helm-grep-mode-jump-other-window-forward)
+    (define-key helm-grep-mode-map (kbd "p")  'helm-grep-mode-jump-other-window-backward)
+
+    (when (executable-find "curl")
+      (setq helm-google-suggest-use-curl-p t))
+
+    (setq helm-google-suggest-use-curl-p t
+          helm-scroll-amount 4 ; scroll 4 lines other window using M-<next>/M-<prior>
+          ;; helm-quick-update t ; do not display invisible candidates
+          helm-ff-search-library-in-sexp t ; search for library in `require' and `declare-function' sexp.
+
+          ;; you can customize helm-do-grep to execute ack-grep
+          ;; helm-grep-default-command "ack-grep -Hn --smart-case --no-group --no-color %e %p %f"
+          ;; helm-grep-default-recurse-command "ack-grep -H --smart-case --no-group --no-color %e %p %f"
+          helm-split-window-in-side-p t ;; open helm buffer inside current window, not occupy whole other window
+
+          helm-echo-input-in-header-line t
+
+          ;; helm-candidate-number-limit 500 ; limit the number of displayed canidates
+          helm-ff-file-name-history-use-recentf t
+          helm-move-to-line-cycle-in-source t ; move to end or beginning of source when reaching top or bottom of source.
+          helm-buffer-skip-remote-checking t
+
+          helm-mode-fuzzy-match t
+
+          helm-buffers-fuzzy-matching t ; fuzzy matching buffer names when non-nil
+                                        ; useful in helm-mini that lists buffers
+          helm-org-headings-fontify t
+          ;; helm-find-files-sort-directories t
+          ;; ido-use-virtual-buffers t
+          helm-semantic-fuzzy-match t
+          helm-M-x-fuzzy-match t
+          helm-imenu-fuzzy-match t
+          helm-lisp-fuzzy-completion t
+          ;; helm-apropos-fuzzy-match t
+          helm-buffer-skip-remote-checking t
+          helm-locate-fuzzy-match t
+          helm-display-header-line nil)
+
+    (add-to-list 'helm-sources-using-default-as-input 'helm-source-man-pages)
+
+    (global-set-key (kbd "M-x") 'helm-M-x)
+    (global-set-key (kbd "M-y") 'helm-show-kill-ring)
+    (global-set-key (kbd "C-x b") 'helm-buffers-list)
+    (global-set-key (kbd "C-x C-f") 'helm-find-files)
+    (global-set-key (kbd "C-c r") 'helm-recentf)
+    (global-set-key (kbd "C-h SPC") 'helm-all-mark-rings)
+    (global-set-key (kbd "C-c h o") 'helm-occur)
+    (global-set-key (kbd "C-c h o") 'helm-occur)
+
+    (global-set-key (kbd "C-c h w") 'helm-wikipedia-suggest)
+    (global-set-key (kbd "C-c h g") 'helm-google-suggest)
+
+    (global-set-key (kbd "C-c h x") 'helm-register)
+    ;; (global-set-key (kbd "C-x r j") 'jump-to-register)
+
+    (define-key 'help-command (kbd "C-f") 'helm-apropos)
+    (define-key 'help-command (kbd "r") 'helm-info-emacs)
+    (define-key 'help-command (kbd "C-l") 'helm-locate-library)
+
+    ;; use helm to list eshell history
+    (add-hook 'eshell-mode-hook
+              #'(lambda ()
+                  (define-key eshell-mode-map (kbd "M-l")  'helm-eshell-history)))
+
+;;; Save current position to mark ring
+    (add-hook 'helm-goto-line-before-hook 'helm-save-current-pos-to-mark-ring)
+
+    ;; show minibuffer history with Helm
+    (define-key minibuffer-local-map (kbd "M-p") 'helm-minibuffer-history)
+    (define-key minibuffer-local-map (kbd "M-n") 'helm-minibuffer-history)
+
+    (define-key global-map [remap find-tag] 'helm-etags-select)
+
+    (define-key global-map [remap list-buffers] 'helm-buffers-list)
+
+;; Locate the helm-swoop folder to your path
+(use-package helm-swoop
+  :ensure t
+  :bind (("C-c h o" . helm-swoop)
+         ("C-c s" . helm-multi-swoop-all))
+  :config
+  ;; When doing isearch, hand the word over to helm-swoop
+  (define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
+
+  ;; From helm-swoop to helm-multi-swoop-all
+  (define-key helm-swoop-map (kbd "M-i") 'helm-multi-swoop-all-from-helm-swoop)
+
+  ;; Save buffer when helm-multi-swoop-edit complete
+  (setq helm-multi-swoop-edit-save t)
+
+  ;; If this value is t, split window inside the current window
+  (setq helm-swoop-split-with-multiple-windows t)
+
+  ;; Split direcion. 'split-window-vertically or 'split-window-horizontally
+  (setq helm-swoop-split-direction 'split-window-vertically)
+
+  ;; If nil, you can slightly boost invoke speed in exchange for text color
+  (setq helm-swoop-speed-or-color t))
+
+(helm-mode 1)
+
+;; this variable must be set before load helm-gtags
+;; you can change to any prefix key of your choice
+(setq helm-gtags-prefix-key "\C-cg")
+
+(use-package helm-gtags
+  :ensure t
+  :init
+  (progn
+    (setq helm-gtags-ignore-case t
+          helm-gtags-auto-update t
+          helm-gtags-use-input-at-cursor t
+          helm-gtags-pulse-at-cursor t
+          helm-gtags-prefix-key "\C-cg"
+          helm-gtags-suggested-key-mapping t)
+
+    ;; Enable helm-gtags-mode in Dired so you can jump to any tag
+    ;; when navigate project tree with Dired
+    (add-hook 'dired-mode-hook 'helm-gtags-mode)
+
+    ;; Enable helm-gtags-mode in Eshell for the same reason as above
+    (add-hook 'eshell-mode-hook 'helm-gtags-mode)
+
+    ;; Enable helm-gtags-mode in languages that GNU Global supports
+    (add-hook 'c-mode-hook 'helm-gtags-mode)
+    (add-hook 'c++-mode-hook 'helm-gtags-mode)
+    (add-hook 'java-mode-hook 'helm-gtags-mode)
+    (add-hook 'asm-mode-hook 'helm-gtags-mode)
+
+    ;; key bindings
+    (with-eval-after-load 'helm-gtags
+      (define-key helm-gtags-mode-map (kbd "C-c g a") 'helm-gtags-tags-in-this-function)
+      (define-key helm-gtags-mode-map (kbd "C-j") 'helm-gtags-select)
+      (define-key helm-gtags-mode-map (kbd "M-.") 'helm-gtags-dwim)
+      (define-key helm-gtags-mode-map (kbd "M-,") 'helm-gtags-pop-stack)
+      (define-key helm-gtags-mode-map (kbd "C-c <") 'helm-gtags-previous-history)
+      (define-key helm-gtags-mode-map (kbd "C-c >") 'helm-gtags-next-history))))
+
+(use-package helm-projectile
+  :init
+  (helm-projectile-on)
+  (setq projectile-completion-system 'helm)
+  (setq projectile-indexing-method 'alien))))
 
 (setq projectile-switch-project-action 'helm-projectile)
 
@@ -614,13 +822,21 @@ recentf-max-saved-items 5000
 
 (use-package ztree
 :ensure t
-:config 
+:config
 (require 'ztree-diff)
 (require 'ztree-dir))
 
 ;; saveplace remembers your location in a file when saving files
 (require 'saveplace)
 (setq-default save-place t)
+
+(use-package pass
+:ensure t)
+
+(use-package auth-password-store
+  :ensure t
+  :config
+  (auth-pass-enable))
 
 (if (executable-find "aspell")
     (progn
@@ -701,8 +917,50 @@ recentf-max-saved-items 5000
 (add-hook 'prog-mode-hook 'goto-address-mode)
 (add-hook 'text-mode-hook 'goto-address-mode)
 
+(setq speedbar-show-unknown-files t)
+
+(use-package company-c-headers
+:ensure t
+  :init
+  (add-to-list 'company-backends 'company-c-headers))
+
+(add-hook 'c-mode-common-hook 'hs-minor-mode)
+
 (setq c-default-style "linux" ; set style to "linux"
       c-basic-offset 4)
+
+(use-package cc-mode
+  :ensure t
+  :config
+  (define-key c-mode-map  [(tab)] 'company-complete)
+  (define-key c++-mode-map  [(tab)] 'company-complete))
+
+;(load-file (concat "~/.emacs.d" "/cedet/cedet-devel-load.el"))
+;(load-file (concat "~/.emacs.d" "cedet/contrib/cedet-contrib-load.el"))
+
+(require 'cc-mode)
+(require 'semantic)
+
+(global-semanticdb-minor-mode 1)
+(global-semantic-idle-scheduler-mode 1)
+(global-semantic-stickyfunc-mode 1)
+
+(semantic-mode 1)
+
+(defun alexott/cedet-hook ()
+  (local-set-key "\C-c\C-j" 'semantic-ia-fast-jump)
+  (local-set-key "\C-c\C-s" 'semantic-ia-show-summary))
+
+(add-hook 'c-mode-common-hook 'alexott/cedet-hook)
+(add-hook 'c-mode-hook 'alexott/cedet-hook)
+(add-hook 'c++-mode-hook 'alexott/cedet-hook)
+
+;; Enable EDE only in C/C++
+(require 'ede)
+(global-ede-mode)
+
+(use-package sr-speedbar
+:ensure t)
 
 (setq gdb-many-windows t
       gdb-show-main t)
@@ -851,348 +1109,6 @@ recentf-max-saved-items 5000
 (golden-ratio-mode))
 
 (winner-mode 1)
-
-(column-number-mode 1)
-
-(setq initial-scratch-message "Alamin <3 Emacs")
-
-(if (or
-     (eq system-type 'darwin)
-     (eq system-type 'berkeley-unix))
-    (setq system-name (car (split-string system-name "\\."))))
-
-(setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
-(push "/usr/local/bin" exec-path)
-
-;; /usr/libexec/java_home
-;;(setenv "JAVA_HOME" "/Library/Java/JavaVirtualMachines/jdk1.8.0_05.jdk/Contents/Home")
-
-(use-package which-key
-  :ensure t
-  :diminish which-key-mode
-  :config
-  (which-key-mode))
-
-(use-package bm
-  :ensure t
-  :bind (("C-c =" . bm-toggle)
-         ("C-c [" . bm-previous)
-         ("C-c ]" . bm-next)))
-
-(use-package counsel
-  :ensure t
-  :bind
-  (("M-x" . counsel-M-x)
-   ("M-y" . counsel-yank-pop)
-   :map ivy-minibuffer-map
-   ("M-y" . ivy-next-line)))
-
- (use-package swiper
-   :pin melpa-stable
-   :diminish ivy-mode
-   :ensure t
-   :bind*
-   (("C-s" . swiper)
-    ("C-c C-r" . ivy-resume)
-    ("C-x C-f" . counsel-find-file)
-    ("C-c h f" . counsel-describe-function)
-    ("C-c h v" . counsel-describe-variable)
-    ("C-c i u" . counsel-unicode-char)
-    ("M-i" . counsel-imenu)
-    ("C-c g" . counsel-git)
-    ("C-c j" . counsel-git-grep)
-    ("C-c k" . counsel-ag)
-    ("C-c l" . scounsel-locate))
-   :config
-   (progn
-     (ivy-mode 1)
-     (setq ivy-use-virtual-buffers t)
-     (define-key read-expression-map (kbd "C-r") #'counsel-expression-history)
-     (ivy-set-actions
-      'counsel-find-file
-      '(("d" (lambda (x) (delete-file (expand-file-name x)))
-         "delete"
-         )))
-     (ivy-set-actions
-      'ivy-switch-buffer
-      '(("k"
-         (lambda (x)
-           (kill-buffer x)
-           (ivy--reset-state ivy-last))
-         "kill")
-        ("j"
-         ivy--switch-buffer-other-window-action
-         "other window")))))
-
-(use-package counsel-projectile
-  :ensure t
-  :config
-  (counsel-projectile-on))
-
-(use-package ivy-hydra :ensure t)
-
-(global-set-key (kbd "C-x k") 'kill-this-buffer)
-
-(setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil)))
-(setq mouse-wheel-progressive-speed nil)
-
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
-
-(setq mac-option-modifier 'none)
-(setq mac-command-modifier 'meta)
-(setq ns-function-modifier 'hyper)
-
-;; Backup settings
-(defvar --backup-directory (concat init-dir "backups"))
-
-(if (not (file-exists-p --backup-directory))
-    (make-directory --backup-directory t))
-
-(setq backup-directory-alist `(("." . ,--backup-directory)))
-(setq make-backup-files t               ; backup of a file the first time it is saved.
-      backup-by-copying t               ; don't clobber symlinks
-      version-control t                 ; version numbers for backup files
-      delete-old-versions t             ; delete excess backup files silently
-      delete-by-moving-to-trash t
-      kept-old-versions 6               ; oldest versions to keep when a new numbered backup is made (default: 2)
-      kept-new-versions 9               ; newest versions to keep when a new numbered backup is made (default: 2)
-      auto-save-default t               ; auto-save every buffer that visits a file
-      auto-save-timeout 20              ; number of seconds idle time before auto-save (default: 30)
-      auto-save-interval 200            ; number of keystrokes between auto-saves (default: 300)
-      )
-  (setq delete-by-moving-to-trash t
-        trash-directory "~/.Trash/emacs")
-
-  (setq backup-directory-alist `(("." . ,(expand-file-name
-                                          (concat init-dir "backups")))))
-
-(setq ns-pop-up-frames nil)
-
-(defun spell-buffer-dutch ()
-  (interactive)
-  (ispell-change-dictionary "nl_NL")
-  (flyspell-buffer))
-
-(defun spell-buffer-english ()
-  (interactive)
-  (ispell-change-dictionary "en_US")
-  (flyspell-buffer))
-
-(use-package ispell
-  :config
-  (when (executable-find "hunspell")
-    (setq-default ispell-program-name "hunspell")
-    (setq ispell-really-hunspell t))
-
-  ;; (setq ispell-program-name "aspell"
-  ;;       ispell-extra-args '("--sug-mode=ultra"))
-  :bind (("C-c N" . spell-buffer-dutch)
-         ("C-c n" . spell-buffer-english)))
-
-;;; what-face to determine the face at the current point
-(defun what-face (pos)
-  (interactive "d")
-  (let ((face (or (get-char-property (point) 'read-face-name)
-                  (get-char-property (point) 'face))))
-    (if face (message "Face: %s" face) (message "No face at %d" pos))))
-
-(use-package ace-window
-  :ensure t
-  :config
-  (setq aw-keys '(?a ?s ?d ?f ?j ?k ?l ?o))
-  (global-set-key (kbd "C-x o") 'ace-window)
-:diminish ace-window-mode)
-
-(use-package ace-jump-mode
-  :ensure t
-  :config
-  (define-key global-map (kbd "C-c SPC") 'ace-jump-mode))
-
-;; Custom binding for magit-status
-  (use-package magit
-    :config
-    (global-set-key (kbd "C-c m") 'magit-status))
-
-  (setq inhibit-startup-message t)
-;;  (global-linum-mode)
-
-  (defun iwb ()
-    "indent whole buffer"
-    (interactive)
-    (delete-trailing-whitespace)
-    (indent-region (point-min) (point-max) nil)
-    (untabify (point-min) (point-max)))
-
-  (global-set-key (kbd "C-c n") 'iwb)
-
-  (electric-pair-mode t)
-
-(use-package arjen-grey-theme
-   :ensure t
-   :config
-   (load-theme 'arjen-grey t))
-
- ;; (use-package base16-theme
- ;;   :ensure t
- ;;   :config
- ;;   (load-theme 'base16-materia))
-
-(if (or (eq system-type 'darwin)(eq system-type 'gnu/linux) )
-    (set-face-attribute 'default nil :font "Hack-16")
-  (set-face-attribute 'default nil :font "DejaVu Sans Mono" :height 110))
-
-(use-package command-log-mode
-  :ensure t)
-
-(defun live-coding ()
-  (interactive)
-  (set-face-attribute 'default nil :font "Hack-18")
-  (add-hook 'prog-mode-hook 'command-log-mode)
-  ;;(add-hook 'prog-mode-hook (lambda () (focus-mode 1)))
-  )
-
-(defun normal-coding ()
-  (interactive)
-  (set-face-attribute 'default nil :font "Hack-14")
-  (add-hook 'prog-mode-hook 'command-log-mode)
-  ;;(add-hook 'prog-mode-hook (lambda () (focus-mode 1)))
-  )
-
-(eval-after-load "org-indent" '(diminish 'org-indent-mode))
-
-;;   (use-package all-the-icons
-;;     :ensure t)
-
-;; http://stackoverflow.com/questions/11679700/emacs-disable-beep-when-trying-to-move-beyond-the-end-of-the-document
-(defun my-bell-function ())
-
-(setq ring-bell-function 'my-bell-function)
-(setq visible-bell nil)
-
-;; ;;; Setup perspectives, or workspaces, to switch between
-;; (use-package perspective
-;;   :ensure t
-;;   :config
-;;   ;; Enable perspective mode
-;;   (persp-mode t)
-;;   (defmacro custom-persp (name &rest body)
-;;     `(let ((initialize (not (gethash ,name perspectives-hash)))
-;;            (current-perspective persp-curr))
-;;        (persp-switch ,name)
-;;        (when initialize ,@body)
-;;        (setq persp-last current-perspective)))
-
-;;   ;; Jump to last perspective
-;;   (defun custom-persp-last ()
-;;     (interactive)
-;;     (persp-switch (persp-name persp-last)))
-
-;;   (define-key persp-mode-map (kbd "C-x p -") 'custom-persp-last)
-
-;;   (defun custom-persp/emacs ()
-;;     (interactive)
-;;     (custom-persp "emacs"
-;;                   (find-file (concat init-dir "init.el"))))
-
-;;   (define-key persp-mode-map (kbd "C-x p e") 'custom-persp/emacs)
-
-;;   (defun custom-persp/qttt ()
-;;     (interactive)
-;;     (custom-persp "qttt"
-;;                   (find-file "/Users/arjen/BuildFunThings/Projects/Clojure/Game/qttt/project.clj")))
-
-;;   (define-key persp-mode-map (kbd "C-x p q") 'custom-persp/qttt)
-
-;;   (defun custom-persp/trivia ()
-;;     (interactive)
-;;     (custom-persp "trivia"
-;;                   (find-file "/Users/arjen/BuildFunThings/Projects/Clojure/trivia/project.clj")))
-
-;;   (define-key persp-mode-map (kbd "C-x p t") 'custom-persp/trivia)
-
-;;   (defun custom-persp/mail ()
-;;     (interactive)
-;;     (custom-persp "mail"
-;;                   (mu4e)))
-
-;;   (define-key persp-mode-map (kbd "C-x p m") 'custom-persp/mail)
-;;   )
-
-(use-package request
-:ensure t)
-
-;;(add-to-list 'load-path (expand-file-name (concat init-dir "ox-leanpub")))
-;;(load-library "ox-leanpub")
-(add-to-list 'load-path (expand-file-name (concat init-dir "ox-ghost")))
-(load-library "ox-ghost")
-;;; http://www.lakshminp.com/publishing-book-using-org-mode
-
-;;(defun leanpub-export ()
-;;  "Export buffer to a Leanpub book."
-;;  (interactive)
-;;  (if (file-exists-p "./Book.txt")
-;;      (delete-file "./Book.txt"))
-;;  (if (file-exists-p "./Sample.txt")
-;;      (delete-file "./Sample.txt"))
-;;  (org-map-entries
-;;   (lambda ()
-;;     (let* ((level (nth 1 (org-heading-components)))
-;;            (tags (org-get-tags))
-;;            (title (or (nth 4 (org-heading-components)) ""))
-;;            (book-slug (org-entry-get (point) "TITLE"))
-;;            (filename
-;;             (or (org-entry-get (point) "EXPORT_FILE_NAME") (concat (replace-regexp-in-string " " "-" (downcase title)) ".md"))))
-;;       (when (= level 1) ;; export only first level entries
-;;         ;; add to Sample book if "sample" tag is found.
-;;         (when (or (member "sample" tags)
-;;                   ;;(string-prefix-p "frontmatter" filename) (string-prefix-p "mainmatter" filename)
-;;                   )
-;;           (append-to-file (concat filename "\n\n") nil "./Sample.txt"))
-;;         (append-to-file (concat filename "\n\n") nil "./Book.txt")
-;;         ;; set filename only if the property is missing
-;;         (or (org-entry-get (point) "EXPORT_FILE_NAME")  (org-entry-put (point) "EXPORT_FILE_NAME" filename))
-;;         (org-leanpub-export-to-markdown nil 1 nil)))) "-noexport")
-;;  (org-save-all-org-buffers)
-;;  nil
-;;  nil)
-;;
-;;(require 'request)
-;;
-;;(defun leanpub-preview ()
-;;  "Generate a preview of your book @ Leanpub."
-;;  (interactive)
-;;  (request
-;;   "https://leanpub.com/clojure-on-the-server/preview.json" ;; or better yet, get the book slug from the buffer
-;;   :type "POST"                                             ;; and construct the URL
-;;   :data '(("api_key" . ""))
-;;   :parser 'json-read
-;;   :success (function*
-;;             (lambda (&key data &allow-other-keys)
-;;               (message "Preview generation queued at leanpub.com.")))))
-
-(dolist (hook '(text-mode-hook))
-  (add-hook hook (lambda ()
-                   (flyspell-mode 1)
-                   (visual-line-mode  1))))
-
-(use-package markdown-mode
-:ensure t)
-
-(use-package htmlize
-:ensure t)
-
-(defun my/with-theme (theme fn &rest args)
-  (let ((current-themes custom-enabled-themes))
-    (mapcar #'disable-theme custom-enabled-themes)
-    (load-theme theme t)
-    (let ((result (apply fn args)))
-      (mapcar #'disable-theme custom-enabled-themes)
-      (mapcar (lambda (theme) (load-theme theme t)) current-themes)
-      result)))
-;;(advice-add #'org-export-to-file :around (apply-partially #'my/with-theme 'arjen-grey))
-;;(advice-add #'org-export-to-buffer :around (apply-partially #'my/with-theme 'arjen-grey))
 
 (use-package mode-icons
   :ensure t
@@ -1436,18 +1352,248 @@ recentf-max-saved-items 5000
 
     (setq-default mode-line-format (my-mode-line)))
 
-(use-package pass
-:ensure t)
-
-(use-package auth-password-store
-  :ensure t
-  :config
-  (auth-pass-enable))
-
-(delete-selection-mode)
-(global-set-key (kbd "RET") 'newline-and-indent)
-
-(use-package rebox2
+(use-package nyan-mode
 :ensure t
 :config
-(rebox-mode) 1)
+(case window-system
+  ((x w32) (nyan-mode)))
+)
+
+(setq initial-scratch-message "Alamin <3 Emacs")
+
+(if (or
+     (eq system-type 'darwin)
+     (eq system-type 'berkeley-unix))
+    (setq system-name (car (split-string system-name "\\."))))
+
+(setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
+(push "/usr/local/bin" exec-path)
+
+(setq mac-option-modifier 'none)
+(setq mac-command-modifier 'meta)
+(setq ns-function-modifier 'hyper)
+
+(setq ns-pop-up-frames nil)
+
+(use-package arjen-grey-theme
+  :ensure t
+  :config
+  (load-theme 'arjen-grey t))
+
+;; (use-package base16-theme
+;;   :ensure t
+;;   :config
+;;   (load-theme 'base16-materia))
+
+;;   (use-package all-the-icons
+;;     :ensure t)
+
+;;; what-face to determine the face at the current point
+(defun what-face (pos)
+  (interactive "d")
+  (let ((face (or (get-char-property (point) 'read-face-name)
+                  (get-char-property (point) 'face))))
+    (if face (message "Face: %s" face) (message "No face at %d" pos))))
+
+;; you won't need any of the bar thingies
+;; turn it off to save screen estate
+(if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
+(if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
+(if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
+
+(blink-cursor-mode -1)
+
+(size-indication-mode t)
+
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil)))
+(setq mouse-wheel-progressive-speed nil)
+
+(setq scroll-margin 0
+      scroll-conservatively 100000
+      scroll-preserve-screen-position 1)
+
+;; more useful frame title, that show either a file or a
+;; buffer name (if the buffer isn't visiting a file)
+;; taken from prelude-ui.el
+(setq frame-title-format
+      '("" invocation-name " - " (:eval (if (buffer-file-name)
+                                                    (abbreviate-file-name (buffer-file-name))
+                                                  "%b"))))
+
+(if (or (eq system-type 'darwin)(eq system-type 'gnu/linux) )
+    (set-face-attribute 'default nil :font "Hack-16")
+  (set-face-attribute 'default nil :font "DejaVu Sans Mono" :height 110))
+
+;; set italic font for italic face, since Emacs does not set italic
+;; face automatically
+(set-face-attribute 'italic nil
+                    :family "Hack-Italic")
+
+(use-package highlight-numbers
+:ensure t
+:config
+(add-hook 'prog-mode-hook 'highlight-numbers-mode))
+
+(use-package highlight-symbol
+  :ensure t
+  :config
+
+  (require 'highlight-symbol)
+  (highlight-symbol-nav-mode)
+  (add-hook 'prog-mode-hook
+            (lambda() (highlight-symbol-mode)))
+  (add-hook 'org-mode-hook (lambda () (highlight-symbol-mode)))
+(setq highlight-symbol-idle-delay 0.2
+      highlight-symbol-on-navigation-p t)
+
+(global-set-key [(control shift mouse-1)]
+                (lambda (event)
+                  (interactive "e")
+                  (goto-char (posn-point (event-start event)))
+                  (highlight-symbol-at-point)))
+
+(global-set-key (kbd "M-n") 'highlight-symbol-next)
+(global-set-key (kbd "M-p") 'highlight-symbol-prev))
+
+;; http://stackoverflow.com/questions/11679700/emacs-disable-beep-when-trying-to-move-beyond-the-end-of-the-document
+(defun my-bell-function ())
+
+(setq ring-bell-function 'my-bell-function)
+(setq visible-bell nil)
+
+(use-package info+
+:ensure t
+:config
+(require 'info+))
+
+(use-package discover-my-major
+:ensure t
+:config
+;; A quick major mode help with discover-my-major
+(global-unset-key (kbd "C-h h"))        ; original "C-h h" displays "hello world" in different languages
+(define-key 'help-command (kbd "h m") 'discover-my-major)
+)
+
+(use-package rainbow-mode
+:ensure t
+:config
+(add-hook 'html-mode-hook 'rainbow-mode)
+(add-hook 'css-mode-hook 'rainbow-mode))
+
+(use-package help+
+:ensure t
+:config
+(require 'help+))
+
+(use-package help-fns+
+:ensure t
+:config
+(require 'help-fns+))
+
+(use-package help-mode+
+:ensure t
+:config
+(require 'help-mode+))
+
+(use-package which-key
+  :ensure t
+  :diminish which-key-mode
+  :config
+  (which-key-mode))
+
+(defun spell-buffer-dutch ()
+  (interactive)
+  (ispell-change-dictionary "nl_NL")
+  (flyspell-buffer))
+
+(defun spell-buffer-english ()
+  (interactive)
+  (ispell-change-dictionary "en_US")
+  (flyspell-buffer))
+
+(use-package ispell
+  :config
+  (when (executable-find "hunspell")
+    (setq-default ispell-program-name "hunspell")
+    (setq ispell-really-hunspell t))
+
+  ;; (setq ispell-program-name "aspell"
+  ;;       ispell-extra-args '("--sug-mode=ultra"))
+  :bind (("C-c N" . spell-buffer-dutch)
+         ("C-c n" . spell-buffer-english)))
+
+(use-package request
+:ensure t)
+
+;;(add-to-list 'load-path (expand-file-name (concat init-dir "ox-leanpub")))
+;;(load-library "ox-leanpub")
+(add-to-list 'load-path (expand-file-name (concat init-dir "ox-ghost")))
+(load-library "ox-ghost")
+;;; http://www.lakshminp.com/publishing-book-using-org-mode
+
+;;(defun leanpub-export ()
+;;  "Export buffer to a Leanpub book."
+;;  (interactive)
+;;  (if (file-exists-p "./Book.txt")
+;;      (delete-file "./Book.txt"))
+;;  (if (file-exists-p "./Sample.txt")
+;;      (delete-file "./Sample.txt"))
+;;  (org-map-entries
+;;   (lambda ()
+;;     (let* ((level (nth 1 (org-heading-components)))
+;;            (tags (org-get-tags))
+;;            (title (or (nth 4 (org-heading-components)) ""))
+;;            (book-slug (org-entry-get (point) "TITLE"))
+;;            (filename
+;;             (or (org-entry-get (point) "EXPORT_FILE_NAME") (concat (replace-regexp-in-string " " "-" (downcase title)) ".md"))))
+;;       (when (= level 1) ;; export only first level entries
+;;         ;; add to Sample book if "sample" tag is found.
+;;         (when (or (member "sample" tags)
+;;                   ;;(string-prefix-p "frontmatter" filename) (string-prefix-p "mainmatter" filename)
+;;                   )
+;;           (append-to-file (concat filename "\n\n") nil "./Sample.txt"))
+;;         (append-to-file (concat filename "\n\n") nil "./Book.txt")
+;;         ;; set filename only if the property is missing
+;;         (or (org-entry-get (point) "EXPORT_FILE_NAME")  (org-entry-put (point) "EXPORT_FILE_NAME" filename))
+;;         (org-leanpub-export-to-markdown nil 1 nil)))) "-noexport")
+;;  (org-save-all-org-buffers)
+;;  nil
+;;  nil)
+;;
+;;(require 'request)
+;;
+;;(defun leanpub-preview ()
+;;  "Generate a preview of your book @ Leanpub."
+;;  (interactive)
+;;  (request
+;;   "https://leanpub.com/clojure-on-the-server/preview.json" ;; or better yet, get the book slug from the buffer
+;;   :type "POST"                                             ;; and construct the URL
+;;   :data '(("api_key" . ""))
+;;   :parser 'json-read
+;;   :success (function*
+;;             (lambda (&key data &allow-other-keys)
+;;               (message "Preview generation queued at leanpub.com.")))))
+
+(dolist (hook '(text-mode-hook))
+  (add-hook hook (lambda ()
+                   (flyspell-mode 1)
+                   (visual-line-mode  1))))
+
+(use-package markdown-mode
+:ensure t)
+
+(use-package htmlize
+:ensure t)
+
+(defun my/with-theme (theme fn &rest args)
+  (let ((current-themes custom-enabled-themes))
+    (mapcar #'disable-theme custom-enabled-themes)
+    (load-theme theme t)
+    (let ((result (apply fn args)))
+      (mapcar #'disable-theme custom-enabled-themes)
+      (mapcar (lambda (theme) (load-theme theme t)) current-themes)
+      result)))
+;;(advice-add #'org-export-to-file :around (apply-partially #'my/with-theme 'arjen-grey))
+;;(advice-add #'org-export-to-buffer :around (apply-partially #'my/with-theme 'arjen-grey))
+
+(eval-after-load "org-indent" '(diminish 'org-indent-mode))
