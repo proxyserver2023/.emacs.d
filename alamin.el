@@ -83,7 +83,6 @@
    ;; Since use-package this is the only entry here
    ;; ALWAYS try to use use-package!
    (cons 'use-package melpa))
-
 )
 
 (condition-case nil
@@ -91,6 +90,13 @@
   (error
    (package-refresh-contents)
    (init--install-packages)))
+
+(setq use-package-verbose t)
+(setq use-package-always-ensure t)
+(require 'use-package)
+(use-package auto-compile
+  :config (auto-compile-on-load-mode))
+(setq load-prefer-newer t)
 
 (require 'cl)
 
@@ -422,6 +428,12 @@ Position the cursor at it's beginning, according to the current mode."
 (fa-config-default)
 )
 
+(global-set-key (kbd "<f8>") 'revert-buffer)
+
+(prefer-coding-system 'utf-8)
+(when (display-graphic-p)
+  (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
+
 (global-auto-revert-mode)
 
 (use-package workgroups2
@@ -549,6 +561,24 @@ hippie-expand-try-functions-list
 :ensure t
   :bind (("C-x 1" . zygospore-toggle-delete-other-windows)
          ("RET" .   newline-and-indent)))
+
+(use-package beacon
+:ensure t
+:config
+(beacon-mode 1))
+
+(bind-key "C-x p" 'pop-to-mark-command)
+(setq set-mark-command-repeat-pop t)
+
+(use-package smartscan
+  :defer t
+  :config (global-smartscan-mode t))
+
+(defun my/shuffle-lines-in-region (beg end)
+  (interactive "r")
+  (let ((list (split-string (buffer-substring beg end) "[\r\n]+")))
+    (delete-region beg end)
+    (insert (mapconcat 'identity (shuffle-list list) "\n"))))
 
 (use-package helm
   :ensure t
@@ -826,6 +856,16 @@ recentf-max-saved-items 5000
 (require 'ztree-diff)
 (require 'ztree-dir))
 
+(setq savehist-file "~/.emacs.d/savehist")
+(savehist-mode 1)
+(setq history-length t)
+(setq history-delete-duplicates t)
+(setq savehist-save-minibuffer-history 1)
+(setq savehist-additional-variables
+      '(kill-ring
+        search-ring
+        regexp-search-ring))
+
 ;; saveplace remembers your location in a file when saving files
 (require 'saveplace)
 (setq-default save-place t)
@@ -1058,6 +1098,26 @@ recentf-max-saved-items 5000
 (when (not (eq system-type 'windows-nt))
   (eshell/alias "ls" "ls --color -h --group-directories-first $*"))
 
+(defun eshell-here ()
+  "Opens up a new shell in the directory associated with the
+current buffer's file. The eshell is renamed to match that
+directory to make multiple eshell windows easier."
+  (interactive)
+  (let* ((parent (if (buffer-file-name)
+                     (file-name-directory (buffer-file-name))
+                   default-directory))
+         (height (/ (window-total-height) 3))
+         (name   (car (last (split-string parent "/" t)))))
+    (split-window-vertically (- height))
+    (other-window 1)
+    (eshell "new")
+    (rename-buffer (concat "*eshell: " name "*"))
+
+    (insert (concat "ls"))
+    (eshell-send-input)))
+
+(global-set-key (kbd "C-!") 'eshell-here)
+
 (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
 (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
 (add-hook 'ielm-mode-hook 'turn-on-eldoc-mode)
@@ -1069,9 +1129,8 @@ recentf-max-saved-items 5000
 ;(icomplete-mode)
 
 ;; savehist saves minibuffer history by defaults
-(setq savehist-additional-variables '(search ring regexp-search-ring) ; also save your regexp search queries
-      savehist-autosave-interval 60     ; save every minute
-      )
+(setq savehist-additional-variables '(search ring regexp-search-ring)
+      savehist-autosave-interval 60)
 
 (use-package golden-ratio
 :ensure t
@@ -1108,7 +1167,10 @@ recentf-max-saved-items 5000
 
 (golden-ratio-mode))
 
-(winner-mode 1)
+(use-package winner
+:ensure t
+:config
+(winner-mode 1))
 
 (use-package mode-icons
   :ensure t
@@ -1522,6 +1584,22 @@ recentf-max-saved-items 5000
   :bind (("C-c N" . spell-buffer-dutch)
          ("C-c n" . spell-buffer-english)))
 
+(defun xah-toggle-margin-right ()
+  "Toggle the right margin between `fill-column' or window width.
+This command is convenient when reading novel, documentation."
+  (interactive)
+  (if (eq (cdr (window-margins)) nil)
+      (set-window-margins nil 0 (- (window-body-width) fill-column))
+    (set-window-margins nil 0 0)))
+
+(defmacro my/insert-unicode (unicode-name)
+  `(lambda () (interactive)
+     (insert-char (cdr (assoc-string ,unicode-name (ucs-names))))))
+(bind-key "C-x 8 s" (my/insert-unicode "ZERO WIDTH SPACE"))
+(bind-key "C-x 8 S" (my/insert-unicode "SNOWMAN"))
+
+(bind-key "M-SPC" 'cycle-spacing)
+
 (use-package request
 :ensure t)
 
@@ -1595,5 +1673,39 @@ recentf-max-saved-items 5000
       result)))
 ;;(advice-add #'org-export-to-file :around (apply-partially #'my/with-theme 'arjen-grey))
 ;;(advice-add #'org-export-to-buffer :around (apply-partially #'my/with-theme 'arjen-grey))
+
+(setq org-modules '(org-bbdb
+                    org-gnus
+                    org-drill
+                    org-info
+                    org-jsinfo
+                    org-habit
+                    org-irc
+                    org-mouse
+                    org-protocol
+                    org-annotate-file
+                    org-expiry
+                    org-interactive-query
+                    org-man
+                    org-collector
+                    org-panel
+                    org-screen
+                    org-toc))
+(eval-after-load 'org
+  '(org-load-modules-maybe t))
+
+;; prepare stuff for org-export-backends
+(setq org-export-backends '(org latex icalendar html ascii))
+
+(bind-key "C-c r" 'org-capture)
+(bind-key "C-c a" 'org-agenda)
+(bind-key "C-c l" 'org-store-link)
+(bind-key "C-c L" 'org-insert-link-global)
+(bind-key "C-c O" 'org-open-at-point-global)
+(bind-key "<f9> <f9>" 'org-agenda-list)
+(bind-key "<f9> <f8>" (lambda() (interactive) (org-capture nil "r" )))
+
+(with-eval-after-load 'org
+  (bind-key "C-M-w" 'append-next-kill org-mode-map))
 
 (eval-after-load "org-indent" '(diminish 'org-indent-mode))

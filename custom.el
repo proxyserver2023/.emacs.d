@@ -8,20 +8,20 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (sr-speedbar function-args comment-dwim-2 comment-dwim2 help-mode+ help-fns+ rainbow-mode help+ discover-my-major info+ highlight-symbol highlight-numbers nyan-mode flycheck-tip magit diff-hl golden-ratio shell-pop vlf-integrate vlf ztree dired+ recentf-mode helm-descbinds helm-projectile ibuffer-vc expand-region company yasnippet clean-aindent-mode smartparens volatile-highlights duplicate-thing rebox2 mode-icons auth-password-store pass htmlize
-                 (use-package "melpa" . "https://melpa.org/packages/")
-                 (use-package "melpa" . "https://melpa.org/packages/")
-                 (use-package "melpa" . "https://melpa.org/packages/")
-                 (use-package "melpa" . "https://melpa.org/packages/")
-                 (use-package "melpa" . "https://melpa.org/packages/")
-                 (use-package "melpa" . "https://melpa.org/packages/")
-                 (use-package "melpa" . "https://melpa.org/packages/")
-                 (use-package "melpa" . "https://melpa.org/packages/")
-                 (use-package "melpa" . "https://melpa.org/packages/")
-                 (use-package "melpa" . "https://melpa.org/packages/")
-                 (use-package "melpa" . "https://melpa.org/packages/")
-                 (use-package "melpa" . "https://melpa.org/packages/")
-                 request command-log-mode ace-jump-mode ivy-hydra counsel-projectile counsel bm material-theme better-defaults powerline origami better-shell exec-path-from-shell flycheck pug-mode aggressive-indent markdown-mode guide-key undo-tree color-theme-solarized color-theme miniedit smart-mode-line helm indium restclient impatient-mode emmet-mode skewer-mode web-beautify which-key web-mode use-package try org-bullets auto-complete ace-window))))
+    (artbollocks-mode treemacs-projectile treemacs beacon auto-compile sr-speedbar function-args comment-dwim-2 comment-dwim2 help-mode+ help-fns+ rainbow-mode help+ discover-my-major info+ highlight-symbol highlight-numbers nyan-mode flycheck-tip magit diff-hl golden-ratio shell-pop vlf-integrate vlf ztree dired+ recentf-mode helm-descbinds helm-projectile ibuffer-vc expand-region company yasnippet clean-aindent-mode smartparens volatile-highlights duplicate-thing rebox2 mode-icons auth-password-store pass htmlize
+                      (use-package "melpa" . "https://melpa.org/packages/")
+                      (use-package "melpa" . "https://melpa.org/packages/")
+                      (use-package "melpa" . "https://melpa.org/packages/")
+                      (use-package "melpa" . "https://melpa.org/packages/")
+                      (use-package "melpa" . "https://melpa.org/packages/")
+                      (use-package "melpa" . "https://melpa.org/packages/")
+                      (use-package "melpa" . "https://melpa.org/packages/")
+                      (use-package "melpa" . "https://melpa.org/packages/")
+                      (use-package "melpa" . "https://melpa.org/packages/")
+                      (use-package "melpa" . "https://melpa.org/packages/")
+                      (use-package "melpa" . "https://melpa.org/packages/")
+                      (use-package "melpa" . "https://melpa.org/packages/")
+                      request command-log-mode ace-jump-mode ivy-hydra counsel-projectile counsel bm material-theme better-defaults powerline origami better-shell exec-path-from-shell flycheck pug-mode aggressive-indent markdown-mode guide-key undo-tree color-theme-solarized color-theme miniedit smart-mode-line helm indium restclient impatient-mode emmet-mode skewer-mode web-beautify which-key web-mode use-package try org-bullets auto-complete ace-window))))
 
 ;(custom-set-faces
 ; ;; custom-set-faces was added by Custom.

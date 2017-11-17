@@ -10,8 +10,6 @@
 
 * Introduction
 
-I modelled this set of files based off of the emacs-starter-kit at https://github.com/eschulte/emacs24-starter-kit.
-
 #+BEGIN_SRC emacs-lisp
   (setq user-full-name "Md. Alamin Mahamud")
   (setq user-mail-address "alamin.ineedahelp@gmail.com")
@@ -130,7 +128,6 @@ At each load the package list will be evaluated and any missing packages will be
    ;; Since use-package this is the only entry here
    ;; ALWAYS try to use use-package!
    (cons 'use-package melpa))
-
 )
 
 (condition-case nil
@@ -138,6 +135,13 @@ At each load the package list will be evaluated and any missing packages will be
   (error
    (package-refresh-contents)
    (init--install-packages)))
+
+(setq use-package-verbose t)
+(setq use-package-always-ensure t)
+(require 'use-package)
+(use-package auto-compile
+  :config (auto-compile-on-load-mode))
+(setq load-prefer-newer t)
 #+END_SRC
 ** init file support
 Load up a collection of enhancement to Emacs Lisp, including [[https://github.com/magnars/dash.el][dash]], [[https://github.com/magnars/s.el][s]] for string manipulation, and [[https://github.com/rejeep/f.el][f]] for file manipulation.
@@ -633,6 +637,18 @@ Normal work flow of Iedit mode is like:
 (fa-config-default)
 )
 #+END_SRC
+** sentences end with single space
+(setq sentence-end-double-space nil)
+** Revert buffer
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "<f8>") 'revert-buffer)
+#+END_SRC
+** UTF-8
+#+BEGIN_SRC emacs-lisp
+(prefer-coding-system 'utf-8)
+(when (display-graphic-p)
+  (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
+#+END_SRC
 * Convenience
 ** auto-revert
 #+BEGIN_SRC emacs-lisp
@@ -830,7 +846,9 @@ Bookmarks are very useful for quickly jumping around files.
   :config
   (define-key global-map (kbd "C-c SPC") 'ace-jump-mode))
 #+END_SRC
-
+Other options
+- windmove
+- switch-window
 ** inhibit start message
 #+BEGIN_SRC emacs-lisp
   (setq inhibit-startup-message t)
@@ -868,6 +886,37 @@ _installation_:
          ("RET" .   newline-and-indent)))
 #+END_SRC
 _usage_:
+** beacon
+#+BEGIN_SRC emacs-lisp
+(use-package beacon
+:ensure t
+:config
+(beacon-mode 1))
+#+END_SRC
+** TODO Repeatable commands
+[[http://oremacs.com/2015/01/14/repeatable-commands/]]
+** Pop to mark
+Handy way of getting back to previous places
+#+BEGIN_SRC emacs-lisp
+(bind-key "C-x p" 'pop-to-mark-command)
+(setq set-mark-command-repeat-pop t)
+#+END_SRC
+** TODO Frequently-accessed files
+[[http://pages.sachachua.com/.emacs.d/Sacha.html#org9750649]]
+** Smartscan
+#+BEGIN_SRC emacs-lisp
+(use-package smartscan
+  :defer t
+  :config (global-smartscan-mode t))
+#+END_SRC
+** TODO Shuffling Lines
+#+BEGIN_SRC emacs-lisp
+(defun my/shuffle-lines-in-region (beg end)
+  (interactive "r")
+  (let ((list (split-string (buffer-substring beg end) "[\r\n]+")))
+    (delete-region beg end)
+    (insert (mapconcat 'identity (shuffle-list list) "\n"))))
+#+END_SRC
 * Helm
 _Author_:
 - Tamas Patrovic (original author), from 2007. At this time, Helm was named =Anything=
@@ -1195,7 +1244,6 @@ _Key binding_:
 (require 'helm-descbinds)
 (helm-descbinds-mode))
 #+END_SRC
-
 * Files
 
 ** large-file-warning
@@ -1331,6 +1379,18 @@ works with TRAMP so accessing network files is fine
 _Installation_:
 _usage_:
 
+** History
+#+BEGIN_SRC emacs-lisp
+(setq savehist-file "~/.emacs.d/savehist")
+(savehist-mode 1)
+(setq history-length t)
+(setq history-delete-duplicates t)
+(setq savehist-save-minibuffer-history 1)
+(setq savehist-additional-variables
+      '(kill-ring
+        search-ring
+        regexp-search-ring))
+#+END_SRC
 * Text
 * Data
 ** saveplace
@@ -1813,6 +1873,28 @@ _Installation_:
 (when (not (eq system-type 'windows-nt))
   (eshell/alias "ls" "ls --color -h --group-directories-first $*"))
 #+END_SRC
+Eshell here
+#+BEGIN_SRC emacs-lisp
+(defun eshell-here ()
+  "Opens up a new shell in the directory associated with the
+current buffer's file. The eshell is renamed to match that
+directory to make multiple eshell windows easier."
+  (interactive)
+  (let* ((parent (if (buffer-file-name)
+                     (file-name-directory (buffer-file-name))
+                   default-directory))
+         (height (/ (window-total-height) 3))
+         (name   (car (last (split-string parent "/" t)))))
+    (split-window-vertically (- height))
+    (other-window 1)
+    (eshell "new")
+    (rename-buffer (concat "*eshell: " name "*"))
+
+    (insert (concat "ls"))
+    (eshell-send-input)))
+
+(global-set-key (kbd "C-!") 'eshell-here)
+#+END_SRC
 * Development
 ** Extensions
 *** Eldoc
@@ -1839,10 +1921,8 @@ Start Garbage Collection every 100MB to improve Emacs performance
 *** Savehist
 #+BEGIN_SRC emacs-lisp
 ;; savehist saves minibuffer history by defaults
-(setq savehist-additional-variables '(search ring regexp-search-ring) ; also save your regexp search queries
-      savehist-autosave-interval 60     ; save every minute
-      )
-
+(setq savehist-additional-variables '(search ring regexp-search-ring)
+      savehist-autosave-interval 60)
 #+END_SRC
 ** Windows
 *** golden-ratio
@@ -1894,7 +1974,10 @@ _Usage_:
 
 *** winner
 #+BEGIN_SRC emacs-lisp
-(winner-mode 1)
+(use-package winner
+:ensure t
+:config
+(winner-mode 1))
 #+END_SRC
 ** Mode Line
 #+BEGIN_SRC emacs-lisp
@@ -2435,6 +2518,10 @@ _usage_:
 If a *Help* buffer contains other library names, the names automatically becomes links to jump to.
 
 ** which-key
+_author_:
+_homepage_:
+_intro_:
+
 #+BEGIN_SRC emacs-lisp
 (use-package which-key
   :ensure t
@@ -2469,7 +2556,58 @@ If a *Help* buffer contains other library names, the names automatically becomes
 * Multimedia
 * Local
 
+
+* Reading
+** toggle-margin-right
+#+BEGIN_SRC emacs-lisp
+(defun xah-toggle-margin-right ()
+  "Toggle the right margin between `fill-column' or window width.
+This command is convenient when reading novel, documentation."
+  (interactive)
+  (if (eq (cdr (window-margins)) nil)
+      (set-window-margins nil 0 (- (window-body-width) fill-column))
+    (set-window-margins nil 0 0)))
+#+END_SRC
+
 * Writing
+** Avoid weasel words
+(use-package artbollocks-mode
+  :defer t
+  :load-path  "~/elisp/artbollocks-mode"
+  :config
+  (progn
+    (setq artbollocks-weasel-words-regex
+          (concat "\\b" (regexp-opt
+                         '("one of the"
+                           "should"
+                           "just"
+                           "sort of"
+                           "a lot"
+                           "probably"
+                           "maybe"
+                           "perhaps"
+                           "I think"
+                           "really"
+                           "pretty"
+                           "nice"
+                           "action"
+                           "utilize"
+                           "leverage") t) "\\b"))
+    ;; Don't show the art critic words, or at least until I figure
+    ;; out my own jargon
+    (setq artbollocks-jargon nil)))
+** TODO Unicode
+#+BEGIN_SRC emacs-lisp
+(defmacro my/insert-unicode (unicode-name)
+  `(lambda () (interactive)
+     (insert-char (cdr (assoc-string ,unicode-name (ucs-names))))))
+(bind-key "C-x 8 s" (my/insert-unicode "ZERO WIDTH SPACE"))
+(bind-key "C-x 8 S" (my/insert-unicode "SNOWMAN"))
+#+END_SRC
+** Clean up spaces
+#+BEGIN_SRC emacs-lisp
+(bind-key "M-SPC" 'cycle-spacing)
+#+END_SRC
 ** Publishing
 #+BEGIN_SRC emacs-lisp
 (use-package request
@@ -2565,8 +2703,172 @@ Export ORG code fragments with a particular theme.
 ;;(advice-add #'org-export-to-file :around (apply-partially #'my/with-theme 'arjen-grey))
 ;;(advice-add #'org-export-to-buffer :around (apply-partially #'my/with-theme 'arjen-grey))
 #+END_SRC
+** Presentation
+*** Reveal.js
+
 * TODO Org-Mode
+| File                | Desc                                                       |
+|---------------------+------------------------------------------------------------|
+| organizer.org       | main org; inbox for M-x org-capture, tasks, weekly reviews |
+| investing.org       | invest related notes                                       |
+| people.org          | people related notes                                       |
+| long-term-plans.org | long term plans                                            |
+| decissions.org      | pending, current and reviewed decissions                   |
+| blog.org            | topic index for my blog                                    |
+| learning.org        | learning plan                                              |
+| tracking.org        | temp org file for tracking various files                   |
+| delegation.org      | templates for assigning tasks                              |
+| books.org           | huge file with book notes                                  |
+| calendar.org        |                                                            |
+| ideal.org           | planning ideal days                                        |
+| archive.org         | archived subtrees                                          |
+| latin.org           | latin notes                                                |
+| 101things.org       | old goals for 101 things in 1001 days                      |
+| life.org            | questions, processes, tools                                |
+|---------------------+------------------------------------------------------------|
+[[http://stackoverflow.com/questions/8146313/emacs-auto-save-for-org-mode-only][emacs auto save for org-mode only - SO]]
+** Modules
+#+BEGIN_SRC emacs-lisp
+  (setq org-modules '(org-bbdb
+                      org-gnus
+                      org-drill
+                      org-info
+                      org-jsinfo
+                      org-habit
+                      org-irc
+                      org-mouse
+                      org-protocol
+                      org-annotate-file
+                      org-expiry
+                      org-interactive-query
+                      org-man
+                      org-collector
+                      org-panel
+                      org-screen
+                      org-toc))
+  (eval-after-load 'org
+    '(org-load-modules-maybe t))
+
+  ;; prepare stuff for org-export-backends
+  (setq org-export-backends '(org latex icalendar html ascii))
+
+#+END_SRC
+** Keyboard Shortcuts
+#+BEGIN_SRC emacs-lisp
+  (bind-key "C-c r" 'org-capture)
+  (bind-key "C-c a" 'org-agenda)
+  (bind-key "C-c l" 'org-store-link)
+  (bind-key "C-c L" 'org-insert-link-global)
+  (bind-key "C-c O" 'org-open-at-point-global)
+  (bind-key "<f9> <f9>" 'org-agenda-list)
+  (bind-key "<f9> <f8>" (lambda() (interactive) (org-capture nil "r" )))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+    (with-eval-after-load 'org
+      (bind-key "C-M-w" 'append-next-kill org-mode-map)
+      (bind-key "C-TAB" 'org-cycle org-mode-map)
+(bind-key "C-c v" 'org-show-todo-tree org-mode-map)
+(bind-key "C-c C-r" 'org-refile org-mode-map)
+(bind-key "C-c R" 'org-reveal org-mode-map)
+  (bind-key "C-c o" 'my/org-follow-entry-link org-mode-map)
+  (bind-key "C-c d" 'my/org-move-line-to-destination org-mode-map)
+  (bind-key "C-c f" 'my/org-file-blog-index-entries org-mode-map)
+  (bind-key "C-c t s"  'my/split-sentence-and-capitalize org-mode-map)
+  (bind-key "C-c t -"  'my/split-sentence-delete-word-and-capitalize org-mode-map)
+  (bind-key "C-c t d"  'my/delete-word-and-capitalize org-mode-map)
+
+  (bind-key "C-c C-p C-p" 'my/org-publish-maybe org-mode-map)
+  (bind-key "C-c C-r" 'my/org-refile-and-jump org-mode-map)
+  )
+#+END_SRC
+I dont use the diary, but I do use the clock a lot.
+#+BEGIN_SRC emacs-lisp
+(with-eval-after-load 'org-agenda
+  (bind-key "i" 'org-agenda-clock-in org-agenda-mode-map))
+#+END_SRC
+*** TODO Speed Commands
+#+BEGIN_SRC emacs-lisp
+     (setq org-use-effective-time t)
+
+     (defun my/org-use-speed-commands-for-headings-and-lists ()
+       "Activate speed commands on list items too."
+       (or (and (looking-at org-outline-regexp) (looking-back "^\**"))
+           (save-excursion (and (looking-at (org-item-re)) (looking-back "^[ \t]*")))))
+     (setq org-use-speed-commands 'my/org-use-speed-commands-for-headings-and-lists)
+(with-eval-after-load 'org
+   (add-to-list 'org-speed-commands-user '("x" org-todo "DONE"))
+   (add-to-list 'org-speed-commands-user '("y" org-todo-yesterday "DONE"))
+   (add-to-list 'org-speed-commands-user '("!" my/org-clock-in-and-track))
+   (add-to-list 'org-speed-commands-user '("s" call-interactively 'org-schedule))
+   (add-to-list 'org-speed-commands-user '("d" my/org-move-line-to-destination))
+   (add-to-list 'org-speed-commands-user '("i" call-interactively 'org-clock-in))
+   (add-to-list 'org-speed-commands-user '("P" call-interactively 'org2blog/wp-post-subtree))
+   (add-to-list 'org-speed-commands-user '("o" call-interactively 'org-clock-out))
+   (add-to-list 'org-speed-commands-user '("$" call-interactively 'org-archive-subtree))
+   (bind-key "!" 'my/org-clock-in-and-track org-agenda-mode-map))
+#+END_SRC
+** org navigation
+#+BEGIN_SRC emacs-lisp
+(setq org-goto-interface 'outline
+org-goto-max-level 10)
+(require 'imenu)
+(setq org-startup-folded t)
+(bind-key "C-c j" 'org-clock-goto) ;; jump to current task from anywhere
+(bind-key "C-c C-w" 'org-refile)
+(setq org-cycle-include-plain-lists 'integrate)
+#+END_SRC
+*Link org subtrees and navigate between them*
+The following code makes it easier for me to link trees with entries, as in
+#+BEGIN_SRC emacs-lisp
+(defun my/org-follow-entry-link ()
+  "Follow the defined link for this entry."
+  (interactive)
+  (if (org-entry-get (point) "LINK")
+      (org-open-link-from-string (org-entry-get (point) "LINK"))
+    (org-open-at-point)))
+
+(defun my/org-link-projects (location)
+  "Add link properties between the current subtree and the one specified by LOCATION."
+  (interactive
+   (list (let ((org-refile-use-cache nil))
+     (org-refile-get-location "Location"))))
+  (let ((link1 (org-store-link nil)) link2)
+    (save-window-excursion
+      (org-refile 4 nil location)
+      (setq link2 (org-store-link nil))
+      (org-set-property "LINK" link1))
+    (org-set-property "LINK" link2)))
+#+END_SRC
+
+*** Viewing, navigating and editing the org tree
+I often cut and paste subtrees. This makes it easier to cut something and paste it elsewhere in the hierarchy.
+#+BEGIN_SRC emacs-lisp
+(with-eval-after-load 'org
+     (bind-key "C-c k" 'org-cut-subtree org-mode-map)
+     (setq org-yank-adjusted-subtrees t))
+#+END_SRC
+*** Taking notes
+(setq org-directory "~/personal")
+(setq org-default-notes-file "~/personal/organizer.org")
+This makes it easier to add links from outside.
+#+BEGIN_SRC emacs-lisp
+  (defun alamin/yank ()
+    (interactive)
+    (insert "[[")
+    (yank)
+    (insert "][more]]"))
+  (global-set-key (kbd "<f6>") 'alamin/yank)
+
+#+END_SRC
+** org-indent
 #+BEGIN_SRC emacs-lisp
 (eval-after-load "org-indent" '(diminish 'org-indent-mode))
 #+END_SRC
+** TODO org-capture - Sacha
+*** TODO org-capture-prefill-template
+*** TODO org-get-current-refile-location
+*** TODO org-create-task
+*** TODO helm-prompts me to refile.
+*** TODO helm-org-clock-in-and-track-from-refile
 * TODO Email
