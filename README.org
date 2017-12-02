@@ -1106,6 +1106,15 @@ wrap text around when in text-modes. Also enable flyspell to catch nasty writing
                      (visual-line-mode  1))))
 #+END_SRC
 
+** Markdown support
+Markdown is a great way to write documentation, not as good as org-mode of course, but generally accepted as a standard.
+not as good as org-mode of course, but generally accepted as a standard.
+
+#+BEGIN_SRC emacs-lisp
+(use-package markdown-mode
+:ensure t)
+#+END_SRC
+
 * Files
 ** large-file-warning
 #+BEGIN_SRC emacs-lisp
@@ -1256,13 +1265,340 @@ Start Garbage Collection every 100MB to improve Emacs performance
 * Email
 * Org Mode
 * Programming
-** Markdown support
-Markdown is a great way to write documentation, not as good as org-mode of course, but generally accepted as a standard.
-not as good as org-mode of course, but generally accepted as a standard.
+** Languages
+*** C-C++
+**** Development Environment Guide
+***** Demo
+- Switching between .h and .c/.cpp anywhere in the project like Linux
+  Kernel. If more than one file exists, it displays a list of possible
+  candidates. The command collects files of the same names but
+  different across the project:
+[[https://tuhdo.github.io/static/c-ide/projectile-find-other-file.gif]]
+- Jump around Linux kernel source with ease using helm-gtags.
+[[https://tuhdo.github.io/static/c-ide/helm-gtags-jump-dwim.gif]]
+- Interactive outline tree using =moo-jump-local= from function-args
+  package
+[[https://tuhdo.github.io/static/c-ide/moo-jump-local.gif]]
+- Static outline tree as a file browser
+[[https://tuhdo.github.io/static/c-ide/sr-speedbar.gif]]
+- Symbol references:
+[[https://tuhdo.github.io/static/c-ide/semantic-symref.gif]]
+- code completion
+[[https://tuhdo.github.io/static/c-ide/semantic-boost-demo.gif]]
+- code completion2
+[[https://tuhdo.github.io/static/auto_complete.gif]]]]
+- header completion
+[[https://tuhdo.github.io/static/c-ide/company-c-header.png]]
+- show function interface and variable definition at the bottom
+[[https://tuhdo.github.io/static/func_args.jpg]]
+[[https://tuhdo.github.io/static/c-ide/semantic-idle-summary-lambda.gif]]
+[[https://tuhdo.github.io/static/c-ide/semantic-idle-summary-variable.gif]]
+- show current function your cursor is inside at the top
+[[https://tuhdo.github.io/static/c-ide/semantic-sticky-func.gif]]
+- Compilation support
+[[https://tuhdo.github.io/static/c-ide/compilation-mode.gif]]
+- beautiful compile output
+[[https://tuhdo.github.io/static/c-ide/compilation-compile.gif]]
+- Fancy GDB debugging
+[[https://tuhdo.github.io/static/c-ide/gdb-many-windows.gif]]
+- Getting man pages for symbol at cursor
+[[https://tuhdo.github.io/static/part3/helm-man-woman.gif]]
+
+***** Basic Movement
+- *C-M-f* runs =forward-sexp=, move forward over a balanced
+  expression that can be a pair or a symbol. Demo:
+
+  [[file:static/c-ide/forward-func.gif][file:static/c-ide/forward-func.gif]]
+
+- *C-M-b* runs =backward-sexp=, move backward over a balanced
+  expression that can be a pair or a symbol. Demo:
+
+  [[file:static/c-ide/backward-func.gif][file:static/c-ide/backward-func.gif]]
+
+- *C-M-k* runs =kill-sexp=, kill balanced expression
+  forward that can be a pair or a symbol. Demo:
+
+  [[file:static/c-ide/kill-func-body.gif][file:static/c-ide/kill-func-body.gif]]
+
+- *C-M-<SPC>* or *C-M-@* runs =mark-sexp=, put mark after
+  following expression that can be a pair or a symbol. Demo:
+
+  [[file:static/c-ide/mark-func-body.gif][file:static/c-ide/mark-func-body.gif]]
+
+- *C-M-a* runs =beginning-of-defun=, which moves point to beginning of
+  a function. Demo:
+
+  [[file:static/c-ide/beginning-of-defun.gif][file:static/c-ide/beginning-of-defun.gif]]
+
+- *C-M-e* runs =end-of-defun=, which moves point to end of a
+  function. Demo:
+
+  [[file:static/c-ide/end-of-defun.gif][file:static/c-ide/end-of-defun.gif]]
+
+- *C-M-h* runs =mark-defun=, which put a region around whole current
+  or following function. Demo:
+
+  [[file:static/c-ide/mark-defun.gif][file:static/c-ide/mark-defun.gif]]
+***** Basic Concepts of Tag
+A tag is a name of an entity in source code. An entity can be a variable, a method definition, an include-operator… A tag contains information such as name of the tag (the name of the variable, class, method), location of this tag in source code and which file it belongs to. As an example, GNU Global generates three tag databases:
+
++ GTAGS: definition database
++ GRTAGS: reference database
++ GPATH: path name database
+A definition of a tag is where a tag is implemented. For example, a function definition is the body where it is actually implemented, or a variable definition is where the type and its property (i.e static) is specified.
+
+A reference of a tag is where a tag is used in a source tree, but not where it is defined.
+
+***** Browse source tree with =speedbar= file browser
+=M-x speedbar=
+_usage_:
+- Use SPC to open the children of a node.
+- RET to open the node in another window. If node is a file, open that file; if node is a directory, enter that directory; if node is a tag in a file, jump to the location of that tag in the file.
+- U to go up parent directory.
+- n or p moves to next or previous node.
+- M-n or M-p moves to next or previous node at the current level.
+- b switches to buffer list using Speedbar presentation. You can also open children of each buffer.
+- f switches back to file list.
+
+To enable =speedbar= to show all files:
+#+BEGIN_SRC emacs-lisp
+(setq speedbar-show-unknown-files t)
+#+END_SRC
+**** Company-c-headers
+#+BEGIN_SRC emacs-lisp
+(use-package company-c-headers
+:ensure t
+  :init
+  (add-to-list 'company-backends 'company-c-headers))
+#+END_SRC
+**** hs-minor-mode for folding source code
+#+BEGIN_SRC emacs-lisp
+(add-hook 'c-mode-common-hook 'hs-minor-mode)
+#+END_SRC
+**** default-style
+;; Available C style:
+;; “gnu”: The default style for GNU projects
+;; “k&r”: What Kernighan and Ritchie, the authors of C used in their book
+;; “bsd”: What BSD developers use, aka “Allman style” after Eric Allman.
+;; “whitesmith”: Popularized by the examples that came with Whitesmiths C, an early commercial C compiler.
+;; “stroustrup”: What Stroustrup, the author of C++ used in his book
+;; “ellemtel”: Popular C++ coding standards as defined by “Programming in C++, Rules and Recommendations,” Erik Nyquist and Mats Henricson, Ellemtel
+;; “linux”: What the Linux developers use for kernel development
+;; “python”: What Python developers use for extension modules
+;; “java”: The default style for java-mode (see below)
+;; “user”: When you want to define your own style
+#+BEGIN_SRC emacs-lisp
+(setq c-default-style "linux" ; set style to "linux"
+      c-basic-offset 4)
+#+END_SRC
+**** cc-mode
+#+BEGIN_SRC emacs-lisp
+(use-package cc-mode
+  :ensure t
+  :config
+  (define-key c-mode-map  [(tab)] 'company-complete)
+  (define-key c++-mode-map  [(tab)] 'company-complete))
+#+END_SRC
+**** cedet
+*What is CEDET?*
+- (C)ollection of (E)macs (D)evelopment (E)nvironment (T)ools written with the end goal
+of creating an advanced development environment in Emacs.
+
+_Features_:
+- intelligent completion
+- source code navigation
+- project management
+- code generation with templates
+
+*Why use CEDET?*
+[[https://tuhdo.github.io/static/auto_complete.gif]]
+
+#+BEGIN_SRC sh :noexports
+#git clone  http://git.code.sf.net/p/cedet/git ~/.emacs.d/cedet
+#cd ~/.emacs.d/cedet
+#make
+#cd contrib
+#make
+#+END_SRC
+Need to learn :problem while installing
+#+BEGIN_SRC emacs-lisp
+;(load-file (concat "~/.emacs.d" "/cedet/cedet-devel-load.el"))
+;(load-file (concat "~/.emacs.d" "cedet/contrib/cedet-contrib-load.el"))
+#+END_SRC
+
+*Semantic Minor Modes*
+
 
 #+BEGIN_SRC emacs-lisp
-(use-package markdown-mode
+(require 'cc-mode)
+(require 'semantic)
+
+(global-semanticdb-minor-mode 1)
+(global-semantic-idle-scheduler-mode 1)
+(global-semantic-stickyfunc-mode 1)
+
+(semantic-mode 1)
+
+(defun alexott/cedet-hook ()
+  (local-set-key "\C-c\C-j" 'semantic-ia-fast-jump)
+  (local-set-key "\C-c\C-s" 'semantic-ia-show-summary))
+
+(add-hook 'c-mode-common-hook 'alexott/cedet-hook)
+(add-hook 'c-mode-hook 'alexott/cedet-hook)
+(add-hook 'c++-mode-hook 'alexott/cedet-hook)
+
+;; Enable EDE only in C/C++
+(require 'ede)
+(global-ede-mode)
+
+#+END_SRC
+**** sr-speedbar
+#+BEGIN_SRC emacs-lisp
+(use-package sr-speedbar
 :ensure t)
+#+END_SRC
+
+** Tools
+*** GDB
+#+BEGIN_SRC emacs-lisp
+  (setq gdb-many-windows t
+        gdb-show-main t)
+#+END_SRC
+
+*** TODO Compilation
+#+BEGIN_SRC emacs-lisp
+  ;; Compilation from Emacs
+  (defun prelude-colorize-compilation-buffer ()
+    "Colorize a compilation mode buffer."
+    (interactive)
+    ;; we don't want to mess with child modes such as grep-mode, ack, ag, etc
+    (when (eq major-mode 'compilation-mode)
+      (let ((inhibit-read-only t))
+        (ansi-color-apply-on-region (point-min) (point-max)))))
+
+  ;; setup compilation-mode used by `compile' command
+  (require 'compile)
+  (setq compilation-ask-about-save nil ; just save before compiling
+        compilation-always-kill t      ; just kill old compile process before starting the new one
+        compilation-scroll-output 'first-error) ; automatically scroll to first
+  (global-set-key (kbd "<f5>") 'compile)
+#+END_SRC
+*** TODO Makefile
+#+BEGIN_SRC emacs-lisp
+;; takenn from prelude-c.el:48: https://github.com/bbatsov/prelude/blob/master/modules/prelude-c.el
+(defun prelude-makefile-mode-defaults ()
+  (whitespace-toggle-options '(tabs))
+  (setq indent-tabs-mode t))
+
+(setq prelude-makefile-mode-hook 'prelude-makefile-mode-defaults)
+
+(add-hook 'makefile-mode-hook (lambda ()
+                                (run-hooks 'prelude-makefile-mode-hook)))
+
+#+END_SRC
+*** TODO Ediff
+#+BEGIN_SRC emacs-lisp
+(setq ediff-diff-options "-w"
+      ediff-split-window-function 'split-window-horizontally
+      ediff-window-setup-function 'ediff-setup-windows-plain)
+
+#+END_SRC
+*** TODO diff-hl
+_Author_:
+_Homepage_:
+_Features_:
+=diff-hl-mode= highlights uncommitted changes on the left side of the window, allows you to jump between and revert them selectively.
+[[https://tuhdo.github.io/static/part3/diff-hl-buffer.png]]
+- =diff-hl-dired-mode= provides similar func in Dired.
+[[https://tuhdo.github.io/static/part3/diff-hl-dired.png]]
+- =diff-hl-margin-mode= changes the highlighting function to use the margin instead of the fringe
+[[https://tuhdo.github.io/static/part3/diff-hl-margin.png]]
+- =diff-hl-amend-mode= shifts the reference revision back by one
+_Installation_:
+#+BEGIN_SRC use-package
+(use-package diff-hl
+:ensure t
+:config
+(global-diff-hl-mode)
+(add-hook 'dired-mode-hook 'diff-hl-dired-mode))
+#+END_SRC
+*** magit
+_Author_:
+_Homepage_:
+_Features_:
+Magit is an interface to the version control system Git, implemented as an Emacs extension.
+_Installation_:
+#+BEGIN_SRC emacs-lisp
+
+    (use-package magit
+    :ensure t
+    :config
+    (require 'magit)
+    (set-default 'magit-stage-all-confirm nil)
+
+   ;; full screen magit-status
+  (defadvice magit-status (around magit-fullscreen activate)
+    (window-configuration-to-register :magit-fullscreen)
+    ad-do-it
+    (delete-other-windows))
+
+  (global-unset-key (kbd "C-x g"))
+  (global-set-key (kbd "C-x g h") 'magit-log)
+  (global-set-key (kbd "C-x g f") 'magit-file-log)
+  (global-set-key (kbd "C-x g b") 'magit-blame-mode)
+  (global-set-key (kbd "C-x g m") 'magit-branch-manager)
+  (global-set-key (kbd "C-x g c") 'magit-branch)
+  (global-set-key (kbd "C-x g s") 'magit-status)
+  (global-set-key (kbd "C-x g r") 'magit-reflog)
+  (global-set-key (kbd "C-x g t") 'magit-tag))
+#+END_SRC
+_Usage_:
+Getting started with Magit is really easy:
+
+- M-x magit-status to see git status, and in the status buffer:
+- s to stage files
+- c c to commit, type in your commit message then C-c C-c to save the message and commit, C-c C-k to abort current commit message and go back magit-status.
+- b b to switch to a branch.
+
+Other handy keys:
+
+- P P to do a git push
+- F F to do a git pull
+- try to press TAB on entries.
+If you want to view the raw git commands, i.e. you want to know how git push is doing, press $.
+
+*** flycheck
+_Author_:
+_Homepage_:
+_Features_:
+- Supports over 30 programming and markup languages with more than 60 different syntax checking tools
+- Fully automatic, fail-safe, on-the-fly syntax checking in background
+- Nice error indication and highlighting
+- Optional error list popup
+- Many customization options
+- A comprehensive manual
+- A simple interface to define new syntax checkers
+- A “doesn't get in your way” guarantee
+- Many 3rd party extensions
+_Installation_:
+#+BEGIN_SRC emacs-lisp
+(use-package flycheck
+:ensure t
+:config
+(require 'flycheck)
+(add-hook 'after-init-hook #'global-flycheck-mode))
+#+END_SRC
+
+*** flycheck-tip
+_Author_:
+_Homepage_:
+_Features_: Show flycheck error by popup.
+_Installation_:
+#+BEGIN_SRC emacs-lisp
+(use-package flycheck-tip
+:ensure t)
+(require 'flycheck-tip)
+;(flycheck-tip-use-timer 'verbose)
 #+END_SRC
 
 * Eshell
@@ -1481,6 +1817,334 @@ _intro_:
          ("C-c n" . spell-buffer-english)))
 
 #+END_SRC
+* TODO Helm
+_Author_:
+- Tamas Patrovic (original author), from 2007. At this time, Helm was named =Anything=
+- rubikitch =rubikitch@ruby-lang.org=, from 2008-2011. Helm was still named =Anything=
+- [[https://github.com/thierryvolpiatto][Thierry Volpiatto]] (current maintainer). =thierry.volpiatto@gmail.com=, from 2011-present. =Anything= was renamed to =Helm= during this period.
+_Homepage_: [[https://github.com/emacs-helm/helm][Github]]
+_Features_:
+=Helm= is an incremental completion and selection narrowing framework for Emacs. It will help steer you in the right direction when you're looking for stuff in Emacs (like buffers, files, etc).
+Helm is a fork of =anything.el= (originally written by Tamas Patrovic) and can be considered to be its successor. =Helm= sets out to clean up the legacy code in =anything.el= and provide a cleaner, leaner and more modular tool, that's not tied in the trap of backward compatibility.
+
+_Installation_:
+#+BEGIN_SRC emacs-lisp
+  (use-package helm
+    :ensure t
+    :init
+    (progn
+      (require 'helm-config)
+      (require 'helm-grep)
+      ;; To fix error at compile:
+      ;; Error (bytecomp): Forgot to expand macro with-helm-buffer in
+      ;; (with-helm-buffer helm-echo-input-in-header-line)
+      (if (version< "26.0.50" emacs-version)
+          (eval-when-compile (require 'helm-lib)))
+
+      (defun helm-hide-minibuffer-maybe ()
+        (when (with-helm-buffer helm-echo-input-in-header-line)
+          (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
+            (overlay-put ov 'window (selected-window))
+            (overlay-put ov 'face (let ((bg-color (face-background 'default nil)))
+                                    `(:background ,bg-color :foreground ,bg-color)))
+            (setq-local cursor-type nil))))
+
+      (add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
+      ;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs.
+      ;; Changed to "C-c h". Note: We must set "C-c h" globally, because we
+      ;; cannot change `helm-command-prefix-key' once `helm-config' is loaded.
+      (global-set-key (kbd "C-c h") 'helm-command-prefix)
+      (global-unset-key (kbd "C-x c"))
+
+      (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebihnd tab to do persistent action
+      (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB works in terminal
+      (define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
+
+      (define-key helm-grep-mode-map (kbd "<return>")  'helm-grep-mode-jump-other-window)
+      (define-key helm-grep-mode-map (kbd "n")  'helm-grep-mode-jump-other-window-forward)
+      (define-key helm-grep-mode-map (kbd "p")  'helm-grep-mode-jump-other-window-backward)
+
+      (when (executable-find "curl")
+        (setq helm-google-suggest-use-curl-p t))
+
+      (setq helm-google-suggest-use-curl-p t
+            helm-scroll-amount 4 ; scroll 4 lines other window using M-<next>/M-<prior>
+            ;; helm-quick-update t ; do not display invisible candidates
+            helm-ff-search-library-in-sexp t ; search for library in `require' and `declare-function' sexp.
+
+            ;; you can customize helm-do-grep to execute ack-grep
+            ;; helm-grep-default-command "ack-grep -Hn --smart-case --no-group --no-color %e %p %f"
+            ;; helm-grep-default-recurse-command "ack-grep -H --smart-case --no-group --no-color %e %p %f"
+            helm-split-window-in-side-p t ;; open helm buffer inside current window, not occupy whole other window
+
+            helm-echo-input-in-header-line t
+
+            ;; helm-candidate-number-limit 500 ; limit the number of displayed canidates
+            helm-ff-file-name-history-use-recentf t
+            helm-move-to-line-cycle-in-source t ; move to end or beginning of source when reaching top or bottom of source.
+            helm-buffer-skip-remote-checking t
+
+            helm-mode-fuzzy-match t
+
+            helm-buffers-fuzzy-matching t ; fuzzy matching buffer names when non-nil
+                                          ; useful in helm-mini that lists buffers
+            helm-org-headings-fontify t
+            ;; helm-find-files-sort-directories t
+            ;; ido-use-virtual-buffers t
+            helm-semantic-fuzzy-match t
+            helm-M-x-fuzzy-match t
+            helm-imenu-fuzzy-match t
+            helm-lisp-fuzzy-completion t
+            ;; helm-apropos-fuzzy-match t
+            helm-buffer-skip-remote-checking t
+            helm-locate-fuzzy-match t
+            helm-display-header-line nil)
+
+      (add-to-list 'helm-sources-using-default-as-input 'helm-source-man-pages)
+
+      (global-set-key (kbd "M-x") 'helm-M-x)
+      (global-set-key (kbd "M-y") 'helm-show-kill-ring)
+      (global-set-key (kbd "C-x b") 'helm-buffers-list)
+      (global-set-key (kbd "C-x C-f") 'helm-find-files)
+      (global-set-key (kbd "C-c r") 'helm-recentf)
+      (global-set-key (kbd "C-h SPC") 'helm-all-mark-rings)
+      (global-set-key (kbd "C-c h o") 'helm-occur)
+      (global-set-key (kbd "C-c h o") 'helm-occur)
+
+      (global-set-key (kbd "C-c h w") 'helm-wikipedia-suggest)
+      (global-set-key (kbd "C-c h g") 'helm-google-suggest)
+
+      (global-set-key (kbd "C-c h x") 'helm-register)
+      ;; (global-set-key (kbd "C-x r j") 'jump-to-register)
+
+      (define-key 'help-command (kbd "C-f") 'helm-apropos)
+      (define-key 'help-command (kbd "r") 'helm-info-emacs)
+      (define-key 'help-command (kbd "C-l") 'helm-locate-library)
+
+      ;; use helm to list eshell history
+      (add-hook 'eshell-mode-hook
+                #'(lambda ()
+                    (define-key eshell-mode-map (kbd "M-l")  'helm-eshell-history)))
+
+  ;;; Save current position to mark ring
+      (add-hook 'helm-goto-line-before-hook 'helm-save-current-pos-to-mark-ring)
+
+      ;; show minibuffer history with Helm
+      (define-key minibuffer-local-map (kbd "M-p") 'helm-minibuffer-history)
+      (define-key minibuffer-local-map (kbd "M-n") 'helm-minibuffer-history)
+
+      (define-key global-map [remap find-tag] 'helm-etags-select)
+
+      (define-key global-map [remap list-buffers] 'helm-buffers-list)
+
+#+END_SRC
+Helm-swoop
+#+BEGIN_SRC emacs-lisp
+    ;; Locate the helm-swoop folder to your path
+    (use-package helm-swoop
+      :ensure t
+      :bind (("C-c h o" . helm-swoop)
+             ("C-c s" . helm-multi-swoop-all))
+      :config
+      ;; When doing isearch, hand the word over to helm-swoop
+      (define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
+
+      ;; From helm-swoop to helm-multi-swoop-all
+      (define-key helm-swoop-map (kbd "M-i") 'helm-multi-swoop-all-from-helm-swoop)
+
+      ;; Save buffer when helm-multi-swoop-edit complete
+      (setq helm-multi-swoop-edit-save t)
+
+      ;; If this value is t, split window inside the current window
+      (setq helm-swoop-split-with-multiple-windows t)
+
+      ;; Split direcion. 'split-window-vertically or 'split-window-horizontally
+      (setq helm-swoop-split-direction 'split-window-vertically)
+
+      ;; If nil, you can slightly boost invoke speed in exchange for text color
+      (setq helm-swoop-speed-or-color t))
+
+    (helm-mode 1)
+
+#+END_SRC
+Helm-gtags
+#+BEGIN_SRC emacs-lisp
+;; this variable must be set before load helm-gtags
+;; you can change to any prefix key of your choice
+(setq helm-gtags-prefix-key "\C-cg")
+
+(use-package helm-gtags
+  :ensure t
+  :init
+  (progn
+    (setq helm-gtags-ignore-case t
+          helm-gtags-auto-update t
+          helm-gtags-use-input-at-cursor t
+          helm-gtags-pulse-at-cursor t
+          helm-gtags-prefix-key "\C-cg"
+          helm-gtags-suggested-key-mapping t)
+
+    ;; Enable helm-gtags-mode in Dired so you can jump to any tag
+    ;; when navigate project tree with Dired
+    (add-hook 'dired-mode-hook 'helm-gtags-mode)
+
+    ;; Enable helm-gtags-mode in Eshell for the same reason as above
+    (add-hook 'eshell-mode-hook 'helm-gtags-mode)
+
+    ;; Enable helm-gtags-mode in languages that GNU Global supports
+    (add-hook 'c-mode-hook 'helm-gtags-mode)
+    (add-hook 'c++-mode-hook 'helm-gtags-mode)
+    (add-hook 'java-mode-hook 'helm-gtags-mode)
+    (add-hook 'asm-mode-hook 'helm-gtags-mode)
+
+    ;; key bindings
+    (with-eval-after-load 'helm-gtags
+      (define-key helm-gtags-mode-map (kbd "C-c g a") 'helm-gtags-tags-in-this-function)
+      (define-key helm-gtags-mode-map (kbd "C-j") 'helm-gtags-select)
+      (define-key helm-gtags-mode-map (kbd "M-.") 'helm-gtags-dwim)
+      (define-key helm-gtags-mode-map (kbd "M-,") 'helm-gtags-pop-stack)
+      (define-key helm-gtags-mode-map (kbd "C-c <") 'helm-gtags-previous-history)
+      (define-key helm-gtags-mode-map (kbd "C-c >") 'helm-gtags-next-history))))
+
+#+END_SRC
+_Usage_:
+*** Exploring Large Projects with Projectile and Helm Projectile
+**** Demos
+- Select and open multiple files
+[[http://tuhdo.github.io/static/helm-projectile/helm-projectile-find-files-1.gif]]
+- Open file at point anywhere
+[[http://tuhdo.github.io/static/helm-projectile/helm-projectile-find-files-dwim-1.gif]]
+- Copy files anywhere
+[[http://tuhdo.github.io/static/helm-projectile/helm-projectile-find-file-copy.gif]]
+- Delete files anywhere
+[[http://tuhdo.github.io/static/helm-projectile/helm-projectile-find-file-delete.gif]]
+- Switch between current file and other files with same names but different extensions
+[[http://tuhdo.github.io/static/helm-projectile/helm-projectile-find-other-file.gif]]
+**** Installation and configuration
+#+BEGIN_SRC emacs-lisp
+
+    (use-package helm-projectile
+      :init
+      (helm-projectile-on)
+      (setq projectile-completion-system 'helm)
+      (setq projectile-indexing-method 'alien))))
+
+#+END_SRC
+All projectile commands has prefix =C-c p=.
+**** helm-projectile, C-c p h
+_Usage_:
+- =helm-projectile-switch-to-buffer=
+- =helm-projectile-find-file=
+- =helm-projectile-switch-project=
+**** Enter project portal
+#+BEGIN_SRC emacs-lisp
+(setq projectile-switch-project-action 'helm-projectile)
+#+END_SRC
+**** File Management
+- find file
+- find file as root
+- move / rename
+- copy / delete
+- search / replace
+- misc.
+  - insert as org link
+  - ediff file
+  - ediff merge file
+  - etags
+  - switch to eshell
+  - eshell command on files
+  - symlink files
+  - relsymlink files
+  - hardlink files
+  - checksum file
+  - print file
+- Caching
+#+BEGIN_SRC emacs-lisp
+(setq projectile-enable-caching t)
+#+END_SRC
+**** virtual directory manager
+- create dired buffer from files
+- add files to a dired buffer
+- remove entry(s) from Dired buffer
+**** Buffer management
+helm-projectile-switch-to-buffer C-c p b
+**** Search in project
+- helm-projectile-grep, C-c p s g
+**** Summary of keybindings
+| Key Binding | Command                                     | Description                                                         |
+|-------------+---------------------------------------------+---------------------------------------------------------------------|
+| C-c p h     | helm-projectile                             | Helm interface to projectile                                        |
+| C-c p p     | helm-projectile-switch-project              | Switches to another projectile project                              |
+| C-c p f     | helm-projectile-find-file                   | Lists all files in a project                                        |
+| C-c p F     | helm-projectile-find-file-in-known-projects | Find file in all known projects                                     |
+| C-c p g     | helm-projectile-find-file-dwim              | find file base on context at point                                  |
+| C-c p d     | helm-projectile-find-dir                    | Lists available directories in current project                      |
+| C-c p e     | helm-projectile-recentf                     | Lists recently opened files with same name but different extensions |
+| C-c p a     | helm-projectile-find-other-file             | Switch between files with same name but different extensions        |
+| C-c p i     | projectile-invalidate-cache                 | Invalidate cache                                                    |
+| C-c p z     | projectile-cache-current-file               | add the file of current selected buffer to cache                    |
+| C-c p b     | helm-projectile-switch-to-buffer            | List all open buffers in current project                            |
+| C-c p s g   | helm-projectile-grep                        | Searches for symbol starting from project root                      |
+| C-c p s a   | helm-projectile-ack                         | Searches as above but using ack                                     |
+| C-c p s s   | helm-projectile-ag                          | Searches as above but using ag                                      |
+|-------------+---------------------------------------------+---------------------------------------------------------------------|
+*** Autoresize
+#+BEGIN_SRC emacs-lisp
+(helm-autoresize-mode t)
+#+END_SRC
+*** =helm-M-x=
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "M-x") 'helm-M-x)
+(setq helm-M-x-fuzzy-match t) ;; optional fuzzy matching for helm-M-x
+#+END_SRC
+*** =helm-mini=
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-x b") 'helm-mini)
+#+END_SRC
+To enable fuzzy matching, add the following settings
+#+BEGIN_SRC emacs-lisp
+  (setq helm-buffers-fuzzy-matching t
+        helm-recentf-fuzzy-match    t)
+#+END_SRC
+*** =helm-ff-do-grep=, live grep in Helm
+#+BEGIN_SRC emacs-lisp
+  (when (executable-find "ack-grep")
+  (setq helm-grep-default-command "ack-grep -Hn --no-group --no-color %e %p %f"
+        helm-grep-default-recurse-command "ack-grep -H --no-group --no-color %e %p %f"))
+#+END_SRC
+*** =helm-semantic-or-imenu=
+#+BEGIN_SRC emacs-lisp
+(setq helm-semantic-fuzzy-match t
+      helm-imenu-fuzzy-match    t)
+#+END_SRC
+*** =helm-man-woman=
+_Key binding_:
+<prefix> m
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'helm-sources-using-default-as-input 'helm-source-man-pages)
+#+END_SRC
+*** =helm-find=
+_Key binding_:
+<prefix> / (prefix is C-x c by default, or C-c h if set).
+*** =helm-locate=
+_Key binding_:
+<prefix> l
+#+BEGIN_SRC emacs-lisp
+(setq helm-locate-fuzzy-match t)
+#+END_SRC
+*** =helm-occur=
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-c h o") 'helm-occur)
+#+END_SRC
+*** =helm-descbinds=
+#+BEGIN_SRC emacs-lisp
+(use-package helm-descbinds
+:ensure t
+:config
+(require 'helm-descbinds)
+(helm-descbinds-mode))
+#+END_SRC
+
 * Things to Consider
 ** A Secure Emacs Environment - Build Fun Things
 ** Modernizing Emacs - Howard Abrams
