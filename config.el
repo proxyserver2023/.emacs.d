@@ -2,6 +2,13 @@
 (setq user-full-name "Md. Alamin Mahamud")
 (setq user-mail-address "alamin.ineedahelp@gmail.com")
 
+(let ((minver "24.3"))
+  (when (version< emacs-version minver)
+    (error "Your Emacs is too odl -- this config requires v%s or higher" minver)))
+
+(when (version< emacs-version "24.5")
+  (message "Your Emacs is old, and some functionality in this config will be disabled. Please upgrade if possible."))
+
 ;;  (if (fboundp 'gnutls-available-p)
 ;;      (fmakunbound 'gnutls-available-p))
 
@@ -36,91 +43,84 @@
 ;;      (url-retrieve "https://badssl.com"
 ;;                    (lambda (retrieved) t))))
 
-(setq custom-file (concat init-dir "custom.el"))
+(defun sanityinc/time-subtract-millis (b a)
+  (* 1000.0 (float-time (time-subtract b a))))
 
-(load custom-file :noerror)
+(defvar sanityinc/require-times nil
+  "A List of (FEATURE LOAD-START-TIME LOAD-DURATION).
+LOAD-DURATION is the time taken in milliseconds to load FEATURE.")
 
-(setq gc-cons-threshold 50000000)
+(defadvice require (around sanityinc/build-require-times (feature &optional filename noerror) activate)
+  "Note in `sanityinc/require-times' the time taken to require each feature."
+  (let* ((already-loaded (memq feature features))
+         (require-start-time (and (not already-loaded) (current-time))))
+    (prog1
+        ad-do-it
+      (when (and (not already-loaded) (memq feature features))
+        (let ((time (sanityinc/time-subtract-millis (current-time) require-start-time)))
+          (add-to-list 'sanityinc/require-times
+                       (list feature require-start-time time)
+                       t))))))
 
-(setq gnutls-min-prime-bits 4096)
+(define-derived-mode sanityinc/require-times-mode tabulated-list-mode "Require-Times"
+  "Show times taken to `require' packages."
+  (setq tabulated-list-format
+        [("Start time (ms)" 20 sanityinc/require-times-sort-by-start-time-pred)
+         ("Feature" 30 t)
+         ("Time (ms)" 12 sanityinc/require-times-sort-by-load-time-pred)])
+  (setq tabulated-list-sort-key (cons "Start time (ms)" nil))
+  ;; (setq tabulated-list-padding 2)
+  (setq tabulated-list-entries #'sanityinc/require-times-tabulated-list-entries)
+  (tabulated-list-init-header)
+  (tablist-minor-mode))
 
-(require 'package)
+(defun sanityinc/require-times-sort-by-start-time-pred (entry1 entry2)
+  (< (string-to-number (elt (nth 1 entry1) 0))
+     (string-to-number (elt (nth 1 entry2) 0))))
 
-(defvar gnu '("gnu" . "https://elpa.gnu.org/packages/"))
-(defvar melpa '("melpa" . "https://melpa.org/packages/"))
-(defvar melpa-stable '("melpa-stable" . "https://stable.melpa.org/packages/"))
+(defun sanityinc/require-times-sort-by-load-time-pred (entry1 entry2)
+  (> (string-to-number (elt (nth 1 entry1) 2))
+     (string-to-number (elt (nth 1 entry2) 2))))
 
-;; Add marmalade to package repos
-(setq package-archives nil)
-(add-to-list 'package-archives melpa-stable t)
-(add-to-list 'package-archives melpa t)
-(add-to-list 'package-archives gnu t)
+(defun sanityinc/require-times-tabulated-list-entries ()
+  (cl-loop for (feature start-time millis) in sanityinc/require-times
+           with order = 0
+           do (incf order)
+           collect (list order
+                         (vector
+                          (format "%.3f" (sanityinc/time-subtract-millis start-time before-init-time))
+                          (symbol-name feature)
+                          (format "%.3f" millis)))))
 
-(package-initialize)
+(defun sanityinc/require-times ()
+  "Show a tabular view of how long various libraries took to load."
+  (interactive)
+  (with-current-buffer (get-buffer-create "*Require Times*")
+    (sanityinc/require-times-mode)
+    (tabulated-list-revert)
+    (display-buffer (current-buffer))))
 
-(unless (and (file-exists-p "~/.emacs.d/elpa/archives/gnu")
-             (file-exists-p "~/.emacs.d/elpa/archives/melpa")
-             (file-exists-p "~/.emacs.d/elpa/archives/melpa-stable"))
-  (package-refresh-contents))
+(defun sanityinc/show-init-time ()
+  (message "init completed in %.2fms"
+           (sanityinc/time-subtract-millis after-init-time before-init-time)))
 
-(defun packages-install (&rest packages)
-  (message "running packages-install")
-  (mapc (lambda (package)
-          (let ((name (car package))
-                (repo (cdr package)))
-            (unless (package-installed-p name)
-              (let ((package-archives (list repo)))
-                (package-initialize)
-                (package-install name)))))
-        packages)
-  (package-initialize)
-  (delete-other-windows))
+(add-hook 'after-init-hook 'sanityinc/show-init-time)
 
-;; Install extensions if they're missing
-(defun init--install-packages ()
-  (message "Lets install some packages")
-  (packages-install
-   ;; Since use-package this is the only entry here
-   ;; ALWAYS try to use use-package!
-   (cons 'use-package melpa))
-)
+(defconst *spell-check-support-enabled* nil)
 
-(condition-case nil
-    (init--install-packages)
-  (error
-   (package-refresh-contents)
-   (init--install-packages)))
+(defconst *is-a-mac* (eq system-type 'darwin))
 
-(setq use-package-verbose t)
-(setq use-package-always-ensure t)
-(require 'use-package)
-(use-package auto-compile
-  :config (auto-compile-on-load-mode))
-(setq load-prefer-newer t)
+(let ((normal-gc-cons-threshold (* 20 1024 1024))
+      (init-gc-cons-threshold (* 128 1024 1024)))
+  (setq gc-cons-threshold init-gc-cons-threshold)
+  (add-hook 'after-init-hook
+            (lambda () (setq gc-cons-threshold normal-gc-cons-threshold))))
 
-(require 'cl)
 
-(use-package dash
-:ensure t
-:config (eval-after-load "dash" '(dash-enable-font-lock)))
 
-(use-package s
-:ensure t)
-
-(use-package f
-:ensure t)
-
-(setq-default indent-tabs-mode nil)
-(setq tab-width 2)
-
-(setq-default tab-always-indent 'complete)
-
-(fset 'yes-or-no-p 'y-or-n-p)
-
-(setq scroll-conservatively 10000
-      scroll-preserve-screen-position t)
-
-(setq disabled-command-function nil)
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
 
 (setq global-mark-ring-max 5000   ; increase mark ring to contains 5000 entries
       mark-ring-max 5000          ; increase kill to contains 5000 entries
