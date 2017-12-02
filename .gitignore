@@ -2,3 +2,6 @@
 **/elpa/
 **/eshell/
 **/snippets/
+history
+*.el~
+*.uptimes.el
