@@ -8,4 +8,7 @@ history
 *custom.el
 *README.el
 *.emacs_workgroups
+*.emacs_workgroups~
 *projectile-bookmarks.eld
+*recentf
+*savehist

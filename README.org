@@ -624,6 +624,152 @@ Smart Scan will try to infer the symbol your point is on and let you jump to oth
   :defer t
   :config (global-smartscan-mode t))
 #+END_SRC
+** saveplace
+#+BEGIN_SRC emacs-lisp
+;; saveplace remembers your location in a file when saving files
+(require 'saveplace)
+(setq-default save-place t)
+#+END_SRC
+* Files
+** large-file-warning
+#+BEGIN_SRC emacs-lisp
+(setq large-file-warning-threshold 100000000) ;; size in bytes
+#+END_SRC
+** Backup
+#+BEGIN_SRC emacs-lisp
+(defvar backup-directory "~/.backups")
+(if (not (file-exists-p backup-directory))
+    (make-directory backup-directory t))
+(setq
+ make-backup-files t        ; backup a file the first time it is saved
+ backup-directory-alist `((".*" . ,backup-directory)) ; save backup files in ~/.backups
+ backup-by-copying t     ; copy the current file into backup directory
+ version-control t   ; version numbers for backup files
+ delete-old-versions t   ; delete unnecessary versions
+ kept-old-versions 6     ; oldest versions to keep when a new numbered backup is made (default: 2)
+ kept-new-versions 9 ; newest versions to keep when a new numbered backup is made (default: 2)
+ auto-save-default t ; auto-save every buffer that visits a file
+ auto-save-timeout 20 ; number of seconds idle time before auto-save (default: 30)
+ auto-save-interval 200 ; number of keystrokes between auto-saves (default: 300)
+ )
+
+#+END_SRC
+** Dired
+#+BEGIN_SRC emacs-lisp
+(setq
+ dired-dwim-target t            ; if another Dired buffer is visible in another window, use that directory as target for Rename/Copy
+ dired-recursive-copies 'always         ; "always" means no asking
+ dired-recursive-deletes 'top           ; "top" means ask once for top level directory
+ dired-listing-switches "-lha"          ; human-readable listing
+ )
+#+END_SRC
+Automatically refresh dired buffer on changes
+#+BEGIN_SRC emacs-lisp
+(add-hook 'dired-mode-hook 'auto-revert-mode)
+#+END_SRC
+If it is not windows, use the following listing switches
+#+BEGIN_SRC emacs-lisp
+;; if it is not Windows, use the following listing switches
+(when (not (eq system-type 'windows-nt))
+  (setq dired-listing-switches "-lha --group-directories-first"))
+(require 'dired-x)
+#+END_SRC
+Wdired allows you to edit a Dired buffer and write changes to disk
+#+BEGIN_SRC emacs-lisp
+;; - Switch to Wdired by C-x C-q
+;; - Edit the Dired buffer, i.e. change filenames
+;; - Commit by C-c C-c, abort by C-c C-k
+(require 'wdired)
+(setq
+ wdired-allow-to-change-permissions t   ; allow to edit permission bits
+ wdired-allow-to-redirect-links t       ; allow to edit symlinks
+ )
+#+END_SRC
+** Recentf
+#+BEGIN_SRC emacs-lisp
+  (recentf-mode)
+  (setq recentf-max-menu-items 30
+        recentf-max-saved-items 5000)
+  (global-set-key (kbd "<f7>") 'recentf-open-files)
+#+END_SRC
+** Dired+
+_Author_:
+_Homepage_:
+_Features_: Extension to DIRED
+_Installation_:
+#+BEGIN_SRC emacs-lisp
+(use-package dired+
+:ensure t
+:config
+(require 'dired+))
+
+#+END_SRC
+
+_usage_:
+** recentf-ext
+_Author_:
+_Homepage_:
+_Features_:
+Extension of `recentf` package.
+- `dired` buffers can be handled
+- switching to file buffer considers it as most recent file.
+_Installation_:
+#+BEGIN_SRC emacs-lisp
+(use-package recentf-ext
+:ensure t
+:config
+(require 'recentf-ext))
+#+END_SRC
+
+_usage_:
+** ztree
+_Author_:
+_Homepage_:
+_Features_:
+Ztree is a project dedicated to implementation of several text-tree applications inside Emacs. It consists of 2 sub-projects: ztree-diff and ztree-dir(the basis of ztree-diff).
+_Installation_:
+#+BEGIN_SRC emacs-lisp
+(use-package ztree
+:ensure t
+:config
+(require 'ztree-diff)
+(require 'ztree-dir))
+#+END_SRC
+_usage_:
+** TODO vlf
+_Author_:
+_Homepage_:
+_Features_:
+Emacs minor mode that allows viewing, editing, searching and comparing large files in batches. Batch size can be adjusted on the fly and bounds the memory that is to be used for operations on the file. This way multiple large files (like terabytes or whatever) can be instantly and simultaneously accessed without swapping and degraded performance.
+
+regular expression search on whole file (in constant memory determined by current batch size)
+chunk editing (if size has changed, saving is done in constant memory determined by current batch size)
+Occur like indexing
+options to jump to beginning, end or arbitrary file chunk
+ability to jump/insert given number of batches at once
+newly added content is acknowledged if file has changed size meanwhile
+automatic scrolling of batches
+as a minor mode, font locking and functionality of the respective major mode is also present
+by batch Ediff comparison
+can be added as option to automatically open large files
+smooth integration with hexl-mode
+works with TRAMP so accessing network files is fine
+
+_Installation_:
+_usage_:
+
+** History
+#+BEGIN_SRC emacs-lisp
+(setq savehist-file "~/.emacs.d/savehist")
+(savehist-mode 1)
+(setq history-length t)
+(setq history-delete-duplicates t)
+(setq savehist-save-minibuffer-history 1)
+(setq savehist-additional-variables
+      '(kill-ring
+        search-ring
+        regexp-search-ring))
+#+END_SRC
 * Things to Consider
 ** A Secure Emacs Environment - Build Fun Things
 ** Modernizing Emacs - Howard Abrams
@@ -638,4 +784,9 @@ Handy way of getting back to previous places
 ** TODO Frequently-accessed files
 [[http://pages.sachachua.com/.emacs.d/Sacha.html#org9750649]]
 ** TODO Shuffling Lines - Sacha Chua
-
+** password manamgement
+** flyspell
+** GUD
+** term-mode
+** ansi-term
+** shell-pop
