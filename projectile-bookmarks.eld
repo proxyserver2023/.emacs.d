@@ -1,1 +1,0 @@
-("~/dotfiles/.emacs.d.my/" "~/Dropbox/Lab/" "~/linux/" "~/Dropbox/project-files/AlaminMahamud.github.io/" "~/dotfiles/")
