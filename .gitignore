@@ -7,3 +7,5 @@ history
 *.uptimes.el
 *custom.el
 *README.el
+*.emacs_workgroups
+*projectile-bookmarks.eld
