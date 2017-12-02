@@ -10,12 +10,10 @@
 #+CATEGORIES: editing
 
 * Introduction
-
 #+BEGIN_SRC emacs-lisp
   (setq user-full-name "Md. Alamin Mahamud")
   (setq user-mail-address "alamin.ineedahelp@gmail.com")
 #+END_SRC
-
 * Package Initialization
 ** Package Manager
 #+IDEA: Howard Abrams, Build Fun Things
@@ -57,10 +55,16 @@ Initialize the archive and refresh the contents in case there is no cached archi
 ** initialization
 #+BEGIN_SRC emacs-lisp
 (setq inhibit-startup-screen t)
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
 #+END_SRC
+** Bars
+#+BEGIN_SRC emacs-lisp
+;; you won't need any of the bar thingies
+;; turn it off to save screen estate
+(if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
+(if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
+(if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
+#+END_SRC
+
 ** Theme and icons
 *** arjen-grey-theme
 #+BEGIN_SRC emacs-lisp
@@ -403,6 +407,113 @@ _Usage_:
   ;;               (run-with-timer 1 nil 'qs-refresh-scratch-buffer)
   ;;               (qs-refresh-quote-when-idle))))
 #+END_SRC
+
+** Faces
+*** Find out what face is used, so you can customize it :)
+#+BEGIN_SRC emacs-lisp
+;;; what-face to determine the face at the current point
+(defun what-face (pos)
+  (interactive "d")
+  (let ((face (or (get-char-property (point) 'read-face-name)
+                  (get-char-property (point) 'face))))
+    (if face (message "Face: %s" face) (message "No face at %d" pos))))
+#+END_SRC
+*** blink-cursor
+#+BEGIN_SRC emacs-lisp
+(blink-cursor-mode -1)
+#+END_SRC
+*** Size indication mode
+#+BEGIN_SRC emacs-lisp
+(size-indication-mode t)
+#+END_SRC
+*** Mousewheel scrolling
+#+BEGIN_SRC emacs-lisp
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil)))
+(setq mouse-wheel-progressive-speed nil)
+#+END_SRC
+
+*** More with Scroll
+#+BEGIN_SRC emacs-lisp
+(setq scroll-margin 0
+      scroll-conservatively 100000
+      scroll-preserve-screen-position 1)
+#+END_SRC
+*** Frame Title
+#+BEGIN_SRC emacs-lisp
+;; more useful frame title, that show either a file or a
+;; buffer name (if the buffer isn't visiting a file)
+;; taken from prelude-ui.el
+(setq frame-title-format
+      '("" invocation-name " - " (:eval (if (buffer-file-name)
+                                                    (abbreviate-file-name (buffer-file-name))
+                                                  "%b"))))
+
+#+END_SRC
+*** Default font
+#+BEGIN_SRC emacs-lisp
+(if (or (eq system-type 'darwin)(eq system-type 'gnu/linux) )
+    (set-face-attribute 'default nil :font "Hack-11")
+  (set-face-attribute 'default nil :font "DejaVu Sans Mono" :height 110))
+
+;; set italic font for italic face, since Emacs does not set italic
+;; face automatically
+(set-face-attribute 'italic nil
+                    :family "Hack-Italic")
+
+#+END_SRC
+*** highlight-numbers
+_Author_:
+_Homepage_:
+_Features_:
+highlight-numbers is an Emacs minor mode that highlights numeric literals in source code.
+_Installation_:
+#+BEGIN_SRC emacs-lisp
+(use-package highlight-numbers
+:ensure t
+:config
+(add-hook 'prog-mode-hook 'highlight-numbers-mode))
+#+END_SRC
+_Usage_:
+Numbers automatically have distinct colors in buffer
+*** highlight-symbol:
+_Author_:
+_Homepage_:
+_Features_:
+Automatic and manual symbol highlighting for Emacs
+_Installation_:
+#+BEGIN_SRC emacs-lisp
+  (use-package highlight-symbol
+  :ensure t
+  :config
+
+  (require 'highlight-symbol)
+  (highlight-symbol-nav-mode)
+  (add-hook 'prog-mode-hook
+            (lambda() (highlight-symbol-mode)))
+  (add-hook 'org-mode-hook (lambda () (highlight-symbol-mode)))
+(setq highlight-symbol-idle-delay 0.2
+      highlight-symbol-on-navigation-p t)
+
+(global-set-key [(control shift mouse-1)]
+                (lambda (event)
+                  (interactive "e")
+                  (goto-char (posn-point (event-start event)))
+                  (highlight-symbol-at-point)))
+
+(global-set-key (kbd "M-n") 'highlight-symbol-next)
+(global-set-key (kbd "M-p") 'highlight-symbol-prev))
+#+END_SRC
+_Usage_:
+If you move point on a symbol, it automatically highlights all the symbols in the current screen. From now on, pressing M-n and M-p will immediately jump to the next/previous symbols in a buffer.
+*** disable beep
+[[http://stackoverflow.com/questions/11679700/emacs-disable-beep-when-trying-to-move-beyond-the-end-of-the-document][link]]
+#+BEGIN_SRC emacs-lisp
+(defun my-bell-function ())
+
+(setq ring-bell-function 'my-bell-function)
+(setq visible-bell nil)
+#+END_SRC
+
 * Editing
 ** Mark Ring
 #+BEGIN_SRC emacs-lisp
@@ -986,6 +1097,15 @@ Smart Scan will try to infer the symbol your point is on and let you jump to oth
 (add-hook 'prog-mode-hook 'goto-address-mode)
 (add-hook 'text-mode-hook 'goto-address-mode)
 #+END_SRC
+** Word wrapping
+wrap text around when in text-modes. Also enable flyspell to catch nasty writing errors.
+#+BEGIN_SRC emacs-lisp
+  (dolist (hook '(text-mode-hook))
+    (add-hook hook (lambda ()
+                     (flyspell-mode 1)
+                     (visual-line-mode  1))))
+#+END_SRC
+
 * Files
 ** large-file-warning
 #+BEGIN_SRC emacs-lisp
@@ -1135,6 +1255,232 @@ Start Garbage Collection every 100MB to improve Emacs performance
 (setq gc-cons-threshold 100000000)
 * Email
 * Org Mode
+* Programming
+** Markdown support
+Markdown is a great way to write documentation, not as good as org-mode of course, but generally accepted as a standard.
+not as good as org-mode of course, but generally accepted as a standard.
+
+#+BEGIN_SRC emacs-lisp
+(use-package markdown-mode
+:ensure t)
+#+END_SRC
+
+* Eshell
+Drill
+#+BEGIN_SRC emacs-lisp
+(require 'eshell)
+(require 'em-alias)
+(require 'cl)
+
+;; Advise find-file-other-window to accept more than one file
+(defadvice find-file-other-window (around find-files activate)
+  "Also find all files within a list of files. This even works recursively."
+  (if (listp filename)
+      (loop for f in filename do (find-file-other-window f wildcards))
+    ad-do-it))
+
+;; In Eshell, you can run the commands in M-x
+;; Here are the aliases to the commands.
+;; $* means accepts all arguments.
+(eshell/alias "o" "")
+(eshell/alias "o" "find-file-other-window $*")
+(eshell/alias "vi" "find-file-other-window $*")
+(eshell/alias "vim" "find-file-other-window $*")
+(eshell/alias "emacs" "find-file-other-windpow $*")
+(eshell/alias "em" "find-file-other-window $*")
+
+(add-hook
+ 'eshell-mode-hook
+ (lambda ()
+   (setq pcomplete-cycle-completions nil)))
+
+;; change listing switches based on OS
+(when (not (eq system-type 'windows-nt))
+  (eshell/alias "ls" "ls --color -h --group-directories-first $*"))
+#+END_SRC
+Eshell Here
+#+BEGIN_SRC emacs-lisp
+(defun eshell-here ()
+  "Opens up a new shell in the directory associated with the
+current buffer's file. The eshell is renamed to match that
+directory to make multiple eshell windows easier."
+  (interactive)
+  (let* ((parent (if (buffer-file-name)
+                     (file-name-directory (buffer-file-name))
+                   default-directory))
+         (height (/ (window-total-height) 3))
+         (name   (car (last (split-string parent "/" t)))))
+    (split-window-vertically (- height))
+    (other-window 1)
+    (eshell "new")
+    (rename-buffer (concat "*eshell: " name "*"))
+
+    (insert (concat "ls"))
+    (eshell-send-input)))
+
+(global-set-key (kbd "C-!") 'eshell-here)
+#+END_SRC
+* Help
+** info+
+_author_:
+_homepage_:
+_Features_:
+ Info+ helps you read Info documents more enjoyable with extra highlighting it provides.
+_installation_:
+#+BEGIN_SRC emacs-lisp
+(use-package info+
+:ensure t
+:config
+(require 'info+))
+#+END_SRC
+** discover-my-major
+_author_:
+_homepage_:
+_Features_:
+Discover key bindings and their meaning for the current Emacs major mode.
+_installation_:
+#+BEGIN_SRC emacs-lisp
+(use-package discover-my-major
+:ensure t
+:config
+;; A quick major mode help with discover-my-major
+(global-unset-key (kbd "C-h h"))        ; original "C-h h" displays "hello world" in different languages
+(define-key 'help-command (kbd "h m") 'discover-my-major)
+)
+#+END_SRC
+_usage_:
+The above setup binds C-h h m to discover-my-major. In a buffer, C-h h m and you will see key bindings of that major mode and its description, as opposed to usual C-h m which gives mappings between keys and commands.
+** rainbow-mode
+_author_:
+_homepage_:
+_Features_:
+This minor mode sets background color to strings that match color names, e.g. #0000ff is displayed in white with a blue background.
+_installation_:
+#+BEGIN_SRC emacs-lisp
+(use-package rainbow-mode
+:ensure t
+:config
+(add-hook 'html-mode-hook 'rainbow-mode)
+(add-hook 'css-mode-hook 'rainbow-mode))
+#+END_SRC
+It is useful to always activate rainbow-mode in those two major modes. For other modes, it is situational, so I don't use prog-mode-hook.
+_usage_:
+As you type a hex number or a color string in a buffer with rainbow-mode activated, the hex number or color string is colorized.
+** help+
+_author_:
+_homepage_:
+_Features_:
+Extension to help.el for emacs
+_installation_:
+#+BEGIN_SRC emacs-lisp
+(use-package help+
+:ensure t
+:config
+(require 'help+))
+#+END_SRC
+_usage_:
+The following bindings are made:
+
+- `C-h u' `manual-entry'
+- `C-h C-a' `apropos'
+- `C-h C-l' `locate-library'
+- `C-h RET' `help-on-click/key'
+- `C-h M-a' `apropos-documentation'
+- `C-h M-o' `pop-to-help-toggle'
+- `C-h C-M-a' `tags-apropos'
+- [mouse-1] `mouse-help-on-click' (non-mode-line)
+- [mouse-1] `mouse-help-on-mode-line-click' (mode-line)
+
+** help-fns+
+_author_:
+_homepage_:
+_Features_:
+Extension to help-fns.el for emacs
+_installation_:
+#+BEGIN_SRC emacs-lisp
+(use-package help-fns+
+:ensure t
+:config
+(require 'help-fns+))
+#+END_SRC
+_usage_:
+
+| Keys    | Bindings                                         |
+| C-h B   | describe-buffer                                  |
+| C-h c   | describe-command (replaces describe-key-briefly) |
+| C-h o   | describe-option                                  |
+| C-h C-c | describe-key-briefly (replaces C-h c)            |
+| C-h C-o | describe-option-of-type                          |
+| C-h M-c | describe-copying (replaces C-h C-c)              |
+| C-h M-f | describe-file                                    |
+| C-h M-k | describe-keymap                                  |
+| C-h M-l | find-function-on-key                             |
+
+** help-mode+
+_author_:
+_homepage_:
+_Features_:
+Extensions to `help-mode.el'
+
+Links to libraries are provided whenever library names appear in buffer ‘*Help*’. After loading help-mode+.el, library names in buffer Help have mouse-over links to the corresponding library code.
+
+For example, ‘C-h v features’ describes the variable ‘features’; this description lists all of the libraries currently loaded in Emacs.
+
+- In vanilla Emacs (without help-mode+.el loaded), the library names are not linked, unless a library (such as ‘grep’) happens to have the same name as an Emacs function or variable, in which case clicking the name displays the function or variable description in buffer Help.
+- With help-mode+.el loaded, each library name in the ‘C-h v features’ list is linked to the library (code) itself. Click a name to edit/view the library file.
+_installation_:
+#+BEGIN_SRC emacs-lisp
+(use-package help-mode+
+:ensure t
+:config
+(require 'help-mode+))
+#+END_SRC
+_usage_:
+If a *Help* buffer contains other library names, the names automatically becomes links to jump to.
+
+** which-key
+_author_:
+_homepage_:
+_intro_:
+
+#+BEGIN_SRC emacs-lisp
+(use-package which-key
+  :ensure t
+  :diminish which-key-mode
+  :config
+  (which-key-mode))
+#+END_SRC
+
+** Eldoc
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
+  (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
+  (add-hook 'ielm-mode-hook 'turn-on-eldoc-mode)
+#+END_SRC
+** TODO Spell checking
+#+BEGIN_SRC emacs-lisp
+(defun spell-buffer-dutch ()
+  (interactive)
+  (ispell-change-dictionary "nl_NL")
+  (flyspell-buffer))
+
+(defun spell-buffer-english ()
+  (interactive)
+  (ispell-change-dictionary "en_US")
+  (flyspell-buffer))
+
+(use-package ispell
+  :config
+  (when (executable-find "hunspell")
+    (setq-default ispell-program-name "hunspell")
+    (setq ispell-really-hunspell t))
+
+  ;; (setq ispell-program-name "aspell"
+  ;;       ispell-extra-args '("--sug-mode=ultra"))
+  :bind (("C-c N" . spell-buffer-dutch)
+         ("C-c n" . spell-buffer-english)))
+
+#+END_SRC
 * Things to Consider
 ** A Secure Emacs Environment - Build Fun Things
 ** Modernizing Emacs - Howard Abrams
@@ -1156,3 +1502,13 @@ Handy way of getting back to previous places
 ** ansi-term
 ** shell-pop
 ** toggle-margin-right - sacha
+** Writing
+*** Avoid weasel words - sacha
+*** Unicode - sacha
+*** clean-up space - sacha
+#+BEGIN_SRC emacs-lisp
+;(bind-key "M-SPC" 'cycle-spacing)
+#+END_SRC
+** htmlize buffers
+** exports
+** presentation
