@@ -5,3 +5,5 @@
 history
 *.el~
 *.uptimes.el
+*custom.el
+*README.el

@@ -1,0 +1,385 @@
+#+TITLE: Alamin's Emacs Configuration
+#+AUTHOR: Md. Alamin Mahamud
+#+EMAIL: alamin.ineedahelp@gmail.com
+
+#+STARTUP: overview indent inlineimages
+#+OPTIONS: H:5 num:nil tags:nil toc:nil timestamp:t
+#+LAYOUT: post
+#+DESCRIPTION: Loading Emacs Configuration using org-babel
+#+TAGS: emacs
+#+CATEGORIES: editing
+
+* Introduction
+
+#+BEGIN_SRC emacs-lisp
+  (setq user-full-name "Md. Alamin Mahamud")
+  (setq user-mail-address "alamin.ineedahelp@gmail.com")
+#+END_SRC
+
+* Package Initialization
+** Package Manager
+#+IDEA: Howard Abrams, Build Fun Things
+Because the default setting for =package-archives= is to use the HTTP access to use the GNU archive, set the variable to 'nil' before adding the HTTPS variants.
+#+BEGIN_SRC emacs-lisp
+  (require 'package)
+  (setq package-archives nil)
+  (setq package-archives '(("org"       . "http://orgmode.org/elpa/")
+                           ("gnu"       . "http://elpa.gnu.org/packages/")
+                           ("melpa"     . "http://melpa.org/packages/")
+                           ("marmalade" . "http://marmalade-repo.org/packages/")))
+#+END_SRC
+
+Initialize the archive and refresh the contents in case there is no cached archive
+#+BEGIN_SRC emacs-lisp
+(package-initialize)
+
+(unless (and (file-exists-p "~/.emacs.d/elpa/archives/gnu")
+             (file-exists-p "~/.emacs.d/elpa/archives/melpa")
+             (file-exists-p "~/.emacs.d/elpa/archives/melpa-stable")
+             (file-exists-p "~/.emacs.d/elpa/archives/marmalade"))
+  (package-refresh-contents))
+#+END_SRC
+
+** use-package
+#+BEGIN_SRC emacs-lisp
+  (unless (package-installed-p 'use-package)
+    (package-refresh-contents)
+    (package-install 'use-package))
+  (require 'use-package)
+#+END_SRC
+
+* load custom file
+#+BEGIN_SRC emacs-lisp
+  (setq custom-file "~/.emacs.d/custom.el")
+  (load custom-file :noerror)
+#+END_SRC
+* Editing
+** Mark Ring
+#+BEGIN_SRC emacs-lisp
+  (setq global-mark-ring-max 5000   ; increase mark ring to contains 5000 entries
+        mark-ring-max 5000          ; increase kill to contains 5000 entries
+        mode-require-final-newline t; add a newline to end of file
+        )
+#+END_SRC
+** Coding System
+#+BEGIN_SRC emacs-lisp
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-language-environment "UTF-8")
+(prefer-coding-system 'utf-8)
+#+END_SRC
+** Linum
+#+BEGIN_SRC emacs-lisp
+(add-hook 'prog-mode-hook 'linum-mode) ;; enable linum only in programming modes
+#+END_SRC
+** Killing
+#+BEGIN_SRC emacs-lisp
+(setq
+ kill-ring-max 5000 ; increase kill-ring capacity
+ kill-whole-line t  ; if NIL, kill whole line and move the next line up
+ )
+#+END_SRC
+** whitespace in diff mode
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'diff-mode-hook
+            (lambda ()
+              (setq-local
+               whitespace-style
+               '(
+                 face
+                 tabs
+                 spaces
+                 space-mark
+                 trailing
+                 indentation::space
+                 indentation::tab
+                 newline
+                 newline-mark))
+              (whitespace-mode 1)))
+#+END_SRC
+** delete-selection-mode
+#+BEGIN_SRC emacs-lisp
+(delete-selection-mode)
+#+END_SRC
+** newline-and-indent
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "RET") 'newline-and-indent)
+#+END_SRC
+** duplicate-thing
+_Author_      : ongaeshi, =ongaeshi0621@gmail.com=
+
+_Homepage_    : [[https://github.com/ongaeshi/duplicate-thing][Github]]
+
+_Features_    : Easy duplicate line or region, with comment out
+- Duplicate current line
+- Duplicate a selection when selection is active.
+- Only C-u, replicate, comment out the range.
+- Numerical prefix is specified as 'C-u 5': do multiple times repeatedly.
+
+_Installation_:
+#+BEGIN_SRC emacs-lisp
+(use-package duplicate-thing
+:ensure t
+:config
+(require 'duplicate-thing)
+(global-set-key (kbd "M-c") 'duplicate-thing))
+#+END_SRC
+
+_Usage_       : If point is on a line, the command duplicates the current line. If region is active, duplicates region instead.
+
+** volatile-highlights
+_Author_      : Keitalo Miyazaki, =keitaro.miyazaki@gmail.com=
+_Homepage_    : [[http://www.emacswiki.org/emacs/VolatileHighlights][Emacswiki]]
+_Features_    : 'Volatile Highlights' highlights changes to the buffer caused by commands such as ‘undo’, ‘yank’/’yank-pop’, etc. The highlight disappears at the next command. The highlighting gives useful visual feedback for what your operation actually changed in the buffer.
+_Installation_:
+#+BEGIN_SRC emacs-lisp
+(use-package volatile-highlights
+:ensure t
+:config
+(require 'volatile-highlights)
+(volatile-highlights-mode t))
+#+END_SRC
+_Usage_       : When you yank (paste) something, the yanked region will be highlighted.
+
+** smartparens
+_Author_  : Matus Goljer, =matus.goljer@gmail.com=
+_Homepage_: [[https://github.com/Fuco1/smartparens][Github]]
+_Features_: Minor mode for Emacs that deals with parens pairs and tries to be smart about it.
+ - It can automatically insert pairs
+[[https://github.com/Fuco1/smartparens/raw/master/images/smartparens-insert.gif]]
+- wrap, unwrap and rewrap pairs
+[[https://github.com/Fuco1/smartparens/raw/master/images/smartparens-wrap.gif]]
+- expand and contract pairs
+[[https://github.com/Fuco1/smartparens/raw/master/images/smartparens-slurp.gif]]
+- navigate pairs
+[[https://github.com/Fuco1/smartparens/raw/master/images/smartparens-navigate.gif]]
+_Installation_:
+#+BEGIN_SRC emacs-lisp
+(use-package smartparens-config
+:ensure smartparens
+:config
+(progn
+(show-smartparens-global-mode t)))
+
+(add-hook 'prog-mode-hook 'turn-on-smartparens-strict-mode)
+(add-hook 'markdown-mode-hook 'turn-on-smartparens-strict-mode)
+(bind-keys
+ :map smartparens-mode-map
+ ("C-M-a" . sp-beginning-of-sexp)
+ ("C-M-e" . sp-end-of-sexp)
+
+ ("C-<down>" . sp-down-sexp)
+ ("C-<up>"   . sp-up-sexp)
+ ("M-<down>" . sp-backward-down-sexp)
+ ("M-<up>"   . sp-backward-up-sexp)
+
+ ("C-M-f" . sp-forward-sexp)
+ ("C-M-b" . sp-backward-sexp)
+
+ ("C-M-n" . sp-next-sexp)
+ ("C-M-p" . sp-previous-sexp)
+
+ ("C-S-f" . sp-forward-symbol)
+ ("C-S-b" . sp-backward-symbol)
+
+ ("C-<right>" . sp-forward-slurp-sexp)
+ ("M-<right>" . sp-forward-barf-sexp)
+ ("C-<left>"  . sp-backward-slurp-sexp)
+ ("M-<left>"  . sp-backward-barf-sexp)
+
+ ("C-M-t" . sp-transpose-sexp)
+ ("C-M-k" . sp-kill-sexp)
+ ("C-k"   . sp-kill-hybrid-sexp)
+ ("M-k"   . sp-backward-kill-sexp)
+ ("C-M-w" . sp-copy-sexp)
+ ("C-M-d" . delete-sexp)
+
+ ("M-<backspace>" . backward-kill-word)
+ ("C-<backspace>" . sp-backward-kill-word)
+ ([remap sp-backward-kill-word] . backward-kill-word)
+
+ ("M-[" . sp-backward-unwrap-sexp)
+ ("M-]" . sp-unwrap-sexp)
+
+ ("C-x C-t" . sp-transpose-hybrid-sexp)
+
+ ("C-c ("  . wrap-with-parens)
+ ("C-c ["  . wrap-with-brackets)
+ ("C-c {"  . wrap-with-braces)
+ ("C-c M-'"  . wrap-with-single-quotes)
+ ("C-c \"" . wrap-with-double-quotes)
+ ("C-c _"  . wrap-with-underscores)
+ ("C-c `"  . wrap-with-back-quotes))
+#+END_SRC
+** clean-aindent-mode
+_Author_  :
+_Homepage_:
+_Features_:
+When you press RET to create a newline and got indented by eletric-indent-mode, you have appropriate whitespace for indenting. But, if you leave the line blank and move to the next line, the whitespace becomes useless. This package helps clean up unused whitespace.
+_Installation_:
+#+BEGIN_SRC emacs-lisp
+(use-package clean-aindent-mode
+:ensure t
+:config
+(require 'clean-aindent-mode))
+
+(add-hook 'prog-mode-hook 'clean-aindent-mode)
+#+END_SRC
+_Usage_:
+Automatically cleanup whitespaced on moving up/down
+** undo-tree
+_Author_:
+_Homepage_:
+_Features_:
+undo-tree allows you to visual the whole history of your editing in a
+tree. It also provides regular undo/redo behaviours in other
+editors. undo-tree can even provide a diff between two different
+states. Highly recommended.
+[[https://tuhdo.github.io/static/part3/undo-tree.jpg]]
+_Installation_:
+#+BEGIN_SRC emacs-lisp
+(use-package undo-tree
+:ensure t
+:config
+(require 'undo-tree)
+(global-undo-tree-mode))
+#+END_SRC
+_Usage_:
+undo =C-/=
+redo =C-_=
+see undo tree =C-x u=
+** yasnippet
+_Author_:
+_Homepage_: [[https://github.com/joaotavora/yasnippet][Github]]
+_Features_: YASnippet is a template system for Emacs. It allows you to type an abbreviation and automatically expand it into function templates. Bundled language templates include: C, C++, C#, Perl, Python, Ruby, SQL, LaTeX, HTML, CSS and more. The snippet syntax is inspired from TextMate's syntax, you can even import most TextMate templates to YASnippet. Watch a demo on YouTube.
+_Installation_:
+#+BEGIN_SRC emacs-lisp
+(use-package yasnippet
+:ensure t
+:config
+(require 'yasnippet)
+(yas-global-mode 1))
+#+END_SRC
+_usage_:
+** Origami
+_author_:
+_homepage_: [[https://github.com/gregsexton/origami.el]]
+_features_:
+text-folding minor mode
+[[https://camo.githubusercontent.com/c5f625fcf6bdeda0381ee5370026c7027433d1d7/687474703a2f2f7777772e67726567736578746f6e2e6f72672f696d616765732f6f726967616d692d73637265656e2e706e67]]
+
+_installation_:
+#+BEGIN_SRC emacs-lisp
+  (use-package origami
+  :ensure t
+  :config
+  (require 'origami)
+  (add-hook 'prog-mode-hook 'origami-mode)
+  (define-key origami-mode-map (kbd "C-c f") 'origami-recursively-toggle-node)
+  (define-key origami-mode-map (kbd "C-c F") 'origami-toggle-all-nodes))
+#+END_SRC
+_usage_:
+
+** Rebox2
+#+BEGIN_SRC emacs-lisp
+(use-package rebox2
+:ensure t
+:config
+(rebox-mode) 1)
+#+END_SRC
+
+** dtrt-indent
+#+BEGIN_SRC emacs-lisp
+(use-package dtrt-indent
+  :ensure t
+:init
+  (dtrt-indent-mode 1)
+  (setq dtrt-indent-verbosity 0))
+#+END_SRC
+** ws-butler
+#+BEGIN_SRC emacs-lisp
+(use-package ws-butler
+:ensure t
+  :init
+  (add-hook 'prog-mode-hook 'ws-butler-mode)
+  (add-hook 'text-mode 'ws-butler-mode)
+  (add-hook 'fundamental-mode 'ws-butler-mode))
+#+END_SRC
+** comment-dwim-2
+_author_:
+_homepage_: [[https://github.com/remyferre/comment-dwim-2]]
+_features_:
+comment-dwim-2 is a replacement for the Emacs' built-in command comment-dwim which includes more comment features, including:
+
++ commenting/uncommenting the current line (or region, if active)
++ inserting an inline comment
++ killing the inline comment
++ reindenting the inline comment
+#+BEGIN_SRC emacs-lisp
+  (use-package comment-dwim-2
+  :ensure t
+  :config
+  (global-set-key (kbd "M-;") 'comment-dwim-2))
+#+END_SRC
+
+** anzu mode
+(use-package anzu
+:ensure t
+  :init
+  (global-anzu-mode)
+  (global-set-key (kbd "M-%") 'anzu-query-replace)
+  (global-set-key (kbd "C-M-%") 'anzu-query-replace-regexp))
+** iedit
+_author_:
+_homepage_: https://github.com/victorhge/iedit
+_features_:
+edit one occurrence of some text in a buffer (possibly narrowed) or region, and simultaneously have other occurrences edited in the same way, with visual feedback as you type.
+#+BEGIN_SRC emacs-lisp
+(use-package iedit
+  :bind (("C-;" . iedit-mode))
+  :init
+  (setq iedit-toggle-key-default nil))
+#+END_SRC
+_usage_:
+Normal work flow of Iedit mode is like:
+
+- Move to certain point and press C-; (The default key binding). All occurrences of a symbol, string or a region in the buffer are highlighted corresponding to the thing under the point, current mark and prefix argument. Refer to the document of `iedit-mode’ for details.
+- Edit one of the occurrences The change is applied to other occurrences simultaneously.
+- Finish - by pressing C-; again
+** function-args
+#+BEGIN_SRC emacs-lisp
+(use-package function-args
+:ensure t
+:config
+(require 'function-args)
+(fa-config-default)
+)
+#+END_SRC
+** sentences end with single space
+(setq sentence-end-double-space nil)
+** Revert buffer
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "<f8>") 'revert-buffer)
+#+END_SRC
+** UTF-8
+#+BEGIN_SRC emacs-lisp
+(prefer-coding-system 'utf-8)
+(when (display-graphic-p)
+  (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
+#+END_SRC
+* Convenience
+** Replace yes with y
+#+BEGIN_SRC emacs-lisp
+(fset 'yes-or-no-p 'y-or-n-p)
+#+END_SRC
+** workgroups2
+** Highlight current line
+#+BEGIN_SRC emacs-lisp
+(global-hl-line-mode)
+#+END_SRC
+
+* Things to Consider
+** A Secure Emacs Environment - Build Fun Things
+** Modernizing Emacs - Howard Abrams
+** Emacs Enhancement - Howard Abrams
+Load up a collection of enhancement to Emacs Lisp, including [[https://github.com/magnars/dash.el][dash]], [[https://github.com/magnars/s.el][s]] for string manipulation, and [[https://github.com/rejeep/f.el][f]] for file manipulation.
