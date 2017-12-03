@@ -1459,6 +1459,69 @@ Need to learn :problem while installing
 :ensure t)
 #+END_SRC
 
+*** Python
+**** Elpy
+Emacs is distributed with a python-mode (python.el) that provides indentation and syntax highlighting. 
+*Features*:
+- Automatic indentation
+- Syntax Highlighting
+- Auto Completion
+- Syntax Checking
+- Python REPL Integration
+- Virtual Environment Support
+
+To install and enable elpy we need to add a bit of configuration and install flake8 and jedi using your preferred method for installing Python packages 
+#+BEGIN_SRC shell
+pip3 install flake8
+pip3 install jedi
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package elpy
+:ensure t
+:config
+(elpy-enable))
+#+END_SRC
+*Usage*:
+[[https://realpython.com/images/blog_images/emacs/emacs-elpy-basic.png]]
+- Automatic Indentation
+- Syntax Highlighting
+- Syntax Checking
+- Auto Completion
+Hit =C-c C-c= and run the script within Emacs
+[[https://realpython.com/images/blog_images/emacs/emacs-elpy-execute.png]]
+RealTime Feedback with Flycheck! [ installed in the tools section]
+[[https://realpython.com/images/blog_images/emacs/emacs-elpy-flycheck.gif]]
+**** Pep8 Compliance
+#+BEGIN_SRC emacs-lisp
+(use-package py-autopep8
+:ensure t
+:config
+(require 'py-autopep8)
+(add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save))
+#+END_SRC
+(after forcing some pep8 errors) when we save our demo Python file, the errors will automatically be corrected:
+[[https://realpython.com/images/blog_images/emacs/emacs-elpy-autopep8.gif]]
+**** Ipython / Jupyter Integration
+get Ipython if you haven't
+#+BEGIN_SRC shell
+pip3 install ipython
+#+END_SRC
+Figure out what's going on?
+#+BEGIN_SRC emacs-lisp
+;(elpy-use-ipython)
+#+END_SRC
+Now when we run our python code with =C-c C-c= we will be presented with the Ipython REPL
+[[https://realpython.com/images/blog_images/emacs/emacs-elpy-ipython.png]]
+While this is pretty useful on its own, the real magic is the notebook integration. We’ll assume that you already know how to launch a Jupyter Notebook server (if not check this out). Again we just need to add a bit of configuration:
+#+BEGIN_SRC emacs-lisp
+(use-package ein
+:ensure t)
+#+END_SRC
+The standard Jupyter web interface for notebooks is nice but requires us to leave Emacs to use:
+[[https://realpython.com/images/blog_images/emacs/jupyter-web.png]]
+However, we can complete the exact same task by connecting to and interacting with the notebook server directly in Emacs.
+[[https://realpython.com/images/blog_images/emacs/emacs-elpy-jupyter.gif]]
 ** Tools
 *** GDB
 #+BEGIN_SRC emacs-lisp
