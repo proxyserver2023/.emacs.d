@@ -15,6 +15,18 @@ Heavily Inspired from [[BuildFunthings]] [[SachaChua]] [[tuhdo.github.io][tuhdo]
   (setq user-full-name "Md. Alamin Mahamud")
   (setq user-mail-address "alamin.ineedahelp@gmail.com")
 #+END_SRC
+* Version Checking
+#+BEGIN_SRC emacs-lisp
+(let ((minver "24.3"))
+  (when (version< emacs-version minver)
+    (error "Your Emacs is too old -- this config requires v%s or higher" minver)))
+(when (version< emacs-version "24.5")
+  (message "Your Emacs is old, and some functionality in this config will be disabled. Please upgrade if possible."))
+
+#+END_SRC
+* TODO Benchmarking
+_url_: [[https://github.com/purcell/emacs.d/blob/master/lisp/init-benchmarking.el]]
+
 * Package Initialization
 ** Package Manager
 #+IDEA: Howard Abrams, Build Fun Things
@@ -25,18 +37,20 @@ Because the default setting for =package-archives= is to use the HTTP access to 
   (setq package-archives '(("org"       . "http://orgmode.org/elpa/")
                            ("gnu"       . "http://elpa.gnu.org/packages/")
                            ("melpa"     . "http://melpa.org/packages/")
-                           ("marmalade" . "http://marmalade-repo.org/packages/")))
+                           ;("marmalade" . "http://marmalade-repo.org/packages/")
+                           ))
 #+END_SRC
 
 Initialize the archive and refresh the contents in case there is no cached archive
 #+BEGIN_SRC emacs-lisp
-(package-initialize)
+  (package-initialize)
 
-(unless (and (file-exists-p "~/.emacs.d/elpa/archives/gnu")
-             (file-exists-p "~/.emacs.d/elpa/archives/melpa")
-             (file-exists-p "~/.emacs.d/elpa/archives/melpa-stable")
-             (file-exists-p "~/.emacs.d/elpa/archives/marmalade"))
-  (package-refresh-contents))
+  (unless (and (file-exists-p "~/.emacs.d/elpa/archives/gnu")
+               (file-exists-p "~/.emacs.d/elpa/archives/melpa")
+               (file-exists-p "~/.emacs.d/elpa/archives/melpa-stable")
+               ;(file-exists-p "~/.emacs.d/elpa/archives/marmalade")
+               )
+    (package-refresh-contents))
 #+END_SRC
 
 ** use-package
@@ -69,10 +83,10 @@ Initialize the archive and refresh the contents in case there is no cached archi
 ** Theme and icons
 *** arjen-grey-theme
 #+BEGIN_SRC emacs-lisp
- (use-package arjen-grey-theme
-   :ensure t
-   :config
-   (load-theme 'arjen-grey t))
+  (use-package arjen-grey-theme
+    :ensure t
+    :config
+    (load-theme 'arjen-grey t)) 
 #+END_SRC
 *** base-16 theme
 #+BEGIN_SRC emacs-lisp
@@ -87,6 +101,13 @@ Initialize the archive and refresh the contents in case there is no cached archi
 ;;     :ensure t)
 #+END_SRC
 
+*** material theme
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package material-theme
+  ;; :ensure t
+  ;; :config
+  ;; (load-theme 'material t))
+#+END_SRC
 ** Keyboard
 #+BEGIN_SRC emacs-lisp
 (setq mac-option-modifier 'none)
@@ -453,7 +474,7 @@ _Usage_:
 *** Default font
 #+BEGIN_SRC emacs-lisp
 (if (or (eq system-type 'darwin)(eq system-type 'gnu/linux) )
-    (set-face-attribute 'default nil :font "Hack-11")
+    (set-face-attribute 'default nil :font "Hack-16")
   (set-face-attribute 'default nil :font "DejaVu Sans Mono" :height 110))
 
 ;; set italic font for italic face, since Emacs does not set italic
@@ -514,7 +535,7 @@ If you move point on a symbol, it automatically highlights all the symbols in th
 (setq ring-bell-function 'my-bell-function)
 (setq visible-bell nil)
 #+END_SRC
-
+ 
 * Editing
 ** Mark Ring
 #+BEGIN_SRC emacs-lisp
@@ -1116,6 +1137,21 @@ not as good as org-mode of course, but generally accepted as a standard.
 :ensure t)
 #+END_SRC
 
+** fill-column-indicator
+_url_: [[http://www.jesshamrick.com/2012/09/18/emacs-as-a-python-ide/]]
+It is good coding etiquette to keep lines short (e.g., no longer than 72 characters – this is because some people use 80 character terminals, and constantly scrolling to the left/right is very annoying!). It’s furthermore just nice coding style to have lines a consistent length.
+
+To let myself know when I’m running over line length, I have the fill column indicator plugin installed. This draws a line on the right side of the screen, indicating the “fill column” (which is just another way of saying “the ideal maximum line length”). If my text runs past this line, I know I need to do some formatting to make it span multiple lines (if I’m just writing text, I will use M-q to wrap it).
+[[http://www.jesshamrick.com/images/emacs-python/fci-mode.png]]
+#+BEGIN_SRC emacs-lisp
+  (use-package fill-column-indicator
+    :ensure t
+    :config
+    (require 'fill-column-indicator)
+    (define-global-minor-mode
+      global-fci-mode fci-mode (lambda() (fci-mode 1)))
+    (global-fci-mode t))
+#+END_SRC
 * Files
 ** large-file-warning
 #+BEGIN_SRC emacs-lisp
@@ -1265,6 +1301,23 @@ Start Garbage Collection every 100MB to improve Emacs performance
 (setq gc-cons-threshold 100000000)
 * Email
 * Org Mode
+#+BEGIN_SRC emacs-lis
+(setq org-structure-template-alist
+      '(("s" "#+begin_src ?\n\n#+end_src" "<src lang=\"?\">\n\n</src>")
+        ("e" "#+begin_example\n?\n#+end_example" "<example>\n?\n</example>")
+        ("q" "#+begin_quote\n?\n#+end_quote" "<quote>\n?\n</quote>")
+        ("v" "#+BEGIN_VERSE\n?\n#+END_VERSE" "<verse>\n?\n</verse>")
+        ("c" "#+BEGIN_COMMENT\n?\n#+END_COMMENT")
+        ("p" "#+BEGIN_PRACTICE\n?\n#+END_PRACTICE")
+        ("l" "#+begin_src emacs-lisp\n?\n#+end_src" "<src lang=\"emacs-lisp\">\n?\n</src>")
+        ("L" "#+latex: " "<literal style=\"latex\">?</literal>")
+        ("h" "#+begin_html\n?\n#+end_html" "<literal style=\"html\">\n?\n</literal>")
+        ("H" "#+html: " "<literal style=\"html\">?</literal>")
+        ("a" "#+begin_ascii\n?\n#+end_ascii")
+        ("A" "#+ascii: ")
+        ("i" "#+index: ?" "#+index: ?")
+        ("I" "#+include %file ?" "<include file=%file markup=\"?\">")))
+#+END_SRC
 * Programming
 ** Languages
 *** C-C++
@@ -1460,6 +1513,14 @@ Need to learn :problem while installing
 #+END_SRC
 
 *** Python
+**** Python-mode
+#+BEGIN_SRC emacs-lisp
+(use-package python-mode
+:ensure t
+:config
+(require 'python-mode))
+#+END_SRC
+
 **** Elpy
 Emacs is distributed with a python-mode (python.el) that provides indentation and syntax highlighting. 
 *Features*:
@@ -1505,7 +1566,7 @@ RealTime Feedback with Flycheck! [ installed in the tools section]
 **** Ipython / Jupyter Integration
 get Ipython if you haven't
 #+BEGIN_SRC shell
-pip3 install ipython
+sudo pip3 install jupyter
 #+END_SRC
 Figure out what's going on?
 #+BEGIN_SRC emacs-lisp
@@ -1522,7 +1583,39 @@ The standard Jupyter web interface for notebooks is nice but requires us to leav
 [[https://realpython.com/images/blog_images/emacs/jupyter-web.png]]
 However, we can complete the exact same task by connecting to and interacting with the notebook server directly in Emacs.
 [[https://realpython.com/images/blog_images/emacs/emacs-elpy-jupyter.gif]]
-** Tools
+
+#+BEGIN_SRC emacs-lisp
+(setq-default py-shell-name "ipython")
+(setq-default py-which-bufname "IPython")
+#+END_SRC
+**** misc
+#+BEGIN_SRC emacs-lisp
+; use the wx backend, for both mayavi and matplotlib
+(setq py-python-command-args
+  '("--gui=wx" "--pylab=wx" "-colors" "Linux"))
+(setq py-force-py-shell-name-p t)
+
+; switch to the interpreter after executing code
+(setq py-shell-switch-buffers-on-execute-p t)
+(setq py-switch-buffers-on-execute-p t)
+; don't split windows
+(setq py-split-windows-on-execute-p nil)
+; try to automagically figure out indentation
+(setq py-smart-indentation t)
+#+END_SRC
+*** CSS
+**** stylus-mode
+#+BEGIN_SRC emacs-lisp
+(use-package stylus-mode
+:ensure t)
+(require 'stylus-mode)
+#+END_SRC
+**** embedding in html
+#+BEGIN_SRC emacs-lisp
+(use-package mmm-mode
+:ensure t)
+#+END_SRC
+** Tools 
 *** GDB
 #+BEGIN_SRC emacs-lisp
   (setq gdb-many-windows t
@@ -1761,7 +1854,8 @@ _installation_:
 :ensure t
 :config
 (add-hook 'html-mode-hook 'rainbow-mode)
-(add-hook 'css-mode-hook 'rainbow-mode))
+(add-hook 'css-mode-hook 'rainbow-mode)
+(add-hook 'stylus-mode-hook 'rainbow-mode))
 #+END_SRC
 It is useful to always activate rainbow-mode in those two major modes. For other modes, it is situational, so I don't use prog-mode-hook.
 _usage_:
