@@ -26,7 +26,9 @@ Heavily Inspired from [[BuildFunthings]] [[SachaChua]] [[tuhdo.github.io][tuhdo]
 #+END_SRC
 * TODO Benchmarking
 _url_: [[https://github.com/purcell/emacs.d/blob/master/lisp/init-benchmarking.el]]
+#+BEGIN_SRC emacs-lisp
 
+#+END_SRC
 * Package Initialization
 ** Package Manager
 #+IDEA: Howard Abrams, Build Fun Things
@@ -474,7 +476,7 @@ _Usage_:
 *** Default font
 #+BEGIN_SRC emacs-lisp
 (if (or (eq system-type 'darwin)(eq system-type 'gnu/linux) )
-    (set-face-attribute 'default nil :font "Hack-16")
+    (set-face-attribute 'default nil :font "Hack-11")
   (set-face-attribute 'default nil :font "DejaVu Sans Mono" :height 110))
 
 ;; set italic font for italic face, since Emacs does not set italic
@@ -1149,10 +1151,79 @@ To let myself know when I’m running over line length, I have the fill column i
     :config
     (require 'fill-column-indicator)
     (define-global-minor-mode
-      global-fci-mode fci-mode (lambda() (fci-mode 1)))
-    (global-fci-mode t))
+      global-fci-mode fci-mode (lambda() (fci-mode -1)))
+    (global-fci-mode -1))
 #+END_SRC
 * Files
+** with-eval-after-load
+#+BEGIN_SRC emacs-lisp
+  (if (fboundp 'with-eval-after-load)
+      (defalias 'after-load 'with-eval-after-load)
+    (defmacro after-load (feature &rest body)
+      "After FEATURE is loaded, evaluate BODY."
+      (declare (indent defun))
+      `(eval-after-load ,feature
+         '(progn ,@body))))
+#+END_SRC
+** handier way to add modes to auto-mode-alist
+#+BEGIN_SRC emacs-lisp
+(defun add-auto-mode (mode &rest patterns)
+  "Add entries to `auto-mode-alist' to use `MODE' for all given file `PATTERNS'."
+  (dolist (pattern patterns)
+    (add-to-list 'auto-mode-alist (cons pattern mode))))
+#+END_SRC
+** string matching
+#+BEGIN_SRC emacs-lisp
+
+(defun sanityinc/string-all-matches (regex str &optional group)
+  "Find all matches for `REGEX' within `STR', returning the full match string or group `GROUP'."
+  (let ((result nil)
+        (pos 0)
+        (group (or group 0)))
+    (while (string-match regex str pos)
+      (push (match-string group str) result)
+      (setq pos (match-end group)))
+    result))
+#+END_SRC
+** delete the current file
+#+BEGIN_SRC emacs-lisp
+(defun delete-this-file ()
+  "Delete the current file, and kill the buffer."
+  (interactive)
+  (unless (buffer-file-name)
+    (error "No file is currently being edited"))
+  (when (yes-or-no-p (format "Really delete '%s'?"
+                             (file-name-nondirectory buffer-file-name)))
+    (delete-file (buffer-file-name))
+    (kill-this-buffer)))
+#+END_SRC
+** rename the current file
+#+BEGIN_SRC emacs-lisp
+(defun rename-this-file-and-buffer (new-name)
+  "Renames both current buffer and file it's visiting to NEW-NAME."
+  (interactive "sNew name: ")
+  (let ((name (buffer-name))
+        (filename (buffer-file-name)))
+    (unless filename
+      (error "Buffer '%s' is not visiting a file!" name))
+    (progn
+      (when (file-exists-p filename)
+        (rename-file filename new-name 1))
+      (set-visited-file-name new-name)
+      (rename-buffer new-name))))
+#+END_SRC
+** browse current HTML file
+#+BEGIN_SRC emacs-lisp
+(defun browse-current-file ()
+  "Open the current file as a URL using `browse-url'."
+  (interactive)
+  (let ((file-name (buffer-file-name)))
+    (if (and (fboundp 'tramp-tramp-file-p)
+             (tramp-tramp-file-p file-name))
+        (error "Cannot open tramp file")
+      (browse-url (concat "file://" file-name)))))
+
+#+END_SRC
 ** large-file-warning
 #+BEGIN_SRC emacs-lisp
 (setq large-file-warning-threshold 100000000) ;; size in bytes
@@ -1292,6 +1363,7 @@ _usage_:
         search-ring
         regexp-search-ring))
 #+END_SRC
+
 * Performance
 ** Garbage Collection
 Start Garbage Collection every 100MB to improve Emacs performance
