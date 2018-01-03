@@ -1,4 +1,6 @@
 ;;; -*- lexical-binding: t -*-
+
+;;; Commentary
 ;;; init.el --- Custom Emacs Configuration
 ;;; Author: Md. Alamin Mahamud
 ;;; Version: 3.0.0
