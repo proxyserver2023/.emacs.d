@@ -662,6 +662,18 @@ or the fill-region
     :init (add-hook 'org-mode-hook 'turn-on-auto-fill)
     :diminish auto-fill-mode)
 #+end_src
+* Key Bindings
+Completion that uses many different methods to find options.
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-.") 'hippie-expand-no-case-fold)
+  (global-set-key (kbd "C-:") 'hippie-expand-lines)
+  (global-set-key (kbd "C-,") 'completion-at-point)
+#+end_src
+Experimental multiple-cursors
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+#+end_src
+
 * Editing
 ** Mark Ring
 #+BEGIN_SRC emacs-lisp
@@ -1053,7 +1065,7 @@ hippie-expand-try-functions-list
 #+END_SRC
 ** Highlight current line
 #+BEGIN_SRC emacs-lisp
-(global-hl-line-mode 1)
+(global-hl-line-mode 0)
 #+END_SRC
 ** Ibuffer
 #+BEGIN_SRC emacs-lisp
@@ -2854,14 +2866,3 @@ Helm Projectile
 ;; this is the actual fold/unfold command
 (global-set-key (kbd "C-c t") #'vimish-fold-toggle)
 #+END_SRC
-* Key Bindings
-Completion that uses many different methods to find options.
-#+begin_src emacs-lisp
-  (global-set-key (kbd "C-.") 'hippie-expand-no-case-fold)
-  (global-set-key (kbd "C-:") 'hippie-expand-lines)
-  (global-set-key (kbd "C-,") 'completion-at-point)
-#+end_src
-Experimental multiple-cursors
-#+begin_src emacs-lisp
-  (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
-#+end_src
