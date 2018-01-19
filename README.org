@@ -10,13 +10,33 @@
 #+CATEGORIES: editing
 
 * Introduction
-Heavily Inspired from [[BuildFunthings]] [[SachaChua]] [[tuhdo.github.io][tuhdo]]
+Heavily Inspired from [[BuildFunthings]] [[SachaChua]] [[tuhdo.github.io][tuhdo]] [[http://www.howardabrams.com/][Howard Abrams]] [[][Modern Emacs]]
 #+BEGIN_SRC emacs-lisp
   (setq user-full-name "Md. Alamin Mahamud")
   (setq user-mail-address "alamin.ineedahelp@gmail.com")
   (server-start)
 #+END_SRC
-* Version Checking
+Set path to dependencies
+#+BEGIN_SRC emacs-lisp
+  (setq site-lisp-dir
+        (expand-file-name "site-lisp" user-emacs-directory))
+
+  (setq settings-dir
+        (expand-file-name "settings" user-emacs-directory))
+
+  (setq custom-theme-directory
+        (concat user-emacs-directory "themes"))
+
+  ;; Setup load path
+  (add-to-list 'load-path settings-dir)
+  (add-to-list 'load-path site-lisp-dir)
+
+  (dolist
+      (path (directory-files custom-theme-directory t "\\w+"))
+    (when (file-direcotry-p path)
+      (add-to-list 'custom-theme-load-path path)))
+#+END_SRC
+Version Checking
 #+BEGIN_SRC emacs-lisp
 (let ((minver "24.3"))
   (when (version< emacs-version minver)
@@ -25,10 +45,10 @@ Heavily Inspired from [[BuildFunthings]] [[SachaChua]] [[tuhdo.github.io][tuhdo]
   (message "Your Emacs is old, and some functionality in this config will be disabled. Please upgrade if possible."))
 
 #+END_SRC
-* TODO Benchmarking
-_url_: [[https://github.com/purcell/emacs.d/blob/master/lisp/init-benchmarking.el]]
+load custom file
 #+BEGIN_SRC emacs-lisp
-
+  (setq custom-file "~/.emacs.d/custom.el")
+  (load custom-file :noerror)
 #+END_SRC
 * Package Initialization
 ** Package Manager
@@ -64,12 +84,13 @@ Initialize the archive and refresh the contents in case there is no cached archi
   (require 'use-package)
 #+END_SRC
 
-* load custom file
-#+BEGIN_SRC emacs-lisp
-  (setq custom-file "~/.emacs.d/custom.el")
-  (load custom-file :noerror)
-#+END_SRC
 * Environment
+** Appearance
+#+begin_src emacs-lisp
+  (setq font-lock-maximum-decoration t
+        color-theme-is-global t
+        truncate-partial-width-windows nil)
+#+end_src
 ** initialization
 #+BEGIN_SRC emacs-lisp
 (setq inhibit-startup-screen t)
@@ -103,8 +124,15 @@ Initialize the archive and refresh the contents in case there is no cached archi
 #+END_SRC
 *** all-the-icons
 #+BEGIN_SRC emacs-lisp
-;;   (use-package all-the-icons
-;;     :ensure t)
+(use-package all-the-icons
+  :ensure t)
+(use-package all-the-icons-ivy
+  :ensure t)
+(use-package all-the-icons-dired
+  :ensure t)
+(use-package pretty-mode
+:ensure t)
+
 #+END_SRC
 
 *** material theme
@@ -129,52 +157,52 @@ Initialize the archive and refresh the contents in case there is no cached archi
       savehist-autosave-interval 60)
 #+END_SRC
 ** Windows
-*** golden-ratio
-_Author_:
-_Homepage_:
-_Features_:
-_Automatic resizing of Emacs windows to the golden ratio
-When working with many windows at the same time, each window has a size that is not convenient for editing.
-[[https://tuhdo.github.io/static/part3/golden-ratio.gif]]
-_Installation_:
-#+BEGIN_SRC emacs-lisp
-(use-package golden-ratio
-:ensure t
-:config
-(require 'golden-ratio)
+# *** golden-ratio
+# _Author_:
+# _Homepage_:
+# _Features_:
+# _Automatic resizing of Emacs windows to the golden ratio
+# When working with many windows at the same time, each window has a size that is not convenient for editing.
+# [[https://tuhdo.github.io/static/part3/golden-ratio.gif]]
+# _Installation_:
+# #+BEGIN_SRC emacs-lisp
+# (use-package golden-ratio
+# :ensure t
+# :config
+# (require 'golden-ratio)
 
-(add-to-list 'golden-ratio-exclude-modes "ediff-mode")
-(add-to-list 'golden-ratio-exclude-modes "helm-mode")
-(add-to-list 'golden-ratio-exclude-modes "dired-mode")
-(add-to-list 'golden-ratio-inhibit-functions 'pl/helm-alive-p)
+# (add-to-list 'golden-ratio-exclude-modes "ediff-mode")
+# (add-to-list 'golden-ratio-exclude-modes "helm-mode")
+# (add-to-list 'golden-ratio-exclude-modes "dired-mode")
+# (add-to-list 'golden-ratio-inhibit-functions 'pl/helm-alive-p)
 
-(defun pl/helm-alive-p ()
-  (if (boundp 'helm-alive-p)
-      (symbol-value 'helm-alive-p)))
+# (defun pl/helm-alive-p ()
+#   (if (boundp 'helm-alive-p)
+#       (symbol-value 'helm-alive-p)))
 
-;; do not enable golden-raio in thses modes
-(setq golden-ratio-exclude-modes '("ediff-mode"
-                                   "gud-mode"
-                                   "gdb-locals-mode"
-                                   "gdb-registers-mode"
-                                   "gdb-breakpoints-mode"
-                                   "gdb-threads-mode"
-                                   "gdb-frames-mode"
-                                   "gdb-inferior-io-mode"
-                                   "gud-mode"
-                                   "gdb-inferior-io-mode"
-                                   "gdb-disassembly-mode"
-                                   "gdb-memory-mode"
-                                   "magit-log-mode"
-                                   "magit-reflog-mode"
-                                   "magit-status-mode"
-                                   "IELM"
-                                   "eshell-mode" "dired-mode"))
+# ;; do not enable golden-raio in thses modes
+# (setq golden-ratio-exclude-modes '("ediff-mode"
+#                                    "gud-mode"
+#                                    "gdb-locals-mode"
+#                                    "gdb-registers-mode"
+#                                    "gdb-breakpoints-mode"
+#                                    "gdb-threads-mode"
+#                                    "gdb-frames-mode"
+#                                    "gdb-inferior-io-mode"
+#                                    "gud-mode"
+#                                    "gdb-inferior-io-mode"
+#                                    "gdb-disassembly-mode"
+#                                    "gdb-memory-mode"
+#                                    "magit-log-mode"
+#                                    "magit-reflog-mode"
+#                                    "magit-status-mode"
+#                                    "IELM"
+#                                    "eshell-mode" "dired-mode"))
 
-(golden-ratio-mode))
-#+END_SRC
-_Usage_:
-=C-x o= and see your windows being resized.
+# (golden-ratio-mode))
+# #+END_SRC
+# _Usage_:
+# =C-x o= and see your windows being resized.
 
 *** winner
 #+BEGIN_SRC emacs-lisp
@@ -477,10 +505,14 @@ _Usage_:
                                                   "%b"))))
 
 #+END_SRC
-*** Default font
+*** Fonts
 #+BEGIN_SRC emacs-lisp
 (if (or (eq system-type 'darwin)(eq system-type 'gnu/linux) )
-    (set-face-attribute 'default nil :font "Hack-11")
+;    (set-face-attribute 'default nil :font "Consolas-14")
+;    (set-face-attribute 'default nil :font "Inconsolata-14")
+     (set-face-attribute 'default nil :font "Monaco-15" :weight 'bold)
+;    (set-face-attribute 'default nil :font "Hack-16")
+;    (set-face-attribute 'default nil :font "DejaVu Sans Mono-16")
   (set-face-attribute 'default nil :font "DejaVu Sans Mono" :height 110))
 
 ;; set italic font for italic face, since Emacs does not set italic
@@ -536,10 +568,11 @@ If you move point on a symbol, it automatically highlights all the symbols in th
 *** disable beep
 [[http://stackoverflow.com/questions/11679700/emacs-disable-beep-when-trying-to-move-beyond-the-end-of-the-document][link]]
 #+BEGIN_SRC emacs-lisp
-(defun my-bell-function ())
-
-(setq ring-bell-function 'my-bell-function)
-(setq visible-bell nil)
+  (setq my-bell-function (lambda()
+                           (invert-face 'mode-line)
+                           (run-with-timer 0.05 nil 'invert-face 'mode-line)))
+  (setq ring-bell-function 'my-bell-function)
+  (setq visible-bell nil)
 #+END_SRC
  
 * Editing
@@ -933,7 +966,7 @@ hippie-expand-try-functions-list
 #+END_SRC
 ** Highlight current line
 #+BEGIN_SRC emacs-lisp
-;(global-hl-line-mode)
+(global-hl-line-mode 1)
 #+END_SRC
 ** Ibuffer
 #+BEGIN_SRC emacs-lisp
@@ -1389,7 +1422,8 @@ Start Garbage Collection every 100MB to improve Emacs performance
 (setq gc-cons-threshold 100000000)
 * Email
 * Org Mode
-#+BEGIN_SRC emacs-lis
+code-block shortcuts
+#+BEGIN_SRC emacs-lisp
 (setq org-structure-template-alist
       '(("s" "#+begin_src ?\n\n#+end_src" "<src lang=\"?\">\n\n</src>")
         ("e" "#+begin_example\n?\n#+end_example" "<example>\n?\n</example>")
@@ -1405,9 +1439,20 @@ Start Garbage Collection every 100MB to improve Emacs performance
         ("A" "#+ascii: ")
         ("i" "#+index: ?" "#+index: ?")
         ("I" "#+include %file ?" "<include file=%file markup=\"?\">")))
-(bind-key "C-c C-." 'org-time-stamp)
-
 #+END_SRC
+org-time-stamp
+#+begin_src emacs-lisp
+(bind-key "C-c C-." 'org-time-stamp)
+#+end_src
+org-mode-colors
+#+begin_src emacs-lisp
+  (setq org-todo-keyword-faces
+        '(
+          ("IN PROGRESS" . (:foreground "yellow" :weight bold))
+          ("DONE" . (:foreground "green" :weight bold))
+          ("IGNORE" . (:foreground "red" :weight bold))
+          ))
+#+end_src
 * Programming
 ** Languages
 *** C-C++
@@ -1603,6 +1648,95 @@ Need to learn :problem while installing
 #+END_SRC
 
 *** Python
+**** __init__
+#+begin_src emacs-lisp
+  (add-hook 'python-mode-hook
+            (lambda ()
+              (setq indent-tabs-mode nil)
+              (setq tab-width 4)
+              (setq python-indent-offset 4)))
+
+  ;(setq py-python-command "python3")
+  (setq python-shell-interpreter "ipython3" python-shell-interpreter-args "--simple-prompt --pprint")
+
+  ; use the wx backend, for both mayavi and matplotlib
+  ;(setq py-python-command-args
+  ;  '("--gui=wx" "--pylab=wx" "-colors" "Linux"))
+  ;(setq py-force-py-shell-name-p t)
+
+  ; switch to the interpreter after executing code
+  (setq py-shell-switch-buffers-on-execute-p t)
+  (setq py-switch-buffers-on-execute-p t)
+  ; don't split windows
+  (setq py-split-windows-on-execute-p nil)
+  ; try to automagically figure out indentation
+  (setq py-smart-indentation t)
+#+end_src
+#+BEGIN_SRC sh
+#sudo apt install -y python3-rope \
+#                   python3-isort
+#sudo pip3 install flake8 jedi autopep8 yapf importmagic
+#+END_SRC
+**** elpy
+
+- Automatic Indentation,
+- Syntax Highlighting,
+- Auto-Completion,
+- Syntax Checking,
+- Python REPL Integration,
+- Virtual Environment Support, and
+
+#+BEGIN_SRC emacs-lisp
+(use-package elpy
+:ensure t
+:config
+(elpy-enable)
+(setq elpy-rpc-python-command "python3"))
+#+END_SRC
+**** Flycheck
+#+BEGIN_SRC emacs-lisp
+(use-package flycheck
+:ensure t
+:config
+(when (require 'flycheck nil t)
+  (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+  (add-hook 'elpy-mode-hook 'flycheck-mode)))
+#+END_SRC
+**** py-autopep8
+#+BEGIN_SRC emacs-lisp
+(use-package py-autopep8
+:ensure t
+:config
+(require 'py-autopep8)
+(add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save))
+#+END_SRC
+**** Ipython/Jupyter
+#+BEGIN_SRC emacs-lisp
+;(setq-default py-shell-name "ipython3")
+; (setq-default py-which-bufname "Ipython3")
+(elpy-use-ipython "ipython3")
+
+;; needs to work on this snippet
+;; not enough time
+;; probably let yourself know why jupyter is used?
+(use-package ein
+:ensure t)
+#+END_SRC
+**** anaconda
+#+BEGIN_SRC emacs-lisp
+(use-package anaconda-mode
+:ensure t
+:config
+(add-hook 'python-mode-hook 'anaconda-mode)
+(add-hook 'python-mode-hook 'anaconda-eldoc-mode))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package company-anaconda
+:ensure t
+:config
+(add-to-list 'company-backends 'company-anaconda))
+#+END_SRC
 
 *** CSS
 **** stylus-mode
@@ -1747,7 +1881,7 @@ _Installation_:
 (add-hook 'after-init-hook #'global-flycheck-mode))
 #+END_SRC
 
-*** flycheck-tip
+*** DONE flycheck-tip
 _Author_:
 _Homepage_:
 _Features_: Show flycheck error by popup.
@@ -1798,7 +1932,7 @@ Parts of emacs since V21
 #+BEGIN_SRC emacs-lisp
 (use-package eshell
   :init
-  (setq ;; eshell-buffer-shorthand t ...  Can't see Bug#19391
+  (setq eshell-buffer-shorthand t
         eshell-scroll-to-bottom-on-input 'all
         eshell-error-if-no-glob t
         eshell-hist-ignoredups t
@@ -1902,141 +2036,384 @@ While deleting and recreating =eshell= may be just as fast, I always forget and 
     (erase-buffer)
     (eshell-send-input)))
 #+END_SRC
+
+# ** Special Prompt
+# Following these instructions, we build a better prompt with the Git branch in it (Of course, it matches my Bash prompt). First, we need a function that returns a string with the Git branch in it, e.g. “:master”
+
+# #+BEGIN_SRC emacs-lisp
+# (defun curr-dir-git-branch-string (pwd)
+#   "Returns current git branch as a string, or the empty string if
+# PWD is not in a git repo (or the git command is not found)."
+#   (interactive)
+#   (when (and (not (file-remote-p pwd))
+#              (eshell-search-path "git")
+#              (locate-dominating-file pwd ".git"))
+#     (let* ((git-url (shell-command-to-string "git config --get remote.origin.url"))
+#            (git-repo (file-name-base (s-trim git-url)))
+#            (git-output (shell-command-to-string (concat "git rev-parse --abbrev-ref HEAD")))
+#            (git-branch (s-trim git-output))
+#            (git-icon  "\xe0a0")
+#            (git-icon2 (propertize "\xf020" 'face `(:family "octicons"))))
+#       (concat git-repo " " git-icon2 " " git-branch))))
+# #+END_SRC
+
+# The funciton takes the current directory passed in via =pwd= and replaces the =$HOME= part with a tilde.
+
+# #+BEGIN_SRC emacs-lisp
+# (defun pwd-replace-home (pwd)
+#   "Replace home in PWD with tilde (~) character."
+#   (interactive)
+#   (let* ((home (expand-file-name (getenv "HOME")))
+#          (home-len (length home)))
+#     (if (and
+#          (>= (length pwd) home-len)
+#          (equal home (substring pwd 0 home-len)))
+#         (concat "~" (substring pwd home-len))
+#       pwd)))
+# #+END_SRC
+# Make the directory name be shorter…by replacing all directory names with just its first names. However, we leave the last two to be the full names. Why yes, I did steal this.
+# #+BEGIN_SRC emacs-lisp
+# (defun pwd-shorten-dirs (pwd)
+#   "Shorten all directory names in PWD except the last two."
+#   (let ((p-lst (split-string pwd "/")))
+#     (if (> (length p-lst) 2)
+#         (concat
+#          (mapconcat (lambda (elm) (if (zerop (length elm)) ""
+#                                (substring elm 0 1)))
+#                     (butlast p-lst 2)
+#                     "/")
+#          "/"
+#          (mapconcat (lambda (elm) elm)
+#                     (last p-lst 2)
+#                     "/"))
+#       pwd)))  ;; Otherwise, we just return the PWD
+# #+END_SRC
+
+# Break up the directory into a "parent" and a "base".
+# #+BEGIN_SRC emacs-lisp
+# (defun split-directory-prompt (directory)
+#   (if (string-match-p ".*/.*" directory)
+#       (list (file-name-directory directory) (file-name-base directory))
+#     (list "" directory)))
+# #+END_SRC
+
+# Using Virtual environments for certain languages is helpful to know, especially since I change them based on dirs.
+# #+BEGIN_SRC emacs-lisp
+# (defun ruby-prompt ()
+#   "Returns a string (may be empty) based on the current Ruby Virtual Environment."
+#   (let* ((executable "~/.rvm/bin/rvm-prompt")
+#          (command    (concat executable "v g")))
+#     (when (file-exists-p executable)
+#       (let* ((results (shell-command-to-string executable))
+#              (cleaned (string-trim results))
+#              (gem     (propertize "\xe92b" 'face `(:family "all-the-icons"))))
+#         (when (and cleaned (not (equal cleaned "")))
+#           (s-replace "ruby-" gem cleaned))))))
+
+# (defun python-prompt ()
+#   "Returns a string (may be empty) based on the current Python
+#    Virtual Environment. Assuming the M-x command: `pyenv-mode-set'
+#    has been called."
+#   (when (fboundp #'pyenv-mode-version)
+#     (let ((venv (pyenv-mode-version)))
+#       (when venv
+#         (concat
+#          (propertize "\xe928" 'face `(:family "all-the-icons"))
+#          (pyenv-mode-version))))))
+# #+END_SRC
+# Now tie it altogether with a prompt function can color each of the prompts components
+# #+BEGIN_SRC emacs-lisp
+# (defun eshell/eshell-local-prompt-function ()
+#   "A prompt for eshell that works locally (in that is assumes
+# that it could run certain commands) in order to make a prettier,
+# more-helpful local prompt."
+#   (interactive)
+#   (let* ((pwd        (eshell/pwd))
+#          (directory (split-directory-prompt
+#                      (pwd-shorten-dirs
+#                       (pwd-replace-home pwd))))
+#          (parent (car directory))
+#          (name   (cadr directory))
+#          (branch (curr-dir-git-branch-string pwd))
+#          (ruby   (when (not (file-remote-p pwd)) (ruby-prompt)))
+#          (python (when (not (file-remote-p pwd)) (python-prompt)))
+
+#          (dark-env (eq 'dark (frame-parameter nil 'background-mode)))
+#          (for-bars                 `(:weight bold))
+#          (for-parent  (if dark-env `(:foreground "dark orange") `(:foreground "blue")))
+#          (for-dir     (if dark-env `(:foreground "orange" :weight bold)
+#                         `(:foreground "blue" :weight bold)))
+#          (for-git                  `(:foreground "green"))
+#          (for-ruby                 `(:foreground "red"))
+#          (for-python               `(:foreground "#5555FF")))
+
+#     (concat
+#      (propertize "⟣─ "    'face for-bars)
+#      (propertize parent   'face for-parent)
+#      (propertize name     'face for-dir)
+#      (when branch
+#        (concat (propertize " ── "    'face for-bars)
+#                (propertize branch   'face for-git)))
+#      (when ruby
+#        (concat (propertize " ── " 'face for-bars)
+#                (propertize ruby   'face for-ruby)))
+#      (when python
+#        (concat (propertize " ── " 'face for-bars)
+#                (propertize python 'face for-python)))
+#      (propertize "\n"     'face for-bars)
+#      (propertize (if (= (user-uid) 0) " #" " $") 'face `(:weight ultra-bold))
+#      ;; (propertize " └→" 'face (if (= (user-uid) 0) `(:weight ultra-bold :foreground "red") `(:weight ultra-bold)))
+#      (propertize " "    'face `(:weight bold)))))
+
+# (setq-default eshell-prompt-function #'eshell/eshell-local-prompt-function)
+# #+END_SRC
+# turn off the default prompt, otherwise it won't use ours.
+# #+BEGIN_SRC emacs-lisp
+# (setq eshell-highlight-prompt nil)
+# #+END_SRC
+# Here is the Result
+# # ** Special Prompt
+# # #+BEGIN_SRC emacs-lisp
+# #   (use-package dash
+# #   :ensure t
+# #   :config
+# #   (require 'dash))
+
+# #   (use-package s
+# #   :ensure t
+# #   :config
+# #   (require 's))
+
+# #   (defmacro with-face (STR &rest PROPS)
+# #     "Return STR propertized with PROPS."
+# #     `(propertize ,STR 'face (list ,@PROPS)))
+
+# #   (defun esh-section (NAME ICON FORM &rest PROPS)
+# #     "Build eshell section NAME with ICON prepended to evaled FORM with PROPS."
+# #     `(setq ,NAME
+# #            (lambda () (when ,FORM
+# #                         (-> ,ICON
+# #                             (concat esh-section-delim ,FROM)
+# #                             (with-face ,@PROPS))))))
+
+
+# #   (defun esh-acc (acc x)
+# #     "Accumulator for evaluating and concatenating esh-sections."
+# #     (--if-let (funcall x)
+# #         (if (s-blank? acc)
+# #             it
+# #           (concat acc esh-sep it))
+# #       acc))
+
+# #   (defun esh-prompt-func ()
+# #     "Build `eshell-prompt-function'"
+# #     (concat esh-header
+# #             (-reduce-from 'esh-acc "" eshell-funcs)
+# #             "\n"
+# #             eshell-prompt-string))
+
+# #   (esh-section esh-dir
+# #                "\xf07c"  ;  (faicon folder)
+# #                (abbreviate-file-name (eshell/pwd))
+# #                '(:foreground "gold" :bold ultra-bold :underline t))
+
+# #   (esh-section esh-git
+# #                "\xe907"  ;  (git icon)
+# #                (magit-get-current-branch)
+# #                '(:foreground "pink"))
+
+# #   (esh-section esh-python
+# #                "\xe928"  ;  (python icon)
+# #                pyvenv-virtual-env-name)
+
+# #   (esh-section esh-clock
+# #                "\xf017"  ;  (clock icon)
+# #                (format-time-string "%H:%M" (current-time))
+# #                '(:foreground "forest green"))
+
+
+
+# # #+END_SRC
 ** Special Prompt
-Following these instructions, we build a better prompt with the Git branch in it (Of course, it matches my Bash prompt). First, we need a function that returns a string with the Git branch in it, e.g. “:master”
-
+*** Pretty Fonts
 #+BEGIN_SRC emacs-lisp
-(defun curr-dir-git-branch-string (pwd)
-  "Returns current git branch as a string, or the empty string if
-PWD is not in a git repo (or the git command is not found)."
-  (interactive)
-  (when (and (not (file-remote-p pwd))
-             (eshell-search-path "git")
-             (locate-dominating-file pwd ".git"))
-    (let* ((git-url (shell-command-to-string "git config --get remote.origin.url"))
-           (git-repo (file-name-base (s-trim git-url)))
-           (git-output (shell-command-to-string (concat "git rev-parse --abbrev-ref HEAD")))
-           (git-branch (s-trim git-output))
-           (git-icon  "\xe0a0")
-           (git-icon2 (propertize "\xf020" 'face `(:family "octicons"))))
-      (concat git-repo " " git-icon2 " " git-branch))))
+;;; Fira Font
+
+(defconst pretty-fonts-fira-font
+  '(;; OPERATORS
+    ;; Pipes
+    ("\\(<|\\)" #Xe14d) ("\\(<>\\)" #Xe15b) ("\\(<|>\\)" #Xe14e) ("\\(|>\\)" #Xe135)
+
+    ;; Brackets
+    ("\\(<\\*\\)" #Xe14b) ("\\(<\\*>\\)" #Xe14c) ("\\(\\*>\\)" #Xe104)
+    ("\\(<\\$\\)" #Xe14f) ("\\(<\\$>\\)" #Xe150) ("\\(\\$>\\)" #Xe137)
+    ("\\(<\\+\\)" #Xe155) ("\\(<\\+>\\)" #Xe156) ("\\(\\+>\\)" #Xe13a)
+
+    ;; Equality
+    ("\\(!=\\)" #Xe10e) ("\\(!==\\)"         #Xe10f) ("\\(=/=\\)" #Xe143)
+    ("\\(/=\\)" #Xe12c) ("\\(/==\\)"         #Xe12d)
+    ("\\(===\\)"#Xe13d) ("[^!/]\\(==\\)[^>]" #Xe13c)
+
+    ;; Equality Special
+    ("\\(||=\\)"  #Xe133) ("[^|]\\(|=\\)" #Xe134)
+    ("\\(~=\\)"   #Xe166)
+    ("\\(\\^=\\)" #Xe136)
+    ("\\(=:=\\)"  #Xe13b)
+
+    ;; Comparisons
+    ("\\(<=\\)" #Xe141) ("\\(>=\\)" #Xe145)
+    ("\\(</\\)" #Xe162) ("\\(</>\\)" #Xe163)
+
+    ;; Shifts
+    ("[^-=]\\(>>\\)" #Xe147) ("\\(>>>\\)" #Xe14a)
+    ("[^-=]\\(<<\\)" #Xe15c) ("\\(<<<\\)" #Xe15f)
+
+    ;; Dots
+    ("\\(\\.-\\)"    #Xe122) ("\\(\\.=\\)" #Xe123)
+    ("\\(\\.\\.<\\)" #Xe125)
+
+    ;; Hashes
+    ("\\(#{\\)"  #Xe119) ("\\(#(\\)"   #Xe11e) ("\\(#_\\)"   #Xe120)
+    ("\\(#_(\\)" #Xe121) ("\\(#\\?\\)" #Xe11f) ("\\(#\\[\\)" #Xe11a)
+
+    ;; REPEATED CHARACTERS
+    ;; 2-Repeats
+    ("\\(||\\)" #Xe132)
+    ("\\(!!\\)" #Xe10d)
+    ("\\(%%\\)" #Xe16a)
+    ("\\(&&\\)" #Xe131)
+
+    ;; 2+3-Repeats
+    ("\\(##\\)"       #Xe11b) ("\\(###\\)"         #Xe11c) ("\\(####\\)" #Xe11d)
+    ("\\(--\\)"       #Xe111) ("\\(---\\)"         #Xe112)
+    ("\\({-\\)"       #Xe108) ("\\(-}\\)"          #Xe110)
+    ("\\(\\\\\\\\\\)" #Xe106) ("\\(\\\\\\\\\\\\\\)" #Xe107)
+    ("\\(\\.\\.\\)"   #Xe124) ("\\(\\.\\.\\.\\)"   #Xe126)
+    ("\\(\\+\\+\\)"   #Xe138) ("\\(\\+\\+\\+\\)"   #Xe139)
+    ("\\(//\\)"       #Xe12f) ("\\(///\\)"         #Xe130)
+    ("\\(::\\)"       #Xe10a) ("\\(:::\\)"         #Xe10b)
+
+    ;; ARROWS
+    ;; Direct
+    ("[^-]\\(->\\)" #Xe114) ("[^=]\\(=>\\)" #Xe13f)
+    ("\\(<-\\)"     #Xe152)
+    ("\\(-->\\)"    #Xe113) ("\\(->>\\)"    #Xe115)
+    ("\\(==>\\)"    #Xe13e) ("\\(=>>\\)"    #Xe140)
+    ("\\(<--\\)"    #Xe153) ("\\(<<-\\)"    #Xe15d)
+    ("\\(<==\\)"    #Xe158) ("\\(<<=\\)"    #Xe15e)
+    ("\\(<->\\)"    #Xe154) ("\\(<=>\\)"    #Xe159)
+
+    ;; Branches
+    ("\\(-<\\)"  #Xe116) ("\\(-<<\\)" #Xe117)
+    ("\\(>-\\)"  #Xe144) ("\\(>>-\\)" #Xe148)
+    ("\\(=<<\\)" #Xe142) ("\\(>>=\\)" #Xe149)
+    ("\\(>=>\\)" #Xe146) ("\\(<=<\\)" #Xe15a)
+
+    ;; Squiggly
+    ("\\(<~\\)" #Xe160) ("\\(<~~\\)" #Xe161)
+    ("\\(~>\\)" #Xe167) ("\\(~~>\\)" #Xe169)
+    ("\\(-~\\)" #Xe118) ("\\(~-\\)"  #Xe165)
+
+    ;; MISC
+    ("\\(www\\)"                   #Xe100)
+    ("\\(<!--\\)"                  #Xe151)
+    ("\\(~@\\)"                    #Xe164)
+    ("[^<]\\(~~\\)"                #Xe168)
+    ("\\(\\?=\\)"                  #Xe127)
+    ("[^=]\\(:=\\)"                #Xe10c)
+    ("\\(/>\\)"                    #Xe12e)
+    ("[^\\+<>]\\(\\+\\)[^\\+<>]"   #Xe16d)
+    ("[^:=]\\(:\\)[^:=]"           #Xe16c)
+    ("\\(<=\\)"                    #Xe157))
+  "Fira font ligatures and their regexes")
+
+(set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")
+(set-fontset-font t '(#Xf017 . #Xf0c9) "fontawesome")
+(set-fontset-font t '(#Xe907 . #Xe928) "fontawesome")
+
 #+END_SRC
 
-The funciton takes the current directory passed in via =pwd= and replaces the =$HOME= part with a tilde.
-
+*** Prompt Design
 #+BEGIN_SRC emacs-lisp
-(defun pwd-replace-home (pwd)
-  "Replace home in PWD with tilde (~) character."
-  (interactive)
-  (let* ((home (expand-file-name (getenv "HOME")))
-         (home-len (length home)))
-    (if (and
-         (>= (length pwd) home-len)
-         (equal home (substring pwd 0 home-len)))
-        (concat "~" (substring pwd home-len))
-      pwd)))
-#+END_SRC
-Make the directory name be shorter…by replacing all directory names with just its first names. However, we leave the last two to be the full names. Why yes, I did steal this.
-#+BEGIN_SRC emacs-lisp
-(defun pwd-shorten-dirs (pwd)
-  "Shorten all directory names in PWD except the last two."
-  (let ((p-lst (split-string pwd "/")))
-    (if (> (length p-lst) 2)
-        (concat
-         (mapconcat (lambda (elm) (if (zerop (length elm)) ""
-                               (substring elm 0 1)))
-                    (butlast p-lst 2)
-                    "/")
-         "/"
-         (mapconcat (lambda (elm) elm)
-                    (last p-lst 2)
-                    "/"))
-      pwd)))  ;; Otherwise, we just return the PWD
-#+END_SRC
+(require 'dash)
+(require 's)
+(defmacro with-face (STR &rest PROPS)
+  "Return STR propertized with PROPS."
+  `(propertize ,STR 'face (list ,@PROPS)))
 
-Break up the directory into a "parent" and a "base".
-#+BEGIN_SRC emacs-lisp
-(defun split-directory-prompt (directory)
-  (if (string-match-p ".*/.*" directory)
-      (list (file-name-directory directory) (file-name-base directory))
-    (list "" directory)))
+(defmacro esh-section (NAME ICON FORM &rest PROPS)
+  "Build eshell section NAME with ICON prepended to evaled FORM with PROPS."
+  `(setq ,NAME
+         (lambda () (when ,FORM
+                 (-> ,ICON
+                    (concat esh-section-delim ,FORM)
+                    (with-face ,@PROPS))))))
+
+(defun esh-acc (acc x)
+  "Accumulator for evaluating and concatenating esh-sections."
+  (--if-let (funcall x)
+      (if (s-blank? acc)
+          it
+        (concat acc esh-sep it))
+    acc))
+
+(defun esh-prompt-func ()
+  "Build `eshell-prompt-function'"
+  (concat esh-header
+          (-reduce-from 'esh-acc "" eshell-funcs)
+          "\n"
+          eshell-prompt-string))
+
+(esh-section esh-dir
+             "\xf07c"  ;  (faicon folder)
+             (abbreviate-file-name (eshell/pwd))
+             '(:foreground "gold" :bold ultra-bold :underline t))
+
+(esh-section esh-git
+             " "  ;   (git icon)
+             (magit-get-current-branch)
+             '(:foreground "pink"))
+
+(esh-section esh-python
+             "\xe928"  ;  (python icon)
+             pyvenv-virtual-env-name)
+
+(esh-section esh-clock
+             "\xf017"  ;  (clock icon)
+             (format-time-string "%H:%M" (current-time))
+             '(:foreground "forest green"))
+
+;; Below I implement a "prompt number" section
+(setq esh-prompt-num 0)
+(add-hook 'eshell-exit-hook (lambda () (setq esh-prompt-num 0)))
+(advice-add 'eshell-send-input :before
+            (lambda (&rest args) (setq esh-prompt-num (incf esh-prompt-num))))
+
+(esh-section esh-num
+             "\xf0c9"  ;  (list icon)
+             (number-to-string esh-prompt-num)
+             '(:foreground "brown"))
+
+;; Separator between esh-sections
+(setq esh-sep "  ")  ; or " | "
+
+;; Separator between an esh-section icon and form
+(setq esh-section-delim " ")
+
+;; Eshell prompt header
+(setq esh-header "\n ")  ; or "\n┌─"
+
+;; Eshell prompt regexp and string. Unless you are varying the prompt by eg.
+;; your login, these can be the same.
+(setq eshell-prompt-regexp " ")   ; or "└─> "
+(setq eshell-prompt-string " ")   ; or "└─> "
+
+;; Choose which eshell-funcs to enable
+(setq eshell-funcs (list esh-dir esh-git esh-python esh-clock esh-num))
+
+;; Enable the new eshell prompt
+(setq eshell-prompt-function 'esh-prompt-func)
 #+END_SRC
-
-Using Virtual environments for certain languages is helpful to know, especially since I change them based on dirs.
-#+BEGIN_SRC emacs-lisp
-(defun ruby-prompt ()
-  "Returns a string (may be empty) based on the current Ruby Virtual Environment."
-  (let* ((executable "~/.rvm/bin/rvm-prompt")
-         (command    (concat executable "v g")))
-    (when (file-exists-p executable)
-      (let* ((results (shell-command-to-string executable))
-             (cleaned (string-trim results))
-             (gem     (propertize "\xe92b" 'face `(:family "alltheicons"))))
-        (when (and cleaned (not (equal cleaned "")))
-          (s-replace "ruby-" gem cleaned))))))
-
-(defun python-prompt ()
-  "Returns a string (may be empty) based on the current Python
-   Virtual Environment. Assuming the M-x command: `pyenv-mode-set'
-   has been called."
-  (when (fboundp #'pyenv-mode-version)
-    (let ((venv (pyenv-mode-version)))
-      (when venv
-        (concat
-         (propertize "\xe928" 'face `(:family "alltheicons"))
-         (pyenv-mode-version))))))
-#+END_SRC
-Now tie it altogether with a prompt function can color each of the prompts components
-#+BEGIN_SRC emacs-lisp
-(defun eshell/eshell-local-prompt-function ()
-  "A prompt for eshell that works locally (in that is assumes
-that it could run certain commands) in order to make a prettier,
-more-helpful local prompt."
-  (interactive)
-  (let* ((pwd        (eshell/pwd))
-         (directory (split-directory-prompt
-                     (pwd-shorten-dirs
-                      (pwd-replace-home pwd))))
-         (parent (car directory))
-         (name   (cadr directory))
-         (branch (curr-dir-git-branch-string pwd))
-         (ruby   (when (not (file-remote-p pwd)) (ruby-prompt)))
-         (python (when (not (file-remote-p pwd)) (python-prompt)))
-
-         (dark-env (eq 'dark (frame-parameter nil 'background-mode)))
-         (for-bars                 `(:weight bold))
-         (for-parent  (if dark-env `(:foreground "dark orange") `(:foreground "blue")))
-         (for-dir     (if dark-env `(:foreground "orange" :weight bold)
-                        `(:foreground "blue" :weight bold)))
-         (for-git                  `(:foreground "green"))
-         (for-ruby                 `(:foreground "red"))
-         (for-python               `(:foreground "#5555FF")))
-
-    (concat
-     (propertize "⟣─ "    'face for-bars)
-     (propertize parent   'face for-parent)
-     (propertize name     'face for-dir)
-     (when branch
-       (concat (propertize " ── "    'face for-bars)
-               (propertize branch   'face for-git)))
-     (when ruby
-       (concat (propertize " ── " 'face for-bars)
-               (propertize ruby   'face for-ruby)))
-     (when python
-       (concat (propertize " ── " 'face for-bars)
-               (propertize python 'face for-python)))
-     (propertize "\n"     'face for-bars)
-     (propertize (if (= (user-uid) 0) " #" " $") 'face `(:weight ultra-bold))
-     ;; (propertize " └→" 'face (if (= (user-uid) 0) `(:weight ultra-bold :foreground "red") `(:weight ultra-bold)))
-     (propertize " "    'face `(:weight bold)))))
-
-(setq-default eshell-prompt-function #'eshell/eshell-local-prompt-function)
-#+END_SRC
-turn off the default prompt, otherwise it won't use ours.
-#+BEGIN_SRC emacs-lisp
-(setq eshell-highlight-prompt nil)
-#+END_SRC
-Here is the Result
 ** Eshell Here
 #+BEGIN_SRC emacs-lisp
   (defun eshell-here ()
@@ -2222,6 +2599,19 @@ _intro_:
 
 #+END_SRC
 * Things to Consider
+** TODO Benchmarking
+_url_: [[https://github.com/purcell/emacs.d/blob/master/lisp/init-benchmarking.el]]
+#+BEGIN_SRC emacs-lisp
+
+#+END_SRC
+
+** Remove Security Vulnerability
+#+BEGIN_SRC emacs-lisp
+  ;; (eval-after-load "enriched"
+  ;;   '(defun enriched-decode-display-prop (start end &optional para)
+  ;;      (list start end)))
+#+END_SRC
+
 ** A Secure Emacs Environment - Build Fun Things
 ** Modernizing Emacs - Howard Abrams
 ** Emacs Enhancement - Howard Abrams
@@ -2252,42 +2642,139 @@ Handy way of getting back to previous places
 ** htmlize buffers
 ** exports
 ** presentation
-** Helm - tuhdo
+* Helm - tuhdo
+#+BEGIN_SRC emacs-lisp
+  (use-package helm
+  :ensure t)
+
+  (require 'helm)
+  (require 'helm-config)
+
+  ;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs
+  ;; Change to "C-c h"
+  (global-set-key (kbd "C-c h") 'helm-command-prefix)
+  (global-unset-key (kbd "C-x c"))
+  (global-set-key (kbd "M-x") #'helm-M-x)
+  (global-set-key (kbd "C-x r b") #'helm-filtered-bookmarks)
+  (global-set-key (kbd "C-x C-f") #'helm-find-files)
+  (global-set-key (kbd "M-y") 'helm-show-kill-ring)
+  (global-set-key (kbd "C-x b") 'helm-mini)
+  (global-set-key (kbd "C-c h o") 'helm-occur)
+  ; rebind tab to run persistent action
+  (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
+  ; make TAB work in terminal
+  (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
+  ; list actions using C-z
+  (define-key helm-map (kbd "C-z")  'helm-select-action)
+
+  (when (executable-find "curl")
+    (setq helm-google-suggest-use-curl-p t))
+
+  (setq helm-split-window-in-side-p       t ; open helm buffer inside current window, not occupy whole other window
+    helm-move-to-line-cycle-in-source     t ; move to end or beginning of source when reaching top or bottom of source.
+    helm-ff-search-library-in-sexp        t ; search for library in `require' and `declare-function' sexp.
+    helm-scroll-amount                    8 ; scroll 8 lines other window using M-<next>/M-<prior>
+    helm-ff-file-name-history-use-recentf t
+    helm-echo-input-in-header-line t)
+
+  (defun spacemacs//helm-hide-minibuffer-maybe ()
+    "Hide minibuffer in Helm session if we use the header line as input field."
+    (when (with-helm-buffer helm-echo-input-in-header-line)
+      (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
+        (overlay-put ov 'window (selected-window))
+        (overlay-put ov 'face
+                     (let ((bg-color (face-background 'default nil)))
+                       `(:background ,bg-color :foreground ,bg-color)))
+        (setq-local cursor-type nil))))
+
+  (add-hook 'helm-minibuffer-set-up-hook
+            'spacemacs//helm-hide-minibuffer-maybe)
+
+  (defun pl/helm-alive-p ()
+    (if (boundp 'helm-alive-p)
+        (symbol-value 'helm-alive-p)))
+
+;  (add-to-list 'golden-ratio-inhibit-functions 'pl/helm-alive-p)
+
+  (setq helm-M-x-fuzzy-match t) ;; optional fuzzy matching for helm-M-x
+  (setq helm-buffers-fuzzy-matching t
+      helm-recentf-fuzzy-match    t)
+  (setq helm-autoresize-max-height 0)
+  (setq helm-autoresize-min-height 20)
+  (helm-autoresize-mode 1)
+  (helm-mode 1)
+
+  (when (executable-find "ack-grep")
+    (setq helm-grep-default-command "ack-grep -Hn --no-group --no-color %e %p %f"
+          helm-grep-default-recurse-command "ack-grep -H --no-group --no-color %e %p %f"))
+  (setq helm-locate-fuzzy-match t)
+  (setq helm-apropos-fuzzy-match t)
+#+END_SRC
+Helm Projectile
+#+BEGIN_SRC emacs-lisp
+(projectile-global-mode)
+(setq projectile-completion-system 'helm)
+(helm-projectile-on)
+#+END_SRC
 * Temp - Swiper/Ivy/Counsel
 #+BEGIN_SRC emacs-lisp
- (use-package counsel
-:ensure t
-  :bind
-  (("M-y" . counsel-yank-pop)
-   :map ivy-minibuffer-map
-   ("M-y" . ivy-next-line)))
+  ;; (use-package counsel
+  ;; :ensure t
+  ;;   :bind
+  ;;   (("M-y" . counsel-yank-pop)
+  ;;    :map ivy-minibuffer-map
+  ;;    ("M-y" . ivy-next-line)))
 
 
 
 
-  (use-package ivy
-  :ensure t
-  :diminish (ivy-mode)
-  :bind (("C-x b" . ivy-switch-buffer))
-  :config
-  (ivy-mode 1)
-  (setq ivy-use-virtual-buffers t)
-  (setq ivy-count-format "%d/%d ")
-  (setq ivy-display-style 'fancy))
+  ;;   (use-package ivy
+  ;;   :ensure t
+  ;;   :diminish (ivy-mode)
+  ;;   :bind (("C-x b" . ivy-switch-buffer))
+  ;;   :config
+  ;;   (ivy-mode 1)
+  ;;   (setq ivy-use-virtual-buffers t)
+  ;;   (setq ivy-count-format "%d/%d ")
+  ;;   (setq ivy-display-style 'fancy))
 
 
-  (use-package swiper
-  :ensure t
-  :bind (("C-s" . swiper)
-	 ("C-r" . swiper)
-	 ("C-c C-r" . ivy-resume)
-	 ("M-x" . counsel-M-x)
-	 ("C-x C-f" . counsel-find-file))
-  :config
-  (progn
-    (ivy-mode 1)
-    (setq ivy-use-virtual-buffers t)
-    (setq ivy-display-style 'fancy)
-    (define-key read-expression-map (kbd "C-r") 'counsel-expression-history)
-    ))
+  ;;   (use-package swiper
+  ;;   :ensure t
+  ;;   :bind (("C-s" . swiper)
+  ;;          ("C-r" . swiper)
+  ;;          ("C-c C-r" . ivy-resume)
+  ;;          ("M-x" . counsel-M-x)
+  ;;          ("C-x C-f" . counsel-find-file))
+  ;;   :config
+  ;;   (progn
+  ;;     (ivy-mode 1)
+  ;;     (setq ivy-use-virtual-buffers t)
+  ;;     (setq ivy-display-style 'fancy)
+  ;;     (define-key read-expression-map (kbd "C-r") 'counsel-expression-history)
+  ;;     ))
 #+END_SRC
+* Vimish fold
+#+BEGIN_SRC emacs-lisp
+(use-package vimish-fold
+:ensure t)
+(require 'vimish-fold)
+(vimish-fold-global-mode 1)
+;; this registers a region for future folding/unfolding
+(global-set-key (kbd "C-c v") #'vimish-fold)
+;; this unregisters the region under point from folding/unfolding
+(global-set-key (kbd "C-c d") #'vimish-fold-delete)
+;; this is the actual fold/unfold command
+(global-set-key (kbd "C-c t") #'vimish-fold-toggle)
+#+END_SRC
+* Key Bindings
+Completion that uses many different methods to find options.
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-.") 'hippie-expand-no-case-fold)
+  (global-set-key (kbd "C-:") 'hippie-expand-lines)
+  (global-set-key (kbd "C-,") 'completion-at-point)
+#+end_src
+Experimental multiple-cursors
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+#+end_src
