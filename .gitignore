@@ -43,3 +43,12 @@ flycheck_*.el
 
 # directory configuration
 .dir-locals.el
+
+# user-specific
+*.el
+auto-save-list/
+backups/
+elisp/
+eshell/
+semanticdb/
+savehist
