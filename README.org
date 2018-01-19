@@ -9,48 +9,88 @@
 #+TAGS: emacs
 #+CATEGORIES: editing
 
-* Introduction
-Heavily Inspired from [[BuildFunthings]] [[SachaChua]] [[tuhdo.github.io][tuhdo]] [[http://www.howardabrams.com/][Howard Abrams]] [[][Modern Emacs]]
+* Global Settings
+** global vars
 #+BEGIN_SRC emacs-lisp
   (setq user-full-name "Md. Alamin Mahamud")
   (setq user-mail-address "alamin.ineedahelp@gmail.com")
+  (fset 'yes-or-no-p 'y-or-n-p)
+#+END_SRC
+Fix the scrolling to keep point in the center
+#+begin_src emacs-lisp
+  (setq scroll-conservatively 10000
+        scroll-preserve-screen-position t)
+#+end_src
+I consider myself a decent emacs user
+#+begin_src emacs-lisp
+(setq disabled-command-function nil)
+#+end_src
+** emacs server
+#+begin_src emacs-lisp
   (server-start)
-#+END_SRC
-Set path to dependencies
-#+BEGIN_SRC emacs-lisp
-  (setq site-lisp-dir
-        (expand-file-name "site-lisp" user-emacs-directory))
-
-  (setq settings-dir
-        (expand-file-name "settings" user-emacs-directory))
-
-  (setq custom-theme-directory
-        (concat user-emacs-directory "themes"))
-
-  ;; Setup load path
-  (add-to-list 'load-path settings-dir)
-  (add-to-list 'load-path site-lisp-dir)
-
-  (dolist
-      (path (directory-files custom-theme-directory t "\\w+"))
-    (when (file-direcotry-p path)
-      (add-to-list 'custom-theme-load-path path)))
-#+END_SRC
-Version Checking
+#+end_src
+** Version Checking
 #+BEGIN_SRC emacs-lisp
 (let ((minver "24.3"))
   (when (version< emacs-version minver)
     (error "Your Emacs is too old -- this config requires v%s or higher" minver)))
 (when (version< emacs-version "24.5")
   (message "Your Emacs is old, and some functionality in this config will be disabled. Please upgrade if possible."))
+#+END_SRC
+** tabs vs spaces
+#+begin_src emacs-lisp
+(setq-default indent-tabs-mode nil)
+(setq tab-width 2)
+#+end_src
+Make tab key do indent first then completion
+#+begin_src emacs-lisp
+(setq-default tab-always-indent 'complete)
+#+end_src
 
-#+END_SRC
-load custom file
+* Path
+Ref: Howard 
+** My Directory Location
+#+begin_src emacs-lisp
+  (defun am/emacs-subdirectory (d)
+    (expand-file-name d user-emacs-directory))
+#+end_src
+** Directory structure
+In case this is the first time running this on a computer,
+we need to make sure the following directories have been created.
+#+begin_src emacs-lisp
+  (let* ((subdirs '("elisp" "backups"))
+         (fulldirs (mapcar (lambda (d) (am/emacs-subdirectory d)) subdirs)))
+    (dolist (dir fulldirs)
+      (when (not (file-exists-p dir))
+        (message "Make directory: %s" dir)
+        (make-directory dir))))
+
+#+end_src
+** Setting up the load path
 #+BEGIN_SRC emacs-lisp
-  (setq custom-file "~/.emacs.d/custom.el")
-  (load custom-file :noerror)
+  (add-to-list 'load-path (am/emacs-subdirectory "elisp"))
 #+END_SRC
+** load custom file
+#+BEGIN_SRC emacs-lisp
+    (setq custom-file 
+          (expand-file-name "custom.el" user-emacs-directory))
+    (load custom-file :noerror)
+#+END_SRC
+* Modernizing Emacs
+Ref: Howard
+Increase cache
+#+begin_src emacs-lisp
+(setq gc-cons-threshold 50000000)
+#+end_src
+Remove warnings from the GnuTLS library when using HTTPS
+increase the minimum prime bits size
+#+begin_src emacs-lisp
+(setq gnutls-min-prime-bits 4096)
+#+end_src
+
 * Package Initialization
+Ref: - Howard
+     - Build Fun Things
 ** Package Manager
 #+IDEA: Howard Abrams, Build Fun Things
 Because the default setting for =package-archives= is to use the HTTP access to use the GNU archive, set the variable to 'nil' before adding the HTTPS variants.
@@ -84,6 +124,25 @@ Initialize the archive and refresh the contents in case there is no cached archi
   (require 'use-package)
 #+END_SRC
 
+* init file support
+*Ref: Howard*
+Load up a collection of enhancements to Elisp.
+including dash
+s -> String manipulation
+f -> file manipulation
+#+begin_src emacs-lisp
+  (require 'cl)
+
+  (use-package dash
+    :ensure t
+    :config (eval-after-load "dash" '(dash-enable-font-lock)))
+
+  (use-package s
+    :ensure t)
+
+  (use-package f
+    :ensure t)
+#+end_src
 * Environment
 ** Appearance
 #+begin_src emacs-lisp
