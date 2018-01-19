@@ -46,6 +46,7 @@ flycheck_*.el
 
 # user-specific
 *.el
+!init.el
 auto-save-list/
 backups/
 elisp/
