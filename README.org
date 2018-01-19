@@ -145,6 +145,7 @@ f -> file manipulation
 #+end_src
 * Environment
 ** Appearance
+*Ref: Aaron Culich*
 #+begin_src emacs-lisp
   (setq font-lock-maximum-decoration t
         color-theme-is-global t
@@ -156,13 +157,13 @@ f -> file manipulation
 #+END_SRC
 ** Bars
 #+BEGIN_SRC emacs-lisp
-;; you won't need any of the bar thingies
-;; turn it off to save screen estate
-(if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
-(if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
-(if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
+  ;; you won't need any of the bar thingies
+  ;; turn it off to save screen estate
+  (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
+  (if (fboundp 'horizontal-scroll-bar-mode) (horizontal-scroll-bar-mode -1))
+  (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
+  (if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
 #+END_SRC
-
 ** Theme and icons
 *** arjen-grey-theme
 #+BEGIN_SRC emacs-lisp
@@ -634,6 +635,7 @@ If you move point on a symbol, it automatically highlights all the symbols in th
   (setq visible-bell nil)
 #+END_SRC
  
+
 * Editing
 ** Mark Ring
 #+BEGIN_SRC emacs-lisp
