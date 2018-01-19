@@ -1,16 +1,13 @@
-;;; -*- lexical-binding: t -*-
+;;; package -- init
 
-;;; Commentary
+;;; Commentary:
 ;;; init.el --- Custom Emacs Configuration
-;;; Author: Md. Alamin Mahamud
+;;; Author: Alamin Mahamud
 ;;; Version: 3.0.0
 ;;; Keywords: Configuration Emacs
 ;;; URL: https://github.com/AlaminMahamud/.emacs.d/init.el
 
-
-;;; Commentary
 ;;; Code:
-
 (package-initialize)
 
 (require 'ob-tangle)
