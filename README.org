@@ -1666,6 +1666,7 @@ Start Garbage Collection every 100MB to improve Emacs performance
 * Org Mode
 ** init
 *Ref: Howard*
+
 #+begin_src emacs-lisp
   (use-package org
     :ensure t        ; But it comes with Emacs now!?
@@ -1724,6 +1725,22 @@ We will use some packages from org extras
   (use-package org-mime
     :ensure t)
 #+end_src
+
+org-time-stamp
+#+begin_src emacs-lisp
+(bind-key "C-c C-." 'org-time-stamp)
+#+end_src
+
+org-mode-colors
+#+begin_src emacs-lisp
+  (setq org-todo-keyword-faces
+        '(
+          ("IN PROGRESS" . (:foreground "yellow" :weight bold))
+          ("DONE" . (:foreground "green" :weight bold))
+          ("IGNORE" . (:foreground "red" :weight bold))
+          ))
+#+end_src
+
 ** Local key bindings
 *Ref: Howard*
 
@@ -1912,24 +1929,29 @@ DRILL: A function to easily load today and yesterday's journal entry.
 Ref: Howard
 ** BLANK: Org and Google Tasks
 Ref: Howard
-** DRILL: Literate Programming
-#+begin_src emacs-lisp
-(use-package org
-  :config
-  (add-to-list 'org-src-lang-modes '("dot" . "graphviz-dot"))
 
-  (org-babel-do-load-languages 'org-babel-load-languages
-                               '((shell      . t)
-                                 (js         . t)
-                                 (emacs-lisp . t)
-                                 (perl       . t)
-                                 (scala      . t)
-                                 (clojure    . t)
-                                 (python     . t)
-                                 (ruby       . t)
-                                 (dot        . t)
-                                 (css        . t)
-                                 (plantuml   . t))))
+** DRILL: Literate Programming
+
+#+begin_src emacs-lisp
+  (use-package org
+    :config
+    (add-to-list 'org-src-lang-modes '("dot" . "graphviz-dot"))
+    (require 'ob-python)
+    (require 'ob-ruby)
+    (require 'ob-shell)
+    (require 'ob-js)
+    (org-babel-do-load-languages 'org-babel-load-languages
+                                 '((shell      . t)
+                                   (js         . t)
+                                   (emacs-lisp . t)
+                                   (perl       . t)
+                                   (scala      . t)
+                                   (clojure    . t)
+                                   (python     . t)
+                                   (ruby       . t)
+                                   (dot        . t)
+                                   (css        . t)
+                                   (plantuml   . t))))
 #+end_src
 This setting also addresses the issue to associate the dot language with the graphviz-dot mode.
 
@@ -1945,16 +1967,17 @@ don't create a new window each time
 #+begin_src emacs-lisp
   (setq org-src-window-setup 'current-window)
 #+end_src
-** code-block shortcuts
+
+code-block shortcuts
 #+BEGIN_SRC emacs-lisp
   (setq org-structure-template-alist
         '(("s" "#+begin_src ?\n\n#+end_src" "<src lang=\"?\">\n\n</src>")
           ("e" "#+begin_example\n?\n#+end_example" "<example>\n?\n</example>")
           ("q" "#+begin_quote\n?\n#+end_quote" "<quote>\n?\n</quote>")
           ("v" "#+BEGIN_VERSE\n?\n#+END_VERSE" "<verse>\n?\n</verse>")
-          ("c" "#+BEGIN_COMMENT\n?\n#+END_COMMENT")
-          ("p" "#+BEGIN_PRACTICE\n?\n#+END_PRACTICE")
           ("l" "#+begin_src emacs-lisp\n?\n#+end_src" "<src lang=\"emacs-lisp\">\n?\n</src>")
+          ("p" "#+begin_src python\n?\n#+end_src" "<src lang=\"python\">\n?\n</src>")
+          ("c" "#+begin_src cpp\n?\n#+end_src" "<src lang=\"cpp\">\n?\n</src>")
           ("L" "#+latex: " "<literal style=\"latex\">?</literal>")
           ("h" "#+begin_html\n?\n#+end_html" "<literal style=\"html\">\n?\n</literal>")
           ("H" "#+html: " "<literal style=\"html\">?</literal>")
@@ -1963,19 +1986,7 @@ don't create a new window each time
           ("i" "#+index: ?" "#+index: ?")
           ("I" "#+include %file ?" "<include file=%file markup=\"?\">")))
 #+END_SRC
-org-time-stamp
-#+begin_src emacs-lisp
-(bind-key "C-c C-." 'org-time-stamp)
-#+end_src
-org-mode-colors
-#+begin_src emacs-lisp
-  (setq org-todo-keyword-faces
-        '(
-          ("IN PROGRESS" . (:foreground "yellow" :weight bold))
-          ("DONE" . (:foreground "green" :weight bold))
-          ("IGNORE" . (:foreground "red" :weight bold))
-          ))
-#+end_src
+
 * Programming
 ** Languages
 *** C-C++
@@ -2337,35 +2348,36 @@ _Installation_:
 (global-diff-hl-mode)
 (add-hook 'dired-mode-hook 'diff-hl-dired-mode))
 #+END_SRC
-*** magit
+*** FIX: magit
 _Author_:
 _Homepage_:
 _Features_:
 Magit is an interface to the version control system Git, implemented as an Emacs extension.
 _Installation_:
 #+BEGIN_SRC emacs-lisp
-
-    (use-package magit
+  (use-package magit
     :ensure t
+    :commands magit-status magit-blame
+    :init
+    (defadvice magit-status (around magit-fullscreen activate)
+      (window-configuration-to-register :magit-fullscreen)
+      ad-do-it
+      (delete-other-windows))
     :config
     (require 'magit)
+    (setq magit-restore-window-configuration t)
     (set-default 'magit-stage-all-confirm nil)
-
-   ;; full screen magit-status
-  (defadvice magit-status (around magit-fullscreen activate)
-    (window-configuration-to-register :magit-fullscreen)
-    ad-do-it
-    (delete-other-windows))
-
-  (global-unset-key (kbd "C-x g"))
-  (global-set-key (kbd "C-x g h") 'magit-log)
-  (global-set-key (kbd "C-x g f") 'magit-file-log)
-  (global-set-key (kbd "C-x g b") 'magit-blame-mode)
-  (global-set-key (kbd "C-x g m") 'magit-branch-manager)
-  (global-set-key (kbd "C-x g c") 'magit-branch)
-  (global-set-key (kbd "C-x g s") 'magit-status)
-  (global-set-key (kbd "C-x g r") 'magit-reflog)
-  (global-set-key (kbd "C-x g t") 'magit-tag))
+    ; disable follow git symlinks popups
+    (setq vc-follow-symlinks nil))
+    (global-unset-key (kbd "C-x g"))
+    (global-set-key (kbd "C-x g h") 'magit-log)
+    (global-set-key (kbd "C-x g f") 'magit-file-log)
+    (global-set-key (kbd "C-x g b") 'magit-blame-mode)
+    (global-set-key (kbd "C-x g m") 'magit-branch-manager)
+    (global-set-key (kbd "C-x g c") 'magit-branch)
+    (global-set-key (kbd "C-x g s") 'magit-status)
+    (global-set-key (kbd "C-x g r") 'magit-reflog)
+    (global-set-key (kbd "C-x g t") 'magit-tag)
 #+END_SRC
 _Usage_:
 Getting started with Magit is really easy:
@@ -2373,7 +2385,7 @@ Getting started with Magit is really easy:
 - M-x magit-status to see git status, and in the status buffer:
 - s to stage files
 - c c to commit, type in your commit message then C-c C-c to save the message and commit, C-c C-k to abort current commit message and go back magit-status.
-- b b to switch to a branch.
+p- b b to switch to a branch.
 
 Other handy keys:
 
