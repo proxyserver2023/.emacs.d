@@ -718,6 +718,99 @@ or the fill-region
 
   (which-key-mode 1))
 #+end_src
+** Function key definitions
+*Ref: Howard*
+*F1* - Help?
+*F2* - Special odd, little-used characters that I have to think about before remembering what its binding.
+*F3* - Define a keyboard Macro
+*F4* - Replay a keyboard Macro
+*F5* - Move/Drop/Delete a visual mark
+*F6* - Open to temporary, changeable commands...
+*F7* - switch to another window ... control goes the other way
+*F8* - Revert Buffer
+*F9* - My extension (replacement?) for C-c for changing colors and other odd bindings that I actually don’t use that often.
+#+begin_src emacs-lisp
+(global-set-key (kbd "<f7>") 'other-window)
+(global-set-key (kbd "C-<f7>") 'other-window)
+#+end_src
+** F2 and F9 Helpers
+*Ref: Howard*
+The F9 prefix is scatter about my config files
+#+begin_src emacs-lisp
+(define-prefix-command 'personal-global-map)
+(global-set-key (kbd "<f9>") 'personal-global-map)
+#+end_src
+*** F2 Keybindings for Emacs
+Unlike the *F9* bindings, all the *F2* key-bindings happen in a single
+file
+**** Pairs
+While ~M-‘~ inserts a pair of single quotes, I would also like to insert a pair of unicode quotes:
+#+begin_src emacs-lisp
+  (defun insert-single-quotes (p)
+    "Inserts a pair of unicode rounded quotes, `SINGLE TURNED COMMA
+  QUOTATION MARK' and `SINGLE COMMA QUOTATION MARK'."
+    (interactive "P")
+    (insert-pair p 8216 8217))
+
+  (defun insert-double-quotes (p)
+    "Inserts a pair of unicode double rounded quotes."
+    (interactive "P")
+    (insert-pair p 8220 8221))
+
+  (bind-key "M-C-'"  #'insert-single-quotes)  ; ‘Nice!’
+  (bind-key "M-C-\"" #'insert-double-quotes)  ; “Goody”
+#+end_src
+
+
+
+
+**** Unicode Characters
+The F2 is used to enter odd characters not normally available or
+phrases I want to type a bit too often.
+#+begin_src emacs-lisp
+  (mapc (lambda (tuple)
+          (define-key key-translation-map
+              (kbd (concat "<f2> " (nth 0 tuple))) ; Keybinding
+              (kbd (nth 1 tuple))))                ; Character to insert
+        '(("<up>" "↑")
+          ("<down>" "↓")
+          ("<left>" "←")
+          ("<right>" "→")
+          ("S-<up>" "⇑")
+          ("S-<down>" "⇓")
+          ("S-<left>" "⇐")
+          ("S-<right>" "⇒")
+
+          ("p" "▯")   ;; Representation of a cursor
+          ("'" "’")
+          ("\"" "‘")
+
+          ("8" "•")
+          ("*" "°")
+          ("d" "†")
+          ("D" "‡")
+          ("-" "—")
+          ("." "…")
+          (";" "😉")
+          (")" "☺")
+
+          ("a" "α")   ;; Lowercase Greek is uppercase
+          ("b" "β")
+          ("e" "ε")
+          ("l" "λ")
+          ("p" "π")
+          ("m" "μ")
+          ("t" "θ")
+
+          ("!" "¹")   ; For footnotes and things
+          ("@" "²")
+          ("#" "³")
+          ("$" "⁴")
+
+          ("2" "½")   ; Fractions
+          ("3" "⅓")
+          ("4" "¼")))
+#+end_src
 * Editing
 ** Mark Ring
 #+BEGIN_SRC emacs-lisp
