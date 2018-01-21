@@ -2357,28 +2357,31 @@ _Installation_:
 #+BEGIN_SRC emacs-lisp
   (use-package magit
     :ensure t
-    :commands magit-status magit-blame
     :config
     (require 'magit)
-    (setq magit-restore-window-configuration t)
     (set-default 'magit-stage-all-confirm nil)
-    (add-hook 'magit-mode-hook 'magit-load-config-extensions))
+    (add-hook 'magit-mode-hook 'magit-load-config-extensions)
 
-  (defadvice magit-status (around magit-fullscreen activate)
-    (window-configuration-to-register :magit-fullscreen)
-    ad-do-it
-    (delete-other-windows))
-                                   
-  (setq vc-follow-symlinks nil) ; disable follow git symlinks popups
-  (global-unset-key (kbd "C-x g"))
-  (global-set-key (kbd "C-x g h") 'magit-log)
-  (global-set-key (kbd "C-x g f") 'magit-file-log)
-  (global-set-key (kbd "C-x g b") 'magit-blame-mode)
-  (global-set-key (kbd "C-x g m") 'magit-branch-manager)
-  (global-set-key (kbd "C-x g c") 'magit-branch)
-  (global-set-key (kbd "C-x g s") 'magit-status)
-  (global-set-key (kbd "C-x g r") 'magit-reflog)
-  (global-set-key (kbd "C-x g t") 'magit-tag)
+    ; disable follow git symlinks popups
+    (setq vc-follow-symlinks nil)
+
+    ;; full screen magit-status
+    (defadvice magit-status (around magit-fullscreen activate)
+      (window-configuration-to-register :magit-fullscreen)
+      ad-do-it
+      (delete-other-windows))
+
+    (global-unset-key (kbd "C-x g"))
+    (global-set-key (kbd "C-x g h") 'magit-log)
+    (global-set-key (kbd "C-x g f") 'magit-file-log)
+    (global-set-key (kbd "C-x g b") 'magit-blame-mode)
+    (global-set-key (kbd "C-x g m") 'magit-branch-manager)
+    (global-set-key (kbd "C-x g c") 'magit-branch)
+    (global-set-key (kbd "C-x g s") 'magit-status)
+    (global-set-key (kbd "C-x g r") 'magit-reflog)
+    (global-set-key (kbd "C-x g t") 'magit-tag))
+
+                                        
 #+END_SRC
 _Usage_:
 Getting started with Magit is really easy:
@@ -3292,14 +3295,15 @@ Helm Projectile
 #+END_SRC
 * Vimish fold
 #+BEGIN_SRC emacs-lisp
-(use-package vimish-fold
-:ensure t)
-(require 'vimish-fold)
-(vimish-fold-global-mode 1)
-;; this registers a region for future folding/unfolding
-(global-set-key (kbd "C-c v") #'vimish-fold)
-;; this unregisters the region under point from folding/unfolding
-(global-set-key (kbd "C-c d") #'vimish-fold-delete)
-;; this is the actual fold/unfold command
-(global-set-key (kbd "C-c t") #'vimish-fold-toggle)
+  (use-package vimish-fold
+    :ensure t)
+
+  (require 'vimish-fold)
+  (vimish-fold-global-mode 1)
+  ;; this registers a region for future folding/unfolding
+  (global-set-key (kbd "C-c v") #'vimish-fold)
+  ;; this unregisters the region under point from folding/unfolding
+  (global-set-key (kbd "C-c d") #'vimish-fold-delete)
+  ;; this is the actual fold/unfold command
+  (global-set-key (kbd "C-c t") #'vimish-fold-toggle)
 #+END_SRC
