@@ -1,18 +1,19 @@
 #+TITLE: Alamin's Emacs Configuration
 #+AUTHOR: Md. Alamin Mahamud
 #+EMAIL: alamin.ineedahelp@gmail.com
-
 #+STARTUP: overview indent inlineimages
 #+OPTIONS: H:5 num:nil tags:nil toc:nil timestamp:t
 #+LAYOUT: post
 #+DESCRIPTION: Loading Emacs Configuration using org-babel
 #+TAGS: emacs
 #+CATEGORIES: editing
+
 * Keywords:
 BLANK:
 LEARN:
 FIX:
 DRILL:
+TRY:
 * Global Settings
 ** global vars
 #+BEGIN_SRC emacs-lisp
@@ -102,8 +103,11 @@ increase the minimum prime bits size
 #+end_src
 
 * Package Initialization
+
 Ref: - Howard
      - Build Fun Things
+
+
 ** Package Manager
 #+IDEA: Howard Abrams, Build Fun Things
 Because the default setting for =package-archives= is to use the HTTP access to use the GNU archive, set the variable to 'nil' before adding the HTTPS variants.
@@ -130,6 +134,19 @@ Initialize the archive and refresh the contents in case there is no cached archi
 #+END_SRC
 
 ** use-package
+
+:init == keyword to execute code before a package is loaded.
+:config == can be used to execute code after a package is loaded
+:commands = autoload the commands
+:bind = global keybindings
+:map = binding commands to some mode map
+:hook 
+:mode
+:interpreter
+:bind-keymap
+:if = conditional loading
+:diminish
+
 #+BEGIN_SRC emacs-lisp
   (unless (package-installed-p 'use-package)
     (package-refresh-contents)
@@ -2285,6 +2302,34 @@ Need to learn :problem while installing
 :ensure t)
 #+END_SRC
 ** Tools 
+*** Git
+
+REF: Howard
+TRY: [[https://github.com/syohex/emacs-git-gutter-fringe][git gutter fringe]]
+
+#+begin_src emacs-lisp
+  (use-package git-gutter-fringe
+    :ensure t
+    :diminish git-gutter-mode
+    :init (setq git-gutter-fr:side 'right-fringe)
+    :config (global-git-gutter-mode t))
+#+end_src
+
+special mode for Git's Config
+
+#+begin_src emacs-lisp
+  (use-package gitconfig-mode
+    :ensure t)
+#+end_src
+
+Finally, I want to play with [[https://github.com/pidu/git-timemachine][Git Time Machine]] project for stepping
+backward through the version history of a file:
+
+#+BEGIN_SRC elisp
+  (use-package git-timemachine)
+#+END_SRC
+
+
 *** GDB
 #+BEGIN_SRC emacs-lisp
   (setq gdb-many-windows t
@@ -2348,40 +2393,31 @@ _Installation_:
 (add-hook 'dired-mode-hook 'diff-hl-dired-mode))
 #+END_SRC
 *** FIX: magit
+
 _Author_:
 _Homepage_:
 _Features_:
 Magit is an interface to the version control system Git, implemented as an Emacs extension.
 _Installation_:
+
 #+BEGIN_SRC emacs-lisp
+
   (use-package magit
     :ensure t
-    :config
-    (require 'magit)
-    (set-default 'magit-stage-all-confirm nil)
-    (add-hook 'magit-mode-hook 'magit-load-config-extensions)
-
-    ; disable follow git symlinks popups
-    (setq vc-follow-symlinks nil)
-
-    ;; full screen magit-status
+    :commands magit-status magit-blame
+    :init
     (defadvice magit-status (around magit-fullscreen activate)
       (window-configuration-to-register :magit-fullscreen)
       ad-do-it
       (delete-other-windows))
+    :config
+    (setq vc-follow-symlinks nil
+          magit-push-always-verify nil
+          magit-restore-window-configuration t)
+    :bind ("C-x g" . magit-status))
 
-    (global-unset-key (kbd "C-x g"))
-    (global-set-key (kbd "C-x g h") 'magit-log)
-    (global-set-key (kbd "C-x g f") 'magit-file-log)
-    (global-set-key (kbd "C-x g b") 'magit-blame-mode)
-    (global-set-key (kbd "C-x g m") 'magit-branch-manager)
-    (global-set-key (kbd "C-x g c") 'magit-branch)
-    (global-set-key (kbd "C-x g s") 'magit-status)
-    (global-set-key (kbd "C-x g r") 'magit-reflog)
-    (global-set-key (kbd "C-x g t") 'magit-tag))
-
-                                        
 #+END_SRC
+
 _Usage_:
 Getting started with Magit is really easy:
 
