@@ -1,7 +1,7 @@
 #+TITLE: Magit
 #+STARTUP: overview indent
 
-* Introduction
+* DONE Introduction
 * Installation
 * Getting Started
 * Interface Concepts
