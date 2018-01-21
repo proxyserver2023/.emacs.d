@@ -7,13 +7,8 @@
 #+DESCRIPTION: Loading Emacs Configuration using org-babel
 #+TAGS: emacs
 #+CATEGORIES: editing
+#+Keywords: try: learn: drill: fix:
 
-* Keywords:
-BLANK:
-LEARN:
-FIX:
-DRILL:
-TRY:
 * Global Settings
 ** global vars
 #+BEGIN_SRC emacs-lisp
