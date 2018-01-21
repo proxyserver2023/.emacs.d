@@ -1,0 +1,19 @@
+#+TITLE: Magit
+#+STARTUP: overview indent
+
+* Introduction
+* Installation
+* Getting Started
+* Interface Concepts
+* Inspecting
+* Manipulation
+* Transferring
+* Miscellaneous
+* Customizing
+* Plumbing
+* Debugging Tools
+* Appendix A FAQ
+* Appendix B KeyStroke Index
+* Appendix C Command Index
+* Appendix D Function Index
+* Appendix E Variable Index
