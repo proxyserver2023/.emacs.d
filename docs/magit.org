@@ -3,7 +3,7 @@
 
 * DONE Introduction
 * DONE Installation
-* Getting Started
+* DONE Getting Started
 * Interface Concepts
 * Inspecting
 * Manipulation
