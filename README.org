@@ -2327,7 +2327,6 @@ Need to learn :problem while installing
 (setq ediff-diff-options "-w"
       ediff-split-window-function 'split-window-horizontally
       ediff-window-setup-function 'ediff-setup-windows-plain)
-
 #+END_SRC
 *** TODO diff-hl
 _Author_:
