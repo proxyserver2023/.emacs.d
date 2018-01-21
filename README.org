@@ -2324,7 +2324,6 @@ backward through the version history of a file:
   (use-package git-timemachine)
 #+END_SRC
 
-
 *** GDB
 #+BEGIN_SRC emacs-lisp
   (setq gdb-many-windows t
@@ -2387,10 +2386,10 @@ _Installation_:
 (global-diff-hl-mode)
 (add-hook 'dired-mode-hook 'diff-hl-dired-mode))
 #+END_SRC
-*** FIX: magit
+*** DOING magit
 
-_Author_:
-_Homepage_:
+_Author_: Jonas Bernoulli
+_Homepage_: [[https://magit.vc][magit]]
 _Features_:
 Magit is an interface to the version control system Git, implemented as an Emacs extension.
 _Installation_:
@@ -2413,7 +2412,7 @@ _Installation_:
 
 #+END_SRC
 
-_Usage_:
+_Usage_: [[./docs/magit.org][magit]]
 Getting started with Magit is really easy:
 
 - M-x magit-status to see git status, and in the status buffer:
