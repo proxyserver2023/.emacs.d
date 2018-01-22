@@ -6,7 +6,8 @@
 * DONE Getting Started
 * DONE Interface Concepts
 * DONE Inspecting
-* Manipulation
+* DOING Manipulation
+- committing : learning different options of commits
 * Transferring
 * Miscellaneous
 * Customizing
