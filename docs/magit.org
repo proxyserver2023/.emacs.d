@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 #+TITLE: Magit
 #+STARTUP: overview indent
 
@@ -8,15 +6,15 @@
 * DONE Getting Started
 * DONE Interface Concepts
 * DONE Inspecting
-* Manipulation
-* Transferring
-* Miscellaneous
-* Customizing
-* Plumbing
-* Debugging Tools
-* Appendix A FAQ
-* Appendix B KeyStroke Index
-* Appendix C Command Index
-* Appendix D Function Index
-* Appendix E Variable Index
+* DONE Manipulation
+* DONE Transferring
+* DONE Miscellaneous
+* DONE Customizing
+* DONE Plumbing
+* DONE Debugging Tools
+* DONE Appendix A FAQ
+* DONE Appendix B KeyStroke Index
+* DONE Appendix C Command Index
+* DONE Appendix D Function Index
+* DONE Appendix E Variable Index
 >>>>>>> parent of 5e271b5... fix: confused with reword, extend, fixup, squash
