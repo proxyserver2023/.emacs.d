@@ -1,6 +1,21 @@
-#+TITLE: JWeigley
+#+TITLE: JWeigley Config
 
 * init.el
 #+begin_src emacs-lisp
+  ;;; package: --- Summary:
+
+  ;;; Commentary:
+  ;;; Code:
   (defconst emacs-start-time (current-time))
+  (setq package-enable-at-startup nil
+        message-log-max 16384)
+
+  ;;; Functions
+
+  (eval-and-compile
+    (defsubst emacs-path (path)
+      (expand-file-name path user-emacs-directory)))
+
+  (provide 'init.el)
+  ;;; init.el ends here
 #+end_src
