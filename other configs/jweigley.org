@@ -1,0 +1,6 @@
+#+TITLE: JWeigley
+
+* init.el
+#+begin_src emacs-lisp
+  (defconst emacs-start-time (current-time))
+#+end_src
