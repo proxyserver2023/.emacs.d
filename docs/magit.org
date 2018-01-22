@@ -5,7 +5,7 @@
 * DONE Installation
 * DONE Getting Started
 * DONE Interface Concepts
-* DONE Inspecting
+* Inspecting
 * Manipulation
 * Transferring
 * Miscellaneous
