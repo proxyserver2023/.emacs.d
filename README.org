@@ -1731,11 +1731,11 @@ block in org-mode, single keys do fun things. See
 
 We will use some packages from org extras
 #+begin_src emacs-lisp
-  (use-package org-drill
-    :ensure org-plus-contrib)
+ ; (use-package org-drill
+ ;   :ensure org-plus-contrib)
 
-  (use-package org-mime
-    :ensure t)
+ ; (use-package org-mime
+ ;   :ensure t)
 #+end_src
 
 org-time-stamp
@@ -1948,22 +1948,54 @@ Ref: Howard
   (use-package org
     :config
     (add-to-list 'org-src-lang-modes '("dot" . "graphviz-dot"))
-    (require 'ob-python)
-    (require 'ob-ruby)
-    (require 'ob-shell)
+
+    (require 'ob-C)
+    (require 'ob-clojure)
+    (require 'ob-css)
+    (require 'ob-dot)
+    (require 'ob-emacs-lisp)
+    (require 'ob-fortran)
+    (require 'ob-haskell)
+    (require 'ob-java)
     (require 'ob-js)
+    (require 'ob-ledger)
+    (require 'ob-lisp)
+    (require 'ob-matlab)
+    (require 'ob-ocaml)
+    (require 'ob-perl)
+    (require 'ob-plantuml)
+    (require 'ob-python)
+    (require 'ob-R)
+    (require 'ob-ruby)
+    (require 'ob-scheme)
+    (require 'ob-sh)
+    (require 'ob-scala)
+    (require 'ob-sql)
+
     (org-babel-do-load-languages 'org-babel-load-languages
-                                 '((shell      . t)
-                                   (js         . t)
-                                   (emacs-lisp . t)
-                                   (perl       . t)
-                                   (scala      . t)
-                                   (clojure    . t)
-                                   (python     . t)
-                                   (ruby       . t)
-                                   (dot        . t)
-                                   (css        . t)
-                                   (plantuml   . t))))
+                                 '((C . t)
+                                   (clojure . t)
+                                   (css . t)
+                                   (dot .t)
+                                   (emacs-lisp .t)
+                                   (fortran .t)
+                                   (haskell .t)
+                                   (java .t)
+                                   (js .t)
+                                   (latex .t)
+                                   (ledger . t)
+                                   (lisp .t)
+                                   (matlab . t)
+                                   (ocaml . t)
+                                   (perl .t)
+                                   (plantuml .t)
+                                   (python .t)
+                                   (R . t)
+                                   (ruby . t)
+                                   (scheme . t)
+                                   (scala . t)
+                                   (sh . t)
+                                   (sql . t))))
 #+end_src
 This setting also addresses the issue to associate the dot language with the graphviz-dot mode.
 
@@ -2001,6 +2033,29 @@ code-block shortcuts
 
 * Programming
 ** Languages
+*** Scheme
+
+ref: [[https://www.youtube.com/watch?v=J5jxMRlXvDw][youtube video]]
+
+#+begin_src emacs-lisp
+  ;; Always do syntax highlighting
+  (global-font-lock-mode 1)
+
+  ;; Also highlight parens
+  (setq show-paren-delay 0
+        show-paren-style 'parenthesis)
+  (show-paren-mode 1)
+
+  ;;; This is the binary name of my scheme implementation
+  (setq scheme-program-name "scm")
+#+end_src
+
+#+begin_src shell
+sudo apt-get install -y racket
+#+end_src
+
+usage: to run scheme type =M-x run-scheme=
+
 *** C-C++
 **** Development Environment Guide
 ***** Demo
@@ -3336,3 +3391,15 @@ Helm Projectile
   ;; this is the actual fold/unfold command
   (global-set-key (kbd "C-c t") #'vimish-fold-toggle)
 #+END_SRC
+* Multiple-cursor
+#+begin_src emacs-lisp
+  (use-package multiple-cursors
+    :ensure t
+    :config
+    (require 'multiple-cursors)
+    (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+    (global-set-key (kbd "C->") 'mc/mark-next-like-this)
+  (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+  (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this))
+#+end_src
+
