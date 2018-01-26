@@ -146,6 +146,8 @@ Initialize the archive and refresh the contents in case there is no cached archi
   (unless (package-installed-p 'use-package)
     (package-refresh-contents)
     (package-install 'use-package))
+  (setq use-package-verbose t)
+  (setq use-package-always-ensure t)
   (require 'use-package)
 #+END_SRC
 
@@ -1804,52 +1806,52 @@ FIX: Now we can associate some keystrokes to the org-mode
      ("C-s-b" . backward-sentence)))
 #+end_src
 ** LEARN: Better org return
-#+begin_src emacs-lisp
-  (defun am/org-return (&optional ignore)
-    "Add new list item, heading or table row with RET.
-  A double return on an empty element deletes it.
-  Use a prefix arg to get regular RET. "
-    (interactive "P")
-    (if ignore
-        (org-return)
-      (cond
-       ;; Open links like usual
-       ((eq 'link (car (org-element-context)))
-        (org-return))
-       ;; lists end with two blank lines, so we need to make sure we are also not
-       ;; at the beginning of a line to avoid a loop where a new entry gets
-       ;; created with only one blank line.
-       ((and (org-in-item-p) (not (bolp)))
-        (if (org-element-property :contents-begin (org-element-context))
-            (org-insert-heading)
-          (beginning-of-line)
-          (setf (buffer-substring
-                 (line-beginning-position) (line-end-position)) "")
-          (org-return)))
-       ((org-at-heading-p)
-        (if (not (string= "" (org-element-property :title (org-element-context))))
-            (progn (org-end-of-meta-data)
-                   (org-insert-heading))
-          (beginning-of-line)
-          (setf (buffer-substring
-                 (line-beginning-position) (line-end-position)) "")))
-       ((org-at-table-p)
-        (if (-any?
-             (lambda (x) (not (string= "" x)))
-             (nth
-              (- (org-table-current-dline) 1)
-              (org-table-to-lisp)))
-            (org-return)
-          ;; empty row
-          (beginning-of-line)
-          (setf (buffer-substring
-                 (line-beginning-position) (line-end-position)) "")
-          (org-return)))
-       (t
-        (org-return)))))
+# #+begin_src emacs-lisp
+#   (defun am/org-return (&optional ignore)
+#     "Add new list item, heading or table row with RET.
+#   A double return on an empty element deletes it.
+#   Use a prefix arg to get regular RET. "
+#     (interactive "P")
+#     (if ignore
+#         (org-return)
+#       (cond
+#        ;; Open links like usual
+#        ((eq 'link (car (org-element-context)))
+#         (org-return))
+#        ;; lists end with two blank lines, so we need to make sure we are also not
+#        ;; at the beginning of a line to avoid a loop where a new entry gets
+#        ;; created with only one blank line.
+#        ((and (org-in-item-p) (not (bolp)))
+#         (if (org-element-property :contents-begin (org-element-context))
+#             (org-insert-heading)
+#           (beginning-of-line)
+#           (setf (buffer-substring
+#                  (line-beginning-position) (line-end-position)) "")
+#           (org-return)))
+#        ((org-at-heading-p)
+#         (if (not (string= "" (org-element-property :title (org-element-context))))
+#             (progn (org-end-of-meta-data)
+#                    (org-insert-heading))
+#           (beginning-of-line)
+#           (setf (buffer-substring
+#                  (line-beginning-position) (line-end-position)) "")))
+#        ((org-at-table-p)
+#         (if (-any?
+#              (lambda (x) (not (string= "" x)))
+#              (nth
+#               (- (org-table-current-dline) 1)
+#               (org-table-to-lisp)))
+#             (org-return)
+#           ;; empty row
+#           (beginning-of-line)
+#           (setf (buffer-substring
+#                  (line-beginning-position) (line-end-position)) "")
+#           (org-return)))
+#        (t
+#         (org-return)))))
 
-  (define-key org-mode-map (kbd "RET")  #'am/org-return)
-#+end_src
+#   (define-key org-mode-map (kbd "RET")  #'am/org-return)
+# #+end_src
 ** Color and Display
 *Ref: Howard*
 *** org-bullets
@@ -3221,124 +3223,100 @@ _intro_:
          ("C-c n" . spell-buffer-english)))
 
 #+END_SRC
-* Things to Consider
-** TODO Benchmarking
-_url_: [[https://github.com/purcell/emacs.d/blob/master/lisp/init-benchmarking.el]]
-#+BEGIN_SRC emacs-lisp
-
-#+END_SRC
-
-** Remove Security Vulnerability
-#+BEGIN_SRC emacs-lisp
-  ;; (eval-after-load "enriched"
-  ;;   '(defun enriched-decode-display-prop (start end &optional para)
-  ;;      (list start end)))
-#+END_SRC
-
-** A Secure Emacs Environment - Build Fun Things
-** Modernizing Emacs - Howard Abrams
-** Emacs Enhancement - Howard Abrams
-Load up a collection of enhancement to Emacs Lisp, including [[https://github.com/magnars/dash.el][dash]], [[https://github.com/magnars/s.el][s]] for string manipulation, and [[https://github.com/rejeep/f.el][f]] for file manipulation.
-** TODO Pop to mark
-Handy way of getting back to previous places
-#+BEGIN_SRC emacs-lisp
-(bind-key "C-x p" 'pop-to-mark-command)
-(setq set-mark-command-repeat-pop t)
-#+END_SRC
-** TODO Frequently-accessed files
-[[http://pages.sachachua.com/.emacs.d/Sacha.html#org9750649]]
-** TODO Shuffling Lines - Sacha Chua
-** password manamgement
-** flyspell
-** GUD
-** term-mode
-** ansi-term
-** shell-pop
-** toggle-margin-right - sacha
-** Writing
-*** Avoid weasel words - sacha
-*** Unicode - sacha
-*** clean-up space - sacha
-#+BEGIN_SRC emacs-lisp
-;(bind-key "M-SPC" 'cycle-spacing)
-#+END_SRC
-** htmlize buffers
-** exports
-** presentation
 * Helm - tuhdo
+
 #+BEGIN_SRC emacs-lisp
-  (use-package helm
-  :ensure t)
+    (use-package helm
+    :diminish helm-mode
+    :init
+    (setq helm-idle-delay 0.0
+          helm-input-idle-delay 0.01
+          helm-yas-display-key-on-candidate t
+          helm-quick-update t
+          helm-M-x-requires-pattern nil
+          helm-ff-skip-boring-files t)
+    (helm-mode))
 
-  (require 'helm)
-  (require 'helm-config)
+    (require 'helm)
+    (require 'helm-config)
 
-  ;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs
-  ;; Change to "C-c h"
-  (global-set-key (kbd "C-c h") 'helm-command-prefix)
-  (global-unset-key (kbd "C-x c"))
-  (global-set-key (kbd "M-x") #'helm-M-x)
-  (global-set-key (kbd "C-x r b") #'helm-filtered-bookmarks)
-  (global-set-key (kbd "C-x C-f") #'helm-find-files)
-  (global-set-key (kbd "M-y") 'helm-show-kill-ring)
-  (global-set-key (kbd "C-x b") 'helm-mini)
-  (global-set-key (kbd "C-c h o") 'helm-occur)
-  ; rebind tab to run persistent action
-  (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
-  ; make TAB work in terminal
-  (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
-  ; list actions using C-z
-  (define-key helm-map (kbd "C-z")  'helm-select-action)
+    ;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs
+    ;; Change to "C-c h"
+    (global-set-key (kbd "C-c h") 'helm-command-prefix)
+    (global-unset-key (kbd "C-x c"))
+    (global-set-key (kbd "M-x") #'helm-M-x)
+    (glo:ensure tbal-set-key (kbd "C-x r b") #'helm-filtered-bookmarks)
+    (global-set-key (kbd "C-x C-f") #'helm-find-files)
+    (global-set-key (kbd "M-y") 'helm-show-kill-ring)
+    (global-set-key (kbd "C-x b") 'helm-mini)
+    (global-set-key (kbd "C-c h o") 'helm-occur)
+    ; rebind tab to run persistent action
+    (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
+    ; make TAB work in terminal
+    (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
+    ; list actions using C-z
+    (define-key helm-map (kbd "C-z")  'helm-select-action)
 
-  (when (executable-find "curl")
-    (setq helm-google-suggest-use-curl-p t))
+    (when (executable-find "curl")
+      (setq helm-google-suggest-use-curl-p t))
 
-  (setq helm-split-window-in-side-p       t ; open helm buffer inside current window, not occupy whole other window
-    helm-move-to-line-cycle-in-source     t ; move to end or beginning of source when reaching top or bottom of source.
-    helm-ff-search-library-in-sexp        t ; search for library in `require' and `declare-function' sexp.
-    helm-scroll-amount                    8 ; scroll 8 lines other window using M-<next>/M-<prior>
-    helm-ff-file-name-history-use-recentf t
-    helm-echo-input-in-header-line t)
+    (setq helm-split-window-in-side-p       t ; open helm buffer inside current window, not occupy whole other window
+      helm-move-to-line-cycle-in-source     t ; move to end or beginning of source when reaching top or bottom of source.
+      helm-ff-search-library-in-sexp        t ; search for library in `require' and `declare-function' sexp.
+      helm-scroll-amount                    8 ; scroll 8 lines other window using M-<next>/M-<prior>
+      helm-ff-file-name-history-use-recentf t
+      helm-echo-input-in-header-line t)
 
-  (defun spacemacs//helm-hide-minibuffer-maybe ()
-    "Hide minibuffer in Helm session if we use the header line as input field."
-    (when (with-helm-buffer helm-echo-input-in-header-line)
-      (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
-        (overlay-put ov 'window (selected-window))
-        (overlay-put ov 'face
-                     (let ((bg-color (face-background 'default nil)))
-                       `(:background ,bg-color :foreground ,bg-color)))
-        (setq-local cursor-type nil))))
+    (defun spacemacs//helm-hide-minibuffer-maybe ()
+      "Hide minibuffer in Helm session if we use the header line as input field."
+      (when (with-helm-buffer helm-echo-input-in-header-line)
+        (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
+          (overlay-put ov 'window (selected-window))
+          (overlay-put ov 'face
+                       (let ((bg-color (face-background 'default nil)))
+                         `(:background ,bg-color :foreground ,bg-color)))
+          (setq-local cursor-type nil))))
 
-  (add-hook 'helm-minibuffer-set-up-hook
-            'spacemacs//helm-hide-minibuffer-maybe)
+    (add-hook 'helm-minibuffer-set-up-hook
+              'spacemacs//helm-hide-minibuffer-maybe)
 
-  (defun pl/helm-alive-p ()
-    (if (boundp 'helm-alive-p)
-        (symbol-value 'helm-alive-p)))
+    (defun pl/helm-alive-p ()
+      (if (boundp 'helm-alive-p)
+          (symbol-value 'helm-alive-p)))
 
-;  (add-to-list 'golden-ratio-inhibit-functions 'pl/helm-alive-p)
+  ;  (add-to-list 'golden-ratio-inhibit-functions 'pl/helm-alive-p)
 
-  (setq helm-M-x-fuzzy-match t) ;; optional fuzzy matching for helm-M-x
-  (setq helm-buffers-fuzzy-matching t
-      helm-recentf-fuzzy-match    t)
-  (setq helm-autoresize-max-height 0)
-  (setq helm-autoresize-min-height 20)
-  (helm-autoresize-mode 1)
-  (helm-mode 1)
+    (setq helm-M-x-fuzzy-match t) ;; optional fuzzy matching for helm-M-x
+    (setq helm-buffers-fuzzy-matching t
+        helm-recentf-fuzzy-match    t)
+    (setq helm-autoresize-max-height 0)
+    (setq helm-autoresize-min-height 20)
+    (helm-autoresize-mode 1)
+    (helm-mode 1)
 
-  (when (executable-find "ack-grep")
-    (setq helm-grep-default-command "ack-grep -Hn --no-group --no-color %e %p %f"
-          helm-grep-default-recurse-command "ack-grep -H --no-group --no-color %e %p %f"))
-  (setq helm-locate-fuzzy-match t)
-  (setq helm-apropos-fuzzy-match t)
+    (when (executable-find "ack-grep")
+      (setq helm-grep-default-command "ack-grep -Hn --no-group --no-color %e %p %f"
+            helm-grep-default-recurse-command "ack-grep -H --no-group --no-color %e %p %f"))
+    (setq helm-locate-fuzzy-match t)
+    (setq helm-apropos-fuzzy-match t)
 #+END_SRC
+
+Helm-descbinds
+#+begin_src emacs-lisp
+  (use-package helm-descbinds
+    :defer t
+    :bind(
+          ("C-h b" . helm-descbinds)
+          ("C-h w" . helm-descbinds)))
+#+end_src
+
 Helm Projectile
 #+BEGIN_SRC emacs-lisp
 (projectile-global-mode)
 (setq projectile-completion-system 'helm)
 (helm-projectile-on)
 #+END_SRC
+
 * Temp - Swiper/Ivy/Counsel
 #+BEGIN_SRC emacs-lisp
   ;; (use-package counsel
@@ -3403,3 +3381,53 @@ Helm Projectile
   (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this))
 #+end_src
 
+* Things to Consider
+** TODO Benchmarking
+_url_: [[https://github.com/purcell/emacs.d/blob/master/lisp/init-benchmarking.el]]
+#+BEGIN_SRC emacs-lisp
+
+#+END_SRC
+
+** Remove Security Vulnerability
+#+BEGIN_SRC emacs-lisp
+  ;; (eval-after-load "enriched"
+  ;;   '(defun enriched-decode-display-prop (start end &optional para)
+  ;;      (list start end)))
+#+END_SRC
+
+** A Secure Emacs Environment - Build Fun Things
+** Modernizing Emacs - Howard Abrams
+** Emacs Enhancement - Howard Abrams
+Load up a collection of enhancement to Emacs Lisp, including [[https://github.com/magnars/dash.el][dash]], [[https://github.com/magnars/s.el][s]] for string manipulation, and [[https://github.com/rejeep/f.el][f]] for file manipulation.
+** TODO Pop to mark
+Handy way of getting back to previous places
+#+BEGIN_SRC emacs-lisp
+(bind-key "C-x p" 'pop-to-mark-command)
+(setq set-mark-command-repeat-pop t)
+#+END_SRC
+** TODO Frequently-accessed files
+[[http://pages.sachachua.com/.emacs.d/Sacha.html#org9750649]]
+** TODO Shuffling Lines - Sacha Chua
+** password manamgement
+** flyspell
+** GUD
+** term-mode
+** ansi-term
+** shell-pop
+** toggle-margin-right - sacha
+** Writing
+*** Avoid weasel words - sacha
+*** Unicode - sacha
+*** clean-up space - sacha
+#+BEGIN_SRC emacs-lisp
+;(bind-key "M-SPC" 'cycle-spacing)
+#+END_SRC
+** htmlize buffers
+** exports
+** presentation
+* TODO List of options for reconsider
+1. auto-compile package ;; sacha
+2. emacs-secrets file separate ;; sacha
+3. backup-directory-alist ;; sacha
+4. winner-mode ;; ref: [[http://www.ergoemacs.org/emacs/emacs_winner_mode.html][xah-emacs]] save split windows configuration
+5. 
