@@ -1761,18 +1761,26 @@ set-default-browser
 (setq browse-url-browser-function 'browse-url-generic
       browse-url-generic-program "google-chrome")
 #+end_src
+
+open pdf in evince
+#+begin_src emacs-lisp
+    (setq org-file-apps
+          (append '(
+                    ("\\.pdf\\'" . "evince %s")
+                    ) org-file-apps ))
+#+end_src
 ** Local key bindings
 *Ref: Howard*
 
 insert two spaces
 #+begin_src emacs-lisp
-  (defun am/insert-two-spaces (N)
-    "Inserts two spaces at the end of sentences."
-    (interactive "p")
-    (when (looking-back "[!?.] " 2)
-      (insert " ")))
+  ;; (defun am/insert-two-spaces (N)
+  ;;   "Inserts two spaces at the end of sentences."
+  ;;   (interactive "p")
+  ;;   (when (looking-back "[!?.] " 2)
+  ;;     (insert " ")))
 
-  (advice-add 'org-self-insert-command :after #'am/insert-two-spaces)
+  ;; (advice-add 'org-self-insert-command :after #'am/insert-two-spaces)
 #+end_src
 
 FIX: A couple of short-cut keys to make it easier to edit text.
@@ -2039,6 +2047,18 @@ code-block shortcuts
           ("I" "#+include %file ?" "<include file=%file markup=\"?\">")))
 #+END_SRC
 
+** Org-agenda
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-c a") 'org-agenda)
+#+end_src
+** Org-Capture
+#+begin_src emacs-lisp
+(global-set-key (kbd "C-c c") 'org-capture)
+#+end_src
+** org-ac
+Ref: [[https://github.com/aki2o/org-ac][github]]
+Demo:
+[[https://github.com/aki2o/org-ac/raw/master/image/demo.gif]]
 * Programming
 ** Languages
 *** Scheme
