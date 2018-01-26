@@ -1,13 +1,14 @@
 #+TITLE: Alamin's Emacs Configuration
 #+AUTHOR: Md. Alamin Mahamud
 #+EMAIL: alamin.ineedahelp@gmail.com
+
 #+STARTUP: overview indent inlineimages
 #+OPTIONS: H:5 num:nil tags:nil toc:nil timestamp:t
 #+LAYOUT: post
 #+DESCRIPTION: Loading Emacs Configuration using org-babel
 #+TAGS: emacs
 #+CATEGORIES: editing
-#+Keywords: try: learn: drill: fix:
+#+Keywords: :try: :learn: :drill: :fix:
 
 * Global Settings
 ** global vars
@@ -1755,6 +1756,11 @@ org-mode-colors
           ))
 #+end_src
 
+set-default-browser
+#+begin_src emacs-lisp
+(setq browse-url-browser-function 'browse-url-generic
+      browse-url-generic-program "google-chrome")
+#+end_src
 ** Local key bindings
 *Ref: Howard*
 
@@ -3228,14 +3234,15 @@ _intro_:
 #+BEGIN_SRC emacs-lisp
     (use-package helm
     :diminish helm-mode
-    :init
-    (setq helm-idle-delay 0.0
-          helm-input-idle-delay 0.01
-          helm-yas-display-key-on-candidate t
-          helm-quick-update t
-          helm-M-x-requires-pattern nil
-          helm-ff-skip-boring-files t)
-    (helm-mode))
+    ;; :init
+    ;; (setq helm-idle-delay 0.0
+    ;;       helm-input-idle-delay 0.01
+    ;;       helm-yas-display-key-on-candidate t
+    ;;       helm-quick-update t
+    ;;       helm-M-x-requires-pattern nil
+    ;;       helm-ff-skip-boring-files t)
+    ;; (helm-mode)
+    :ensure t)
 
     (require 'helm)
     (require 'helm-config)
@@ -3245,7 +3252,7 @@ _intro_:
     (global-set-key (kbd "C-c h") 'helm-command-prefix)
     (global-unset-key (kbd "C-x c"))
     (global-set-key (kbd "M-x") #'helm-M-x)
-    (glo:ensure tbal-set-key (kbd "C-x r b") #'helm-filtered-bookmarks)
+    (global-set-key (kbd "C-x r b") #'helm-filtered-bookmarks)
     (global-set-key (kbd "C-x C-f") #'helm-find-files)
     (global-set-key (kbd "M-y") 'helm-show-kill-ring)
     (global-set-key (kbd "C-x b") 'helm-mini)
