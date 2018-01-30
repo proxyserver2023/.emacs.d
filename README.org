@@ -1679,10 +1679,245 @@ Start Garbage Collection every 100MB to improve Emacs performance
 (setq gc-cons-threshold 100000000)
 * Email
 * Org Mode
+** global settings
+#+BEGIN_SRC emacs-lisp
+  (custom-set-variables
+   '(org-directory "~/Dropbox/org")
+   '(org-default-notes-file (concat org-directory "/notes.org"))
+   '(org-export-html-postamble nil)
+   '(org-hide-leading-stars t)
+   '(org-startup-folded (quote overview))
+   '(org-statup-indented t)
+   )
+#+END_SRC
+** org-agenda
+#+BEGIN_SRC emacs-lisp
+  (global-set-key
+   "\C-ca" 'org-agenda
+   )
+#+END_SRC
+*** custom-commands
+#+BEGIN_SRC emacs-lisp
+  (setq org-agenda-custom-commands
+        '(("c" "Simple agenda view"
+           ((agenda "")
+            (alltodo "")))))
+#+END_SRC
+*** org-agenda files
+#+BEGIN_SRC emacs-lisp
+  (setq
+   org-agenda-files
+   (list
+    "~/Dropbox/org/gcal.org"
+    "~/Dropbox/org/schedule.org"
+    "~/Dropbox/org/todo.org"
+    "~/Dropbox/org/links.org"
+    ))
+#+END_SRC
+** org-ac
+provide auto-complete sources for org-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package org-ac
+        :ensure t
+        :init (progn
+                (require 'org-ac)
+                (org-ac/config-default)
+                ))
+#+END_SRC
 
+** org-capture
+#+BEGIN_SRC emacs-lisp
+  (global-set-key
+   (kbd "C-c c") 'org-capture)
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+    (setq
+     org-capture-templates
+     '(
+       ("j" "Journal" entry (file "~/Dropbox/org/journal.org")
+        "* %t\n** Day\n*** What am I Grateful For:\n1. %?\n2. \n3. \n*** What Would Make Today Great:\n1. \n2. \n3. \n*** Daily Affirmations I am:\n1. \n2. \n3. \n\n** Night\n*** 3 Amazing Things Happened Today:\n1. \n2. \n3. \n*** How could I Make Things Better\n1. \n2. \n3. \n" :prepend t)
+       ("l" "Link" entry (file "~/Dropbox/org/links.org")
+        "* %?%^L %^g \n%T" :prepend t)
+       ("t" "Todo" entry (file "~/Dropbox/org/todo.org")
+        "* TODO %?\n%u%T" :prepend t)
+       ("n" "Notes" entry (file "~/Dropbox/org/notes.org")
+        "* %?\n%u" :prepend t)
+       ))
+#+END_SRC
 
+#+BEGIN_SRC emacs-lisp
+  (defadvice org-capture-finalize
+      (after delete-capture-frame activate)
+    "Advise capture-finalize to close the frame"
+    (if (equal "capture" (frame-parameter nil 'name))
+        (delete-frame)))
+#+END_SRC
 
+#+BEGIN_SRC emacs-lisp
+  (defadvice org-capture-destroy 
+      (after delete-capture-frame activate)  
+    "Advise capture-destroy to close the frame"  
+    (if (equal "capture" (frame-parameter nil 'name))  
+        (delete-frame)))  
 
+  (use-package noflet
+    :ensure t )
+
+  (defun make-capture-frame ()
+    "Create a new frame and run org-capture."
+    (interactive)
+    (make-frame '((name . "capture")))
+    (select-frame-by-name "capture")
+    (delete-other-windows)
+    (noflet ((switch-to-buffer-other-window (buf) (switch-to-buffer buf)))
+      (org-capture)))
+
+  (require 'ox-beamer)
+
+                                          ; for inserting inactive dates
+  (define-key
+    org-mode-map
+    (kbd "C-c >")
+    (lambda () (interactive (org-time-stamp-inactive))))
+#+END_SRC
+** set-default-browser
+#+begin_src emacs-lisp
+(setq browse-url-browser-function 'browse-url-generic
+      browse-url-generic-program "google-chrome")
+#+end_src
+
+** open pdf in evince
+#+begin_src emacs-lisp
+    (setq org-file-apps
+          (append '(
+                    ("\\.pdf\\'" . "evince %s")
+                    ) org-file-apps ))
+#+end_src
+
+** org-bullets
+#+BEGIN_SRC emacs-lisp
+  (use-package org-bullets
+    :config
+    (add-hook 'org-mode-hook
+              (lambda () (org-bullets-mode 1))))
+#+END_SRC
+** org-gcal
+#+BEGIN_SRC emacs-lisp
+  (setq package-check-signature nil)
+
+  (use-package org-gcal
+    :config
+    (require 'org-gcal)
+    (setq org-gcal-client-id "1097756207487-lv3ccg6q51f2bhvvmi5hml8jat9aoa0u.apps.googleusercontent.com"
+          org-gcal-client-secret "ZSnJVBs4TJ5pU-Ja8xNofh3r"
+          org-gcal-file-alist '(("alamin.ineedahelp@gmail.com" .  "~/Dropbox/org/gcal.org"))))
+#+END_SRC
+
+syncs with my Google Calendar
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'org-agenda-mode-hook (lambda () (org-gcal-sync)))
+  (add-hook 'org-capture-after-finalize-hook (lambda () (org-gcal-sync)))
+#+END_SRC
+
+** Literate Programming
+
+#+begin_src emacs-lisp
+  ;; (add-to-list 'org-src-lang-modes '("dot" . "graphviz-dot"))
+
+  ;;  (require 'ob-C)
+  ;;  (require 'ob-clojure)
+  ;;  (require 'ob-css)
+  ;;  (require 'ob-dot)
+  ;;  (require 'ob-emacs-lisp)
+  ;;  (require 'ob-fortran)
+  ;;  (require 'ob-haskell)
+  ;;  (require 'ob-java)
+  ;;  (require 'ob-js)
+  ;;  (require 'ob-ledger)
+  ;;  (require 'ob-lisp)
+  ;;  (require 'ob-matlab)
+  ;;  (require 'ob-ocaml)
+  ;;  (require 'ob-perl)
+  ;;  (require 'ob-plantuml)
+  ;;  (require 'ob-python)
+  ;;  (require 'ob-R)
+  ;;  (require 'ob-ruby)
+  ;;  (require 'ob-scheme)
+  ;;  (require 'ob-sh)
+  ;;  (require 'ob-scala)
+  ;;  (require 'ob-sql)
+
+  ;;  (org-babel-do-load-languages 'org-babel-load-languages
+  ;;                               '((C . t)
+  ;;                                 (clojure . t)
+  ;;                                 (css . t)
+  ;;                                 (dot .t)
+  ;;                                 (emacs-lisp .t)
+  ;;                                 (fortran .t)
+  ;;                                 (haskell .t)
+  ;;                                 (java .t)
+  ;;                                 (js .t)
+  ;;                                 (latex .t)
+  ;;                                 (ledger . t)
+  ;;                                 (lisp .t)
+  ;;                                 (matlab . t)
+  ;;                                 (ocaml . t)
+  ;;                                 (perl .t)
+  ;;                                 (plantuml .t)
+  ;;                                 (python .t)
+  ;;                                 (R . t)
+  ;;                                 (ruby . t)
+  ;;                                 (scheme . t)
+  ;;                                 (scala . t)
+  ;;                                 (sh . t)
+  ;;                                 (sql . t)))
+#+end_src
+This setting also addresses the issue to associate the dot language with the graphviz-dot mode.
+
+According to the narrow-widen article, we can have C-x C-s get out of
+editing org-mode source code blocks:
+#+begin_src emacs-lisp
+(eval-after-load 'org-src
+  '(define-key org-src-mode-map
+     (kbd "C-x C-s") #'org-edit-src-exit))
+#+end_src
+
+*** don't create a new window each time
+#+begin_src emacs-lisp
+  (setq org-src-window-setup 'current-window)
+#+end_src
+
+*** code-block shortcuts
+#+BEGIN_SRC emacs-lisp
+  (setq org-structure-template-alist
+        '(("s" "#+begin_src ?\n\n#+end_src" "<src lang=\"?\">\n\n</src>")
+          ("e" "#+begin_example\n?\n#+end_example" "<example>\n?\n</example>")
+          ("q" "#+begin_quote\n?\n#+end_quote" "<quote>\n?\n</quote>")
+          ("v" "#+BEGIN_VERSE\n?\n#+END_VERSE" "<verse>\n?\n</verse>")
+          ("l" "#+begin_src emacs-lisp\n?\n#+end_src" "<src lang=\"emacs-lisp\">\n?\n</src>")
+          ("p" "#+begin_src python\n?\n#+end_src" "<src lang=\"python\">\n?\n</src>")
+          ("c" "#+begin_src cpp\n?\n#+end_src" "<src lang=\"cpp\">\n?\n</src>")
+          ("L" "#+latex: " "<literal style=\"latex\">?</literal>")
+          ("h" "#+begin_html\n?\n#+end_html" "<literal style=\"html\">\n?\n</literal>")
+          ("H" "#+html: " "<literal style=\"html\">?</literal>")
+          ("a" "#+begin_ascii\n?\n#+end_ascii")
+          ("A" "#+ascii: ")
+          ("i" "#+index: ?" "#+index: ?")
+          ("I" "#+include %file ?" "<include file=%file markup=\"?\">")))
+#+END_SRC
+
+* Reveal.JS
+#+BEGIN_SRC emacs-lisp
+  (use-package ox-reveal
+    :ensure ox-reveal)
+
+  (setq org-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
+  (setq org-reveal-mathjax t)
+#+END_SRC
+* emacs-htmlize
+#+begin_src emacs-lisp
+(use-package htmlize)
+#+end_src
 * Programming
 ** Languages
 *** Emacs Lisp
@@ -3410,7 +3645,7 @@ Handy way of getting back to previous places
 #    '(("^ +\\([-*]\\) "
 #           (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•")))))))
 # #+end_src
-# *** LEARN: Better Pasting
+p# *** LEARN: Better Pasting
 # Ref: Howard
 # Assuming the pandoc project has been installed, 
 # we can take HTML code, copied from a browser into the system’s clipboard, 
@@ -3478,118 +3713,41 @@ Handy way of getting back to previous places
 # *** BLANK: Org and Google Tasks
 # Ref: Howard
 
-# *** DRILL: Literate Programming
-
-# #+begin_src emacs-lisp
-#   (use-package org
-#     :config
-#     (add-to-list 'org-src-lang-modes '("dot" . "graphviz-dot"))
-
-#     (require 'ob-C)
-#     (require 'ob-clojure)
-#     (require 'ob-css)
-#     (require 'ob-dot)
-#     (require 'ob-emacs-lisp)
-#     (require 'ob-fortran)
-#     (require 'ob-haskell)
-#     (require 'ob-java)
-#     (require 'ob-js)
-#     (require 'ob-ledger)
-#     (require 'ob-lisp)
-#     (require 'ob-matlab)
-#     (require 'ob-ocaml)
-#     (require 'ob-perl)
-#     (require 'ob-plantuml)
-#     (require 'ob-python)
-#     (require 'ob-R)
-#     (require 'ob-ruby)
-#     (require 'ob-scheme)
-#     (require 'ob-sh)
-#     (require 'ob-scala)
-#     (require 'ob-sql)
-
-#     (org-babel-do-load-languages 'org-babel-load-languages
-#                                  '((C . t)
-#                                    (clojure . t)
-#                                    (css . t)
-#                                    (dot .t)
-#                                    (emacs-lisp .t)
-#                                    (fortran .t)
-#                                    (haskell .t)
-#                                    (java .t)
-#                                    (js .t)
-#                                    (latex .t)
-#                                    (ledger . t)
-#                                    (lisp .t)
-#                                    (matlab . t)
-#                                    (ocaml . t)
-#                                    (perl .t)
-#                                    (plantuml .t)
-#                                    (python .t)
-#                                    (R . t)
-#                                    (ruby . t)
-#                                    (scheme . t)
-#                                    (scala . t)
-#                                    (sh . t)
-#                                    (sql . t))))
-# #+end_src
-# This setting also addresses the issue to associate the dot language with the graphviz-dot mode.
-
-# According to the narrow-widen article, we can have C-x C-s get out of
-# editing org-mode source code blocks:
-# #+begin_src emacs-lisp
-# (eval-after-load 'org-src
-#   '(define-key org-src-mode-map
-#      (kbd "C-x C-s") #'org-edit-src-exit))
-# #+end_src
-
-# don't create a new window each time
-# #+begin_src emacs-lisp
-#   (setq org-src-window-setup 'current-window)
-# #+end_src
-
-# code-block shortcuts
-# #+BEGIN_SRC emacs-lisp
-#   (setq org-structure-template-alist
-#         '(("s" "#+begin_src ?\n\n#+end_src" "<src lang=\"?\">\n\n</src>")
-#           ("e" "#+begin_example\n?\n#+end_example" "<example>\n?\n</example>")
-#           ("q" "#+begin_quote\n?\n#+end_quote" "<quote>\n?\n</quote>")
-#           ("v" "#+BEGIN_VERSE\n?\n#+END_VERSE" "<verse>\n?\n</verse>")
-#           ("l" "#+begin_src emacs-lisp\n?\n#+end_src" "<src lang=\"emacs-lisp\">\n?\n</src>")
-#           ("p" "#+begin_src python\n?\n#+end_src" "<src lang=\"python\">\n?\n</src>")
-#           ("c" "#+begin_src cpp\n?\n#+end_src" "<src lang=\"cpp\">\n?\n</src>")
-#           ("L" "#+latex: " "<literal style=\"latex\">?</literal>")
-#           ("h" "#+begin_html\n?\n#+end_html" "<literal style=\"html\">\n?\n</literal>")
-#           ("H" "#+html: " "<literal style=\"html\">?</literal>")
-#           ("a" "#+begin_ascii\n?\n#+end_ascii")
-#           ("A" "#+ascii: ")
-#           ("i" "#+index: ?" "#+index: ?")
-#           ("I" "#+include %file ?" "<include file=%file markup=\"?\">")))
-# #+END_SRC
-
-# *** Org-agenda
-
-# #+begin_src emacs-lisp
-#   (global-set-key (kbd "C-c a") 'org-agenda)
-# #+end_src
-# *** Org-Capture
-# #+begin_src emacs-lisp
-# (global-set-key (kbd "C-c c") 'org-capture)
-# #+end_src
-# *** org-ac
-# Ref: [[https://github.com/aki2o/org-ac][github]]
-# Demo:
-# [[https://github.com/aki2o/org-ac/raw/master/image/demo.gif]]
-# #+begin_src emacs-lisp
-#   (use-package org-ac
-#     :ensure t
-#     :init (progn
-#             (require 'org-ac)
-#             (org-ac/config-default)))
-# #+end_src
 ** TODO List of options for reconsider
 1. auto-compile package ;; sacha
 2. emacs-secrets file separate ;; sacha
 3. backup-directory-alist ;; sacha
 4. winner-mode ;; ref: [[http://www.ergoemacs.org/emacs/emacs_winner_mode.html][xah-emacs]] save split windows configuration
 5. 
+   
+* Shortcuts
+#+begin_src emacs-lisp
+  (global-set-key
+   (kbd "\e\ej")
+   (lambda ()
+     (interactive)
+     (find-file "~/Dropbox/org/journal.org")))
+
+
+  (global-set-key
+   (kbd "\e\ec")
+   (lambda ()
+     (interactive)
+     (find-file "~/.emacs.d/README.org")))
+
+
+  (global-set-key
+   (kbd "\e\ef")
+   (lambda ()
+     (interactive)
+     (find-file "~/Dropbox/org/finance.org")))
+
+
+  (global-set-key
+   (kbd "\e\et")
+   (lambda ()
+     (interactive)
+     (find-file "~/Dropbox/org/todo.org")))
+
+
+#+end_src
