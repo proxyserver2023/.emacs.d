@@ -255,29 +255,6 @@ hippie-expand-try-functions-list
 (require 'expand-region)
 (global-set-key (kbd "M-m") 'er/expand-region))
 #+end_src
-* projectile
-
-- jump to a file in project
-- jump to a directory in a project
-- jump to file in a dir
-- jump to a project buffer
-- jump to a test in project
-- toggle between code and its test
-- jump to recently visited files in the project
-- switch between projects you have worked on
-- kill all project buffers
-- replace in project
-- multi-occur in project buffers
-- grep in project
-- regenerate project etags or gtags
-- visit project in dired
-- run make in a project with a single key chord
-- check for dirty repos
-#+begin_src emacs-lisp
-(use-package projectile
-:config
-(projectile-global-mode))
-#+end_src
 * bm = Bookmarks Manager
 #+begin_src emacs-lisp
 (use-package bm
@@ -328,60 +305,67 @@ zygospore lets you revert C-x 1 (delete-other-window) by pressing C-x 1 again
          ("RET" .   newline-and-indent)))
 #+end_src
 
-* which key
+* vimish fold
 #+begin_src emacs-lisp
-(use-package which-key
-  :ensure t
-  :defer 10
-  :diminish which-key-mode
-  :config
+(use-package vimish-fold)
 
-  ;; Replacements for how KEY is replaced when which-key displays
-  ;;   KEY → FUNCTION
-  ;; Eg: After "C-c", display "right → winner-redo" as "▶ → winner-redo"
-  (setq which-key-key-replacement-alist
-        '(("<\\([[:alnum:]-]+\\)>" . "\\1")
-          ("left"                  . "◀")
-          ("right"                 . "▶")
-          ("up"                    . "▲")
-          ("down"                  . "▼")
-          ("delete"                . "DEL") ; delete key
-          ("\\`DEL\\'"             . "BS") ; backspace key
-          ("next"                  . "PgDn")
-          ("prior"                 . "PgUp"))
-
-        ;; List of "special" keys for which a KEY is displayed as just
-        ;; K but with "inverted video" face... not sure I like this.
-        which-key-special-keys '("RET" "DEL" ; delete key
-                                 "ESC" "BS" ; backspace key
-                                 "SPC" "TAB")
-
-        ;; Replacements for how part or whole of FUNCTION is replaced:
-        which-key-description-replacement-alist
-        '(("Prefix Command" . "prefix")
-          ("\\`calc-"       . "") ; Hide "calc-" prefixes when listing M-x calc keys
-          ("\\`projectile-" . "𝓟/")
-          ("\\`org-babel-"  . "ob/"))
-
-        ;; Underlines commands to emphasize some functions:
-        which-key-highlighted-command-list
-        '("\\(rectangle-\\)\\|\\(-rectangle\\)"
-          "\\`org-"))
-
-  ;; Change what string to display for a given *complete* key binding
-  ;; Eg: After "C-x", display "8 → +unicode" instead of "8 → +prefix"
-  (which-key-add-key-based-replacements
-    "C-x 8"   "unicode"
-    "C-c T"   "toggles-"
-    "C-c p s" "projectile-search"
-    "C-c p 4" "projectile-other-buffer-"
-    "C-x a"   "abbrev/expand"
-    "C-x r"   "rect/reg"
-    "C-c /"   "engine-mode-map"
-    "C-c C-v" "org-babel")
-
-  (which-key-mode 1))
+(require 'vimish-fold)
+(vimish-fold-global-mode 1)
+;; this registers a region for future folding/unfolding
+(global-set-key (kbd "C-c v") #'vimish-fold)
+;; this unregisters the region under point from folding/unfolding
+(global-set-key (kbd "C-c d") #'vimish-fold-delete)
+;; this is the actual fold/unfold command
+(global-set-key (kbd "C-c t") #'vimish-fold-toggle)
 #+end_src
+* multiple-cursor :DRILL:
+#+begin_src emacs-lisp 
+  (use-package multiple-cursors
+    :config
+    (require 'multiple-cursors)
+    (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+    (global-set-key (kbd "C->") 'mc/mark-next-like-this)
+    (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+    (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this))
+#+end_src
+* frequent file shortcuts
+#+BEGIN_SRC emacs-lisp
+  (global-set-key
+   (kbd "\e\ec")
+   (lambda()
+     (interactive)
+     (find-file "~/.emacs.d/README.org")))
+#+END_SRC
+* projectile :DRILL:
+
+- jump to a file in project
+- jump to a directory in a project
+- jump to file in a dir
+- jump to a project buffer
+- jump to a test in project
+- toggle between code and its test
+- jump to recently visited files in the project
+- switch between projects you have worked on
+- kill all project buffers
+- replace in project
+- multi-occur in project buffers
+- grep in project
+- regenerate project etags or gtags
+- visit project in dired
+- run make in a project with a single key chord
+- check for dirty repos
+
+Some Helpful Commands
+C-c p s Switch to project
+C-c p f List files in project
+C-c p k Kill all buffers for project
+
+#+begin_src emacs-lisp
+(use-package projectile
+:config
+(projectile-global-mode))
+#+end_src
+
 * ORG
 ** global settings
 #+begin_src emacs-lisp
@@ -603,34 +587,21 @@ use C-x C-s for closing out of the org-src-edit buffer
     (setq helm-locate-fuzzy-match t)
     (setq helm-apropos-fuzzy-match t)
 #+end_src
-* vimish fold
-#+begin_src emacs-lisp
-(use-package vimish-fold)
+* PROGRAMMING
+** python
 
-(require 'vimish-fold)
-(vimish-fold-global-mode 1)
-;; this registers a region for future folding/unfolding
-(global-set-key (kbd "C-c v") #'vimish-fold)
-;; this unregisters the region under point from folding/unfolding
-(global-set-key (kbd "C-c d") #'vimish-fold-delete)
-;; this is the actual fold/unfold command
-(global-set-key (kbd "C-c t") #'vimish-fold-toggle)
-#+end_src
-* multiple-cursor :DRILL:
-#+begin_src emacs-lisp 
-  (use-package multiple-cursors
-    :config
-    (require 'multiple-cursors)
-    (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
-    (global-set-key (kbd "C->") 'mc/mark-next-like-this)
-    (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
-    (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this))
-#+end_src
-* frequent file shortcuts
-#+BEGIN_SRC emacs-lisp
-  (global-set-key
-   (kbd "\e\ec")
-   (lambda()
-     (interactive)
-     (find-file "~/.emacs.d/README.org")))
-#+END_SRC
+IDE Features I will Need
+- easily find files and switch between projects
+- easy navigating through function definition
+- contexual documentation
+- inline help for function calls
+
+Ref: [[https://youtu.be/6BlTGPsjGJk]]
+
+Required packages
+- projectile 
+- auto-complete
+- epc
+- jedi
+
+ 
