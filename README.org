@@ -248,7 +248,7 @@ hippie-expand-try-functions-list
 :config
 (require 'auto-complete-config)
 (ac-config-default)
-(setq ac-show-menu-immediately-on-auto-complete t))
+(setq ac-show-menu-immediately-on-auto-complete t))j
 #+end_src
 * expand region
 #+begin_src emacs-lisp
@@ -617,4 +617,9 @@ Required packages
 - epc
 - jedi
 
- 
+*** jedi 
+#+begin_src emacs-lisp
+  (use-package jedi
+  :config
+  (require 'jedi))
+#+end_src
