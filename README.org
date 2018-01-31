@@ -242,6 +242,12 @@ hippie-expand-try-functions-list
 #+begin_src emacs-lisp
 (global-set-key (kbd "C-x k") 'kill-this-buffer)
 #+end_src
+* company mode
+#+begin_src emacs-lisp
+(use-package company
+:config
+(add-hook 'after-init-hook 'global-company-mode))
+#+end_src
 * org mode
 ** global settings
 #+begin_src emacs-lisp
