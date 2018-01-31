@@ -66,6 +66,10 @@
 
   (use-package dash
     :config (eval-after-load "dash" '(dash-enable-font-lock)))
+
+  (use-package s)
+
+  (use-package f)
 #+END_SRC
 * frequent file shortcuts
 #+BEGIN_SRC emacs-lisp
