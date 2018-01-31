@@ -485,17 +485,6 @@ Highly recommended.
 (require 'yasnippet)
 (yas-global-mode 1))
 #+end_src
-* guide-key
-#+begin_src emacs-lisp
-  (use-package guide-key
-    :config
-    (require 'guide-key)
-    (setq guide-key/guide-key-sequence '("C-x r" "C-x 4" "C-x v" "C-x 8" "C-x +"))
-    (guide-key-mode 1)
-    (setq guide-key/recursive-key-sequence-flag t)
-    (setq guide-key/popup-window-position 'bottom)
-  )
-#+end_src
 * vimish fold
 #+begin_src emacs-lisp
 (use-package vimish-fold)
@@ -685,7 +674,7 @@ use C-x C-s for closing out of the org-src-edit buffer
 (eval-after-load 'org-src
   '(define-key org-src-mode-map
      (kbd "C-x C-s") #'org-edit-src-exit))
-#+end_srco
+#+end_src
 * MAGIT
 
 #+begin_src emacs-lisp
