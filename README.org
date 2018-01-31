@@ -314,6 +314,10 @@ hippie-expand-try-functions-list
 
 (global-set-key (kbd "C-c n") 'iwb)
 #+end_src
+* command log mode :DRILL:
+#+begin_src emacs-lisp
+(use-package command-log-mode)
+#+end_src
 * org mode
 ** global settings
 #+begin_src emacs-lisp
