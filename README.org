@@ -205,6 +205,13 @@ ref: sacha
         ("i" "#+index: ?" "#+index: ?")
         ("I" "#+include %file ?" "<include file=%file markup=\"?\">")))
 #+END_SRC
+** reveal.js
+#+begin_src emacs-lisp
+(use-package ox-reveal)
+
+(setq org-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
+(setq org-reveal-mathjax t)
+#+end_src
 * frequent file shortcuts
 #+BEGIN_SRC emacs-lisp
   (global-set-key
