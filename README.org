@@ -446,6 +446,13 @@ don't create a new window each time
 #+begin_src emacs-lisp
 (setq org-src-window-setup 'current-window)
 #+end_src
+
+use C-x C-s for closing out of the org-src-edit buffer
+#+begin_src emacs-lisp
+(eval-after-load 'org-src
+  '(define-key org-src-mode-map
+     (kbd "C-x C-s") #'org-edit-src-exit))
+#+end_src
 * frequent file shortcuts
 #+BEGIN_SRC emacs-lisp
   (global-set-key
