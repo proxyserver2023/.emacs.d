@@ -27,6 +27,17 @@
   (setq inhibit-startup-message t)
 #+END_SRC
 
+* package init
+#+BEGIN_SRC emacs-lisp
+  (require 'package)
+  (setq package-archives nil)
+  (setq package-archives
+        '(
+          ("org"       . "http://orgmode.org/elpa/")
+          ("gnu"       . "http://elpa.gnu.org/packages/")
+          ("melpa"     . "http://melpa.org/packages/")
+          ("marmalade" . "http://marmalade-repo.org/packages/")))
+#+END_SRC
 * Frequent File Shortcuts
 #+BEGIN_SRC emacs-lisp
   (global-set-key
