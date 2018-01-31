@@ -15,7 +15,6 @@
       (fboundp 'menu-bar-mode)
       (menu-bar-mode -1))
 
-
   (if
       (fboundp 'tool-bar-mode)
       (tool-bar-mode -1))
@@ -37,6 +36,14 @@
           ("gnu"       . "http://elpa.gnu.org/packages/")
           ("melpa"     . "http://melpa.org/packages/")
           ("marmalade" . "http://marmalade-repo.org/packages/")))
+
+  (package-initialize)
+  (unless (and (file-exists-p "~/.emacs.d/elpa/archives/gnu")
+               (file-exists-p "~/.emacs.d/elpa/archives/melpa")
+               (file-exists-p "~/.emacs.d/elpa/archives/melpa-stable")
+               (file-exists-p "~/.emacs.d/elpa/archives/marmalade")
+               )
+    (package-refresh-contents))
 #+END_SRC
 * Frequent File Shortcuts
 #+BEGIN_SRC emacs-lisp
