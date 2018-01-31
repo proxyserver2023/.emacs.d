@@ -318,6 +318,16 @@ hippie-expand-try-functions-list
 #+begin_src emacs-lisp
 (use-package command-log-mode)
 #+end_src
+* zygospore
+
+zygospore lets you revert C-x 1 (delete-other-window) by pressing C-x 1 again
+[[https://github.com/LouisKottmann/zygospore.el/raw/master/demo.gif]]
+#+begin_src emacs-lisp
+(use-package zygospore
+  :bind (("C-x 1" . zygospore-toggle-delete-other-windows)
+         ("RET" .   newline-and-indent)))
+#+end_src
+
 * org mode
 ** global settings
 #+begin_src emacs-lisp
