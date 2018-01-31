@@ -9,7 +9,7 @@
 #+TAGS: emacs
 #+CATEGORIES: editing
 
-* __init__
+* Interface
 #+BEGIN_SRC emacs-lisp
   (if
       (fboundp 'menu-bar-mode)
@@ -23,5 +23,14 @@
   (if
       (fboundp 'scroll-bar-mode)
       (scroll-bar-mode -1))
+
 #+END_SRC
 
+* Frequent File Shortcuts
+#+BEGIN_SRC emacs-lisp
+  (global-set-key
+   (kbd "\e\ec")
+   (lambda()
+     (interactive)
+     (find-file "~/.emacs.d/README.org")))
+#+END_SRC
