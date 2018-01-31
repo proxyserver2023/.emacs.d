@@ -185,6 +185,10 @@
 #+BEGIN_SRC emacs-lisp
 
 #+END_SRC
+* try
+#+begin_src emacs-lisp
+(use-package try)
+#+end_src
 * org mode
 ** global settings
 #+begin_src emacs-lisp
