@@ -426,6 +426,13 @@ ref: sacha
 (setq browse-url-browser-function 'browse-url-generic
       browse-url-generic-program "google-chrome")
 #+end_src
+** open pdf in evince
+#+begin_src emacs-lisp
+(setq org-file-apps
+      (append '(
+                ("\\.pdf\\'" . "evince %s")
+                ) org-file-apps ))
+#+end_src
 * frequent file shortcuts
 #+BEGIN_SRC emacs-lisp
   (global-set-key
