@@ -359,7 +359,7 @@ ref: sacha
         ("i" "#+index: ?" "#+index: ?")
         ("I" "#+include %file ?" "<include file=%file markup=\"?\">")))
 #+END_SRC
-** emacs-htmlize
+** htmlize
 #+begin_src emacs-lisp
 (use-package htmlize)
 #+end_src
