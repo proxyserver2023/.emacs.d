@@ -71,6 +71,12 @@
 
   (use-package f)
 #+END_SRC
+* appearance
+#+BEGIN_SRC emacs-lisp
+  (setq font-lock-maximum-decoration t
+        color-theme-is-global t
+        truncate-partial-width-windows nil)
+#+END_SRC
 * frequent file shortcuts
 #+BEGIN_SRC emacs-lisp
   (global-set-key
