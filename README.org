@@ -72,10 +72,27 @@
   (use-package f)
 #+END_SRC
 * appearance
+** font-lock decoration
 #+BEGIN_SRC emacs-lisp
   (setq font-lock-maximum-decoration t
         color-theme-is-global t
         truncate-partial-width-windows nil)
+#+END_SRC
+
+** visible-bell disable
+#+BEGIN_SRC emacs-lisp
+  (setq visible-bell nil)
+  (setq ring-bell-function (lambda ()
+                             (invert-face 'mode-line)
+                             (run-with-timer 0.05 nil 'invert-face 'mode-line)))
+#+END_SRC
+** highlight current line
+#+BEGIN_SRC emacs-lisp
+  (global-hl-line-mode 1)
+#+END_SRC
+** show paren mode
+#+BEGIN_SRC emacs-lisp
+  (show-paren-mode 1)
 #+END_SRC
 * frequent file shortcuts
 #+BEGIN_SRC emacs-lisp
