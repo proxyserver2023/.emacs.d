@@ -110,14 +110,13 @@
 #+END_SRC
 ** all-the-icons
 #+BEGIN_SRC emacs-lisp
-(use-package all-the-icons
-  :ensure t)
-(use-package all-the-icons-ivy
-  :ensure t)
-(use-package all-the-icons-dired
-  :ensure t)
-(use-package pretty-mode
-:ensure t)
+  (use-package all-the-icons)
+  (use-package all-the-icons-dired)
+  (use-package pretty-mode)
+#+END_SRC
+** scratch buffer
+#+BEGIN_SRC emacs-lisp
+  (setq initial-scratch-message (concat ";; One Brick A Day, " user-login-name " - Emacs ♥ you!\n\n"))
 #+END_SRC
 * frequent file shortcuts
 #+BEGIN_SRC emacs-lisp
