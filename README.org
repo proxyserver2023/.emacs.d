@@ -285,7 +285,7 @@ hippie-expand-try-functions-list
          ("C-c [" . bm-previous)
          ("C-c ]" . bm-next)))
 #+end_src
-* windows management
+* windows management :DRILL:
 #+begin_src emacs-lisp
 (use-package ace-window
 :init
