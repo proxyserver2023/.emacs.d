@@ -285,6 +285,24 @@ hippie-expand-try-functions-list
          ("C-c [" . bm-previous)
          ("C-c ]" . bm-next)))
 #+end_src
+* windows management
+#+begin_src emacs-lisp
+(use-package ace-window
+:init
+(progn
+(setq aw-scope 'frame)
+(global-set-key (kbd "C-x O") 'other-frame)
+  (setq aw-keys '(?a ?s ?d ?f ?j ?k ?l ?o))
+  (global-set-key [remap other-window] 'ace-window)
+  (custom-set-faces
+   '(aw-leading-char-face
+     ((t (:inherit ace-jump-face-foreground :height 3.0))))) 
+  ))
+
+(use-package ace-jump-mode
+  :config
+  (define-key global-map (kbd "C-c SPC") 'ace-jump-mode))
+#+end_src
 * org mode
 ** global settings
 #+begin_src emacs-lisp
