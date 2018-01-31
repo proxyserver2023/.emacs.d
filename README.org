@@ -161,6 +161,25 @@
   (global-set-key (kbd "M-n") 'highlight-symbol-next)
   (global-set-key (kbd "M-p") 'highlight-symbol-prev))
 #+END_SRC
+** whitespace mode
+#+BEGIN_SRC emacs-lisp
+  (use-package whitespace
+    :bind ("C-c S-w" . whitespace-mode)
+    :init
+    (setq whitespace-line-column nil
+          whitespace-display-mappings '((space-mark 32 [183] [46])
+                                        (newline-mark 10 [9166 10])
+                                        (tab-mark 9 [9654 9] [92 9])))
+    :config
+    (set-face-attribute 'whitespace-space       nil :foreground "#666666" :background nil)
+    (set-face-attribute 'whitespace-newline     nil :foreground "#666666" :background nil)
+    (set-face-attribute 'whitespace-indentation nil :foreground "#666666" :background nil)
+    :diminish whitespace-mode)
+#+END_SRC
+* editing
+#+BEGIN_SRC emacs-lisp
+
+#+END_SRC
 * frequent file shortcuts
 #+BEGIN_SRC emacs-lisp
   (global-set-key
