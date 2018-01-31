@@ -671,9 +671,9 @@ don't create a new window each time
 
 use C-x C-s for closing out of the org-src-edit buffer
 #+begin_src emacs-lisp
-(eval-after-load 'org-src
-  '(define-key org-src-mode-map
-     (kbd "C-x C-s") #'org-edit-src-exit))
+  (eval-after-load 'org-src
+    '(define-key org-src-mode-map
+       (kbd "C-x C-s") #'org-edit-src-exit))
 #+end_src
 * MAGIT
 
@@ -784,6 +784,81 @@ Required packages
 - auto-complete
 - epc
 - jedi
+*** __init__
+#+begin_src emacs-lisp
+(add-hook 'python-mode-hook
+          (lambda ()
+            (setq indent-tabs-mode nil)
+            (setq tab-width 4)
+            (setq python-indent-offset 4)))
+
+;(setq py-python-command "python3")
+(setq python-shell-interpreter "ipython3" python-shell-interpreter-args "--simple-prompt --pprint")
+
+; use the wx backend, for both mayavi and matplotlib
+;(setq py-python-command-args
+;  '("--gui=wx" "--pylab=wx" "-colors" "Linux"))
+;(setq py-force-py-shell-name-p t)
+
+; switch to the interpreter after executing code
+(setq py-shell-switch-buffers-on-execute-p t)
+(setq py-switch-buffers-on-execute-p t)
+; don't split windows
+(setq py-split-windows-on-execute-p nil)
+; try to automagically figure out indentation
+(setq py-smart-indentation t)
+#+end_src
+
+#+begin_src bash
+#sudo apt install -y python3-rope \
+#                   python3-isort
+#sudo pip3 install flake8 jedi autopep8 yapf importmagic
+#+end_src
+*** elpy
+#+begin_src emacs-lisp
+(use-package elpy
+:ensure t
+:config
+(elpy-enable)
+(setq elpy-rpc-python-command "python3"))
+#+end_src
+*** flycheck
+#+begin_src emacs-lisp
+(use-package flycheck
+:ensure t
+:config
+(when (require 'flycheck nil t)
+  (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+  (add-hook 'elpy-mode-hook 'flycheck-mode)))
+#+end_src
+*** py-autopep8
+#+begin_src emacs-lisp
+(use-package py-autopep8
+:ensure t
+:config
+(require 'py-autopep8)
+(add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save))
+#+end_src
+*** Ipython/Jupyter
+#+begin_src emacs-lisp
+;(setq-default py-shell-name "ipython3")
+; (setq-default py-which-bufname "Ipython3")
+(elpy-use-ipython "ipython3")
+
+;; needs to work on this snippet
+;; not enough time
+;; probably let yourself know why jupyter is used?
+(use-package ein
+:ensure t)
+#+end_src
+*** anaconda
+#+begin_src emacs-lisp
+(use-package anaconda-mode
+:ensure t
+:config
+(add-hook 'python-mode-hook 'anaconda-mode)
+(add-hook 'python-mode-hook 'anaconda-eldoc-mode))
+#+end_src
 *** epc
 #+begin_src emacs-lisp
 (use-package epc)
@@ -924,6 +999,4 @@ Required packages
       (setq jedi:complete-on-dot t)
       ;; Use custom keybinds
       (add-hook 'python-mode-hook 'jedi-config:setup-keys)
-
-    
 #+end_src
