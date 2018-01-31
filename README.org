@@ -305,6 +305,15 @@ zygospore lets you revert C-x 1 (delete-other-window) by pressing C-x 1 again
          ("RET" .   newline-and-indent)))
 #+end_src
 
+* guide-key
+#+begin_src emacs-lisp
+(use-package guide-key)
+(require 'guide-key)
+(setq guide-key/guide-key-sequence '("C-x r" "C-x 4" "C-x v" "C-x 8" "C-x +"))
+(guide-key-mode 1)
+(setq guide-key/recursive-key-sequence-flag t)
+(setq guide-key/popup-window-position 'bottom)
+#+end_src
 * vimish fold
 #+begin_src emacs-lisp
 (use-package vimish-fold)
