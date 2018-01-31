@@ -94,6 +94,14 @@
 #+BEGIN_SRC emacs-lisp
   (show-paren-mode 1)
 #+END_SRC
+** frame-title-format
+#+BEGIN_SRC emacs-lisp
+  (when window-system
+    (setq frame-title-format '(buffer-file-name "%f" ("%b")))
+    (tooltip-mode -1)
+    (blink-cursor-mode -1)
+    )
+#+END_SRC
 * frequent file shortcuts
 #+BEGIN_SRC emacs-lisp
   (global-set-key
