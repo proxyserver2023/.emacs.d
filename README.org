@@ -26,6 +26,11 @@
   (setq inhibit-startup-message t)
 #+END_SRC
 
+* global settings
+** replace yes wit y
+#+begin_src emacs-lisp
+(fset 'yes-or-no-p 'y-or-n-p)
+#+end_src
 * custom settings
 #+BEGIN_SRC emacs-lisp
   (setq custom-file
@@ -188,6 +193,31 @@
 * try
 #+begin_src emacs-lisp
 (use-package try)
+#+end_src
+* workgroups2
+- create your workspace in emacs
+- saves all your opened buffers, their locations and sizes on disk to restore later
+#+begin_src emacs-lisp
+  (use-package workgroups2
+  :config
+  (require 'workgroups2)
+
+  ;; Change prefix key (before activating WG)
+  (setq wg-prefix-key (kbd "C-c z"))
+  ;; Change workgroups session file
+  (setq wg-session-file "~/.emacs.d/.emacs_workgroups")
+  ;; What to do on Emacs exit / workgroups-mode exit?
+  (setq wg-emacs-exit-save-behavior           'save)
+  (setq wg-workgroups-mode-exit-save-behavior 'save)
+
+  ;; Mode Line Changes
+  ;; Display workgroups in Mode Line?
+  (setq wg-mode-line-display-on t)
+  (setq wg-flag-modified t)
+  (setq wg-mode-line-decor-left-brace "["
+        wg-mode-line-decor-right-brace "]"
+        wg-mode-line-decor-divider ":")
+  (workgroups-mode 1))
 #+end_src
 * org mode
 ** global settings
