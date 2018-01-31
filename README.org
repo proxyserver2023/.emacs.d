@@ -433,6 +433,13 @@ ref: sacha
                 ("\\.pdf\\'" . "evince %s")
                 ) org-file-apps ))
 #+end_src
+** org bullets
+#+begin_src emacs-lisp
+(use-package org-bullets
+  :config
+  (add-hook 'org-mode-hook
+            (lambda () (org-bullets-mode 1))))
+#+end_src
 * frequent file shortcuts
 #+BEGIN_SRC emacs-lisp
   (global-set-key
