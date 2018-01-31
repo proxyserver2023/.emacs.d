@@ -421,6 +421,11 @@ ref: sacha
     "* %?\n%u" :prepend t)
    ))
 #+end_src
+** set-default-browser
+#+begin_src emacs-lisp
+(setq browse-url-browser-function 'browse-url-generic
+      browse-url-generic-program "google-chrome")
+#+end_src
 * frequent file shortcuts
 #+BEGIN_SRC emacs-lisp
   (global-set-key
