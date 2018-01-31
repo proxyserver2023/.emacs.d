@@ -457,6 +457,21 @@ use C-x C-s for closing out of the org-src-edit buffer
   '(define-key org-src-mode-map
      (kbd "C-x C-s") #'org-edit-src-exit))
 #+end_srco
+* Magit
+#+begin_src emacs-lisp
+(use-package magit
+  :commands magit-status magit-blame
+  :init
+  (defadvice magit-status (around magit-fullscreen activate)
+    (window-configuration-to-register :magit-fullscreen)
+    ad-do-it
+    (delete-other-windows))
+  :config
+  (setq vc-follow-symlinks nil
+        magit-push-always-verify nil
+        magit-restore-window-configuration t)
+  :bind ("C-x g" . magit-status))
+#+end_src
 * frequent file shortcuts
 #+BEGIN_SRC emacs-lisp
   (global-set-key
