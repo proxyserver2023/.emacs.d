@@ -320,6 +320,28 @@ zygospore lets you revert C-x 1 (delete-other-window) by pressing C-x 1 again
          ("RET" .   newline-and-indent)))
 #+end_src
 
+* undo-tree
+
+undo-tree allows you to visual the whole history of your editing in a tree. 
+It also provides regular undo/redo behaviours in other editors. 
+undo-tree can even provide a diff between two different states. 
+Highly recommended.
+
+[[https://camo.githubusercontent.com/85240e7df44ee70d29d68187e15d7a8a37291c4a/68747470733a2f2f747568646f2e6769746875622e696f2f7374617469632f70617274332f756e646f2d747265652e6a7067]]
+
+#+begin_src emacs-lisp
+(use-package undo-tree
+  :ensure t
+  :diminish undo-tree-mode
+  :init
+  (global-undo-tree-mode 1)
+  :config
+  (defalias 'redo 'undo-tree-redo)
+  (require 'undo-tree)
+  :bind (("C-z" . undo)
+         ("C-S-z" . redo)))
+#+end_src
+
 * guide-key
 #+begin_src emacs-lisp
   (use-package guide-key
