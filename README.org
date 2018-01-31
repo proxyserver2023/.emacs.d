@@ -186,6 +186,17 @@
 
 #+END_SRC
 * org mode
+** global settings
+#+begin_src emacs-lisp
+  (setq
+   org-directory "~/Dropbox/org"
+   org-default-notes-file (concat org-directory "/notes.org")
+   org-export-html-postamble nil
+   org-hide-leading-stars t
+   org-startup-folded (quote overview)
+   org-startup-indented t
+   )
+#+end_src
 ** code-block shortcuts
 ref: sacha
 #+BEGIN_SRC emacs-lisp
