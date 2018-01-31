@@ -9,7 +9,7 @@
 #+TAGS: emacs
 #+CATEGORIES: editing
 
-* interface
+* all bar interfaces
 #+BEGIN_SRC emacs-lisp
   (if
       (fboundp 'menu-bar-mode)
@@ -365,6 +365,42 @@ ref: sacha
 
 (setq org-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
 (setq org-reveal-mathjax t)
+#+end_src
+** org agenda
+#+begin_src emacs-lisp
+    (global-set-key "\C-ca" 'org-agenda)
+
+    (setq org-agenda-custom-commands
+          '(
+            (
+             "c"
+             "Simple agenda view"
+             (
+              (agenda "")
+              (alltodo "")
+              )
+             )
+            )
+          )
+
+    (setq org-agenda-files
+          (
+           list
+           "~/Dropbox/org/gcal.org"
+           "~/Dropbox/org/schedule.org"
+           "~/Dropbox/org/todo.org"
+           "~/Dropbox/org/links.org"
+           "~/Dropbox/org/index.org"
+           )
+          )
+#+end_src
+** org-ac = Auto Complete Org Mode
+#+begin_src emacs-lisp
+(use-package org-ac
+      :init (progn
+              (require 'org-ac)
+              (org-ac/config-default)
+              ))
 #+end_src
 * frequent file shortcuts
 #+BEGIN_SRC emacs-lisp
