@@ -261,7 +261,7 @@ hippie-expand-try-functions-list
 :config
 (require 'auto-complete-config)
 (ac-config-default)
-(setq ac-show-menu-immediately-on-auto-complete t))j
+(setq ac-show-menu-immediately-on-auto-complete t))
 #+end_src
 * expand region
 #+begin_src emacs-lisp
@@ -320,6 +320,16 @@ zygospore lets you revert C-x 1 (delete-other-window) by pressing C-x 1 again
          ("RET" .   newline-and-indent)))
 #+end_src
 
+* origami
+#+begin_src emacs-lisp
+(use-package origami
+:ensure t
+:config
+(require 'origami)
+(add-hook 'prog-mode-hook 'origami-mode)
+(define-key origami-mode-map (kbd "C-c f") 'origami-recursively-toggle-node)
+(define-key origami-mode-map (kbd "C-c F") 'origami-toggle-all-nodes))
+#+end_src
 * undo-tree
 
 undo-tree allows you to visual the whole history of your editing in a tree. 
