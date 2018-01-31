@@ -359,6 +359,10 @@ ref: sacha
         ("i" "#+index: ?" "#+index: ?")
         ("I" "#+include %file ?" "<include file=%file markup=\"?\">")))
 #+END_SRC
+** emacs-htmlize
+#+begin_src emacs-lisp
+(use-package htmlize)
+#+end_src
 ** reveal.js
 #+begin_src emacs-lisp
 (use-package ox-reveal)
@@ -452,7 +456,7 @@ use C-x C-s for closing out of the org-src-edit buffer
 (eval-after-load 'org-src
   '(define-key org-src-mode-map
      (kbd "C-x C-s") #'org-edit-src-exit))
-#+end_src
+#+end_srco
 * frequent file shortcuts
 #+BEGIN_SRC emacs-lisp
   (global-set-key
