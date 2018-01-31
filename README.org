@@ -248,6 +248,13 @@ hippie-expand-try-functions-list
 :config
 (add-hook 'after-init-hook 'global-company-mode))
 #+end_src
+* expand region
+#+begin_src emacs-lisp
+(use-package expand-region
+:config
+(require 'expand-region)
+(global-set-key (kbd "M-m") 'er/expand-region))
+#+end_src
 * org mode
 ** global settings
 #+begin_src emacs-lisp
