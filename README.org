@@ -278,6 +278,13 @@ hippie-expand-try-functions-list
 :config
 (projectile-global-mode))
 #+end_src
+* bm = Bookmarks Manager
+#+begin_src emacs-lisp
+(use-package bm
+  :bind (("C-c =" . bm-toggle)
+         ("C-c [" . bm-previous)
+         ("C-c ]" . bm-next)))
+#+end_src
 * org mode
 ** global settings
 #+begin_src emacs-lisp
