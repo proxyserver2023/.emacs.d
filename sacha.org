@@ -1152,7 +1152,6 @@ This command is convenient when reading novel, documentation."
 #+end_src
 
 
-
 ** Writing
 *** Avoiding weasel words
     #+BEGIN_SRC emacs-lisp :tangle yes
@@ -5465,7 +5464,6 @@ Handy when I'm in tablet mode.
   (define-key global-map [menu-bar my-menu new-index-card] '("New index card" . (lambda () (interactive)
                                        (my/open-image (my/prepare-index-card-template)))))
 #+end_src
-
 
 ** Advanced stuff / things I tend to forget about
 *** Editing multiple things
