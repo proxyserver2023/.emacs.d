@@ -24,6 +24,7 @@
       (fboundp 'scroll-bar-mode)
       (scroll-bar-mode -1))
 
+  (setq inhibit-startup-message t)
 #+END_SRC
 
 * Frequent File Shortcuts
