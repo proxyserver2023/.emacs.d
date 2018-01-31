@@ -9,7 +9,7 @@
 #+TAGS: emacs
 #+CATEGORIES: editing
 
-* Interface
+* interface
 #+BEGIN_SRC emacs-lisp
   (if
       (fboundp 'menu-bar-mode)
@@ -26,6 +26,12 @@
   (setq inhibit-startup-message t)
 #+END_SRC
 
+* custom settings
+#+BEGIN_SRC emacs-lisp
+  (setq custom-file
+        (expand-file-name "custom.el" user-emacs-directory))
+  (load custom-file)
+#+END_SRC
 * package init
 #+BEGIN_SRC emacs-lisp
   (require 'package)
@@ -44,6 +50,15 @@
                (file-exists-p "~/.emacs.d/elpa/archives/marmalade")
                )
     (package-refresh-contents))
+
+  ;; use-package
+  (unless (package-installed-p 'use-package)
+    (package-refresh-contents)
+    (package-install 'use-package))
+
+  (setq use-package-verbose t)
+  (setq use-package-always-ensure t)
+  (require 'use-package)
 #+END_SRC
 * Frequent File Shortcuts
 #+BEGIN_SRC emacs-lisp
