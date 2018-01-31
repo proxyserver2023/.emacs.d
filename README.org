@@ -60,7 +60,14 @@
   (setq use-package-always-ensure t)
   (require 'use-package)
 #+END_SRC
-* Frequent File Shortcuts
+* elisp enhancement
+#+BEGIN_SRC emacs-lisp
+  (require 'cl)
+
+  (use-package dash
+    :config (eval-after-load "dash" '(dash-enable-font-lock)))
+#+END_SRC
+* frequent file shortcuts
 #+BEGIN_SRC emacs-lisp
   (global-set-key
    (kbd "\e\ec")
