@@ -255,6 +255,29 @@ hippie-expand-try-functions-list
 (require 'expand-region)
 (global-set-key (kbd "M-m") 'er/expand-region))
 #+end_src
+* projectile
+
+- jump to a file in project
+- jump to a directory in a project
+- jump to file in a dir
+- jump to a project buffer
+- jump to a test in project
+- toggle between code and its test
+- jump to recently visited files in the project
+- switch between projects you have worked on
+- kill all project buffers
+- replace in project
+- multi-occur in project buffers
+- grep in project
+- regenerate project etags or gtags
+- visit project in dired
+- run make in a project with a single key chord
+- check for dirty repos
+#+begin_src emacs-lisp
+(use-package projectile
+:config
+(projectile-global-mode))
+#+end_src
 * org mode
 ** global settings
 #+begin_src emacs-lisp
