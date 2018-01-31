@@ -102,6 +102,12 @@
     (blink-cursor-mode -1)
     )
 #+END_SRC
+** arjen-grey-theme
+#+BEGIN_SRC emacs-lisp
+  (use-package arjen-grey-theme
+    :config
+    (load-theme 'arjen-grey t))
+#+END_SRC
 * frequent file shortcuts
 #+BEGIN_SRC emacs-lisp
   (global-set-key
