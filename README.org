@@ -320,7 +320,7 @@ zygospore lets you revert C-x 1 (delete-other-window) by pressing C-x 1 again
          ("RET" .   newline-and-indent)))
 #+end_src
 
-* origami
+* origami :DRILL:
 #+begin_src emacs-lisp
 (use-package origami
 :ensure t
@@ -329,6 +329,14 @@ zygospore lets you revert C-x 1 (delete-other-window) by pressing C-x 1 again
 (add-hook 'prog-mode-hook 'origami-mode)
 (define-key origami-mode-map (kbd "C-c f") 'origami-recursively-toggle-node)
 (define-key origami-mode-map (kbd "C-c F") 'origami-toggle-all-nodes))
+#+end_src
+* duplicate thing
+#+begin_src emacs-lisp
+(use-package duplicate-thing
+:ensure t
+:config
+(require 'duplicate-thing)
+(global-set-key (kbd "M-c") 'duplicate-thing))
 #+end_src
 * undo-tree
 
