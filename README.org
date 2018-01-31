@@ -118,6 +118,27 @@
 #+BEGIN_SRC emacs-lisp
   (setq initial-scratch-message (concat ";; One Brick A Day, " user-login-name " - Emacs ♥ you!\n\n"))
 #+END_SRC
+** fonts
+#+BEGIN_SRC emacs-lisp
+  (if (or (eq system-type 'darwin)(eq system-type 'gnu/linux) )
+  ;    (set-face-attribute 'default nil :font "Consolas-14")
+  ;    (set-face-attribute 'default nil :font "Inconsolata-14")
+       (set-face-attribute 'default nil :font "Monaco-15" :weight 'bold)
+  ;    (set-face-attribute 'default nil :font "Hack-16")
+  ;    (set-face-attribute 'default nil :font "DejaVu Sans Mono-16")
+    (set-face-attribute 'default nil :font "DejaVu Sans Mono" :height 110))
+
+  ;; set italic font for italic face, since Emacs does not set italic
+  ;; face automatically
+  (set-face-attribute 'italic nil
+                      :family "Hack-Italic")
+#+END_SRC
+** highlight numbers
+#+BEGIN_SRC emacs-lisp
+(use-package highlight-numbers
+:config
+(add-hook 'prog-mode-hook 'highlight-numbers-mode))
+#+END_SRC
 * frequent file shortcuts
 #+BEGIN_SRC emacs-lisp
   (global-set-key
