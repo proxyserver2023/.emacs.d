@@ -734,6 +734,7 @@ helm-descbinds
 
 Helm Projectile
 #+begin_src emacs-lisp
+(use-package helm-projectile)
 (projectile-global-mode)
 (setq projectile-completion-system 'helm)
 (helm-projectile-on)
