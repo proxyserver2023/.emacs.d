@@ -217,7 +217,7 @@
   (setq wg-mode-line-decor-left-brace "["
         wg-mode-line-decor-right-brace "]"
         wg-mode-line-decor-divider ":")
-  (workgroups-mode 1))k
+  (workgroups-mode 1))
 #+end_src
 * hippie expand
 
@@ -237,6 +237,10 @@ hippie-expand-try-functions-list
    try-complete-lisp-symbol-partially ;; Try to complete as an Emacs Lisp symbol, as many characters as unique.
    try-complete-lisp-symbol) ;; Try to complete word as an Emacs Lisp symbol.
 )
+#+end_src
+* kill this buffer
+#+begin_src emacs-lisp
+(global-set-key (kbd "C-x k") 'kill-this-buffer)
 #+end_src
 * org mode
 ** global settings
