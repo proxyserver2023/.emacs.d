@@ -402,6 +402,25 @@ ref: sacha
               (org-ac/config-default)
               ))
 #+end_src
+** org-capture
+#+begin_src emacs-lisp
+(global-set-key
+(kbd "C-c c")
+'org-capture)
+
+(setq
+ org-capture-templates
+ '(
+   ("j" "Journal" entry (file "~/Dropbox/org/journal.org")
+    "* %t\n** Day\n*** What am I Grateful For:\n1. %?\n2. \n3. \n*** What Would Make Today Great:\n1. \n2. \n3. \n*** Daily Affirmations I am:\n1. \n2. \n3. \n\n** Night\n*** 3 Amazing Things Happened Today:\n1. \n2. \n3. \n*** How could I Make Things Better\n1. \n2. \n3. \n" :prepend t)
+   ("l" "Link" entry (file "~/Dropbox/org/links.org")
+    "* %?%^L %^g \n%T" :prepend t)
+   ("t" "Todo" entry (file "~/Dropbox/org/todo.org")
+    "* TODO %?\n%u%T" :prepend t)
+   ("n" "Notes" entry (file "~/Dropbox/org/notes.org")
+    "* %?\n%u" :prepend t)
+   ))
+#+end_src
 * frequent file shortcuts
 #+BEGIN_SRC emacs-lisp
   (global-set-key
