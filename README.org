@@ -405,55 +405,9 @@ zygospore lets you revert C-x 1 (delete-other-window) by pressing C-x 1 again
 #+begin_src emacs-lisp
 (use-package which-key
   :ensure t
-  :defer 10
   :diminish which-key-mode
   :config
-
-  ;; Replacements for how KEY is replaced when which-key displays
-  ;;   KEY → FUNCTION
-  ;; Eg: After "C-c", display "right → winner-redo" as "▶ → winner-redo"
-  (setq which-key-key-replacement-alist
-        '(("<\\([[:alnum:]-]+\\)>" . "\\1")
-          ("left"                  . "◀")
-          ("right"                 . "▶")
-          ("up"                    . "▲")
-          ("down"                  . "▼")
-          ("delete"                . "DEL") ; delete key
-          ("\\`DEL\\'"             . "BS") ; backspace key
-          ("next"                  . "PgDn")
-          ("prior"                 . "PgUp"))
-
-        ;; List of "special" keys for which a KEY is displayed as just
-        ;; K but with "inverted video" face... not sure I like this.
-        which-key-special-keys '("RET" "DEL" ; delete key
-                                 "ESC" "BS" ; backspace key
-                                 "SPC" "TAB")
-
-        ;; Replacements for how part or whole of FUNCTION is replaced:
-        which-key-description-replacement-alist
-        '(("Prefix Command" . "prefix")
-          ("\\`calc-"       . "") ; Hide "calc-" prefixes when listing M-x calc keys
-          ("\\`projectile-" . "𝓟/")
-          ("\\`org-babel-"  . "ob/"))
-
-        ;; Underlines commands to emphasize some functions:
-        which-key-highlighted-command-list
-        '("\\(rectangle-\\)\\|\\(-rectangle\\)"
-          "\\`org-"))
-
-  ;; Change what string to display for a given *complete* key binding
-  ;; Eg: After "C-x", display "8 → +unicode" instead of "8 → +prefix"
-  (which-key-add-key-based-replacements
-    "C-x 8"   "unicode"
-    "C-c T"   "toggles-"
-    "C-c p s" "projectile-search"
-    "C-c p 4" "projectile-other-buffer-"
-    "C-x a"   "abbrev/expand"
-    "C-x r"   "rect/reg"
-    "C-c /"   "engine-mode-map"
-    "C-c C-v" "org-babel")
-
-  (which-key-mode 1))
+  (which-key-mode))
 #+end_src
 * undo-tree
 
@@ -695,17 +649,18 @@ use C-x C-s for closing out of the org-src-edit buffer
 #+begin_src emacs-lisp
     (use-package helm
     :diminish helm-mode
-    :init
-    (setq helm-idle-delay 0.0
-          helm-input-idle-delay 0.01
-          helm-yas-display-key-on-candidate t
-          helm-quick-update t
-          helm-M-x-requires-pattern nil
-          helm-ff-skip-boring-files t)
-      (require 'helm)
-      (require 'helm-config)
-      (helm-mode))
+    ;; :init
+    ;; (setq helm-idle-delay 0.0
+    ;;       helm-input-idle-delay 0.01
+    ;;       helm-yas-display-key-on-candidate t
+    ;;       helm-quick-update t
+    ;;       helm-M-x-requires-pattern nil
+    ;;       helm-ff-skip-boring-files t)
+    ;; (helm-mode)
+    :ensure t)
 
+    (require 'helm)
+    (require 'helm-config)
 
     ;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs
     ;; Change to "C-c h"
@@ -766,6 +721,22 @@ use C-x C-s for closing out of the org-src-edit buffer
             helm-grep-default-recurse-command "ack-grep -H --no-group --no-color %e %p %f"))
     (setq helm-locate-fuzzy-match t)
     (setq helm-apropos-fuzzy-match t)
+#+end_src
+
+helm-descbinds
+#+begin_src emacs-lisp
+(use-package helm-descbinds
+  :defer t
+  :bind(
+        ("C-h b" . helm-descbinds)
+        ("C-h w" . helm-descbinds)))
+#+end_src
+
+Helm Projectile
+#+begin_src emacs-lisp
+(projectile-global-mode)
+(setq projectile-completion-system 'helm)
+(helm-projectile-on)
 #+end_src
 * PROGRAMMING
 ** emacs-lisp
