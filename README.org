@@ -9,7 +9,7 @@
 #+TAGS: emacs
 #+CATEGORIES: editing
 
-* all bar interfaces
+* hide all unnecessary interfaces
 #+BEGIN_SRC emacs-lisp
   (if
       (fboundp 'menu-bar-mode)
@@ -27,6 +27,10 @@
 #+END_SRC
 
 * global settings
+** emacs-server
+#+begin_src emacs-lisp
+(server-start)
+#+end_src
 ** replace yes wit y
 #+begin_src emacs-lisp
 (fset 'yes-or-no-p 'y-or-n-p)
@@ -601,6 +605,7 @@ use C-x C-s for closing out of the org-src-edit buffer
     (setq helm-apropos-fuzzy-match t)
 #+end_src
 * PROGRAMMING
+** emacs-lisp
 ** python
 
 IDE Features I will Need
