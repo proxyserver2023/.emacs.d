@@ -440,6 +440,12 @@ ref: sacha
   (add-hook 'org-mode-hook
             (lambda () (org-bullets-mode 1))))
 #+end_src
+** literate programming
+
+don't create a new window each time
+#+begin_src emacs-lisp
+(setq org-src-window-setup 'current-window)
+#+end_src
 * frequent file shortcuts
 #+BEGIN_SRC emacs-lisp
   (global-set-key
