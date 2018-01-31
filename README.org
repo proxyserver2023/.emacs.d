@@ -296,12 +296,23 @@ hippie-expand-try-functions-list
   (global-set-key [remap other-window] 'ace-window)
   (custom-set-faces
    '(aw-leading-char-face
-     ((t (:inherit ace-jump-face-foreground :height 3.0))))) 
+     ((t (:inherit ace-jump-face-foreground :height 3.0)))))
   ))
 
 (use-package ace-jump-mode
   :config
   (define-key global-map (kbd "C-c SPC") 'ace-jump-mode))
+#+end_src
+* indent whole buffer :DRILL:
+#+begin_src emacs-lisp
+(defun iwb ()
+  "indent whole buffer"
+  (interactive)
+  (delete-trailing-whitespace)
+  (indent-region (point-min) (point-max) nil)
+  (untabify (point-min) (point-max)))
+
+(global-set-key (kbd "C-c n") 'iwb)
 #+end_src
 * org mode
 ** global settings
