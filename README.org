@@ -473,6 +473,19 @@ use C-x C-s for closing out of the org-src-edit buffer
         magit-restore-window-configuration t)
   :bind ("C-x g" . magit-status))
 #+end_src
+* vimish fold
+#+begin_src emacs-lisp
+(use-package vimish-fold)
+
+(require 'vimish-fold)
+(vimish-fold-global-mode 1)
+;; this registers a region for future folding/unfolding
+(global-set-key (kbd "C-c v") #'vimish-fold)
+;; this unregisters the region under point from folding/unfolding
+(global-set-key (kbd "C-c d") #'vimish-fold-delete)
+;; this is the actual fold/unfold command
+(global-set-key (kbd "C-c t") #'vimish-fold-toggle)
+#+end_src
 * multiple-cursor :DRILL:
 #+begin_src emacs-lisp 
   (use-package multiple-cursors
