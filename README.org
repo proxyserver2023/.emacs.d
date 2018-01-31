@@ -457,7 +457,8 @@ use C-x C-s for closing out of the org-src-edit buffer
   '(define-key org-src-mode-map
      (kbd "C-x C-s") #'org-edit-src-exit))
 #+end_srco
-* Magit
+* magit
+
 #+begin_src emacs-lisp
 (use-package magit
   :commands magit-status magit-blame
@@ -471,6 +472,16 @@ use C-x C-s for closing out of the org-src-edit buffer
         magit-push-always-verify nil
         magit-restore-window-configuration t)
   :bind ("C-x g" . magit-status))
+#+end_src
+* multiple-cursor :DRILL:
+#+begin_src emacs-lisp 
+  (use-package multiple-cursors
+    :config
+    (require 'multiple-cursors)
+    (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+    (global-set-key (kbd "C->") 'mc/mark-next-like-this)
+    (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+    (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this))
 #+end_src
 * frequent file shortcuts
 #+BEGIN_SRC emacs-lisp
