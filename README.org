@@ -229,6 +229,18 @@ ref: purcell
   (setq use-package-always-ensure t)
   (require 'use-package)
 #+END_SRC
+* exec path from shell
+#+begin_src emacs-lisp
+  (use-package exec-path-from-shell)
+  (require 'exec-path-from-shell)
+  (after-load 'exec-path-from-shell
+    (dolist (var '("SSH_AUTH_SOCK" "SSH_AGENT_PID" "GPG_AGENT_INFO" "LANG" "LC_CTYPE"))
+      (add-to-list 'exec-path-from-shell-variables var)))
+
+
+  (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize))
+#+end_src
 * elisp enhancement
 #+BEGIN_SRC emacs-lisp
   (require 'cl)
