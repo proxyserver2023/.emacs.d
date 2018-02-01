@@ -9,7 +9,8 @@
 #+TAGS: emacs
 #+CATEGORIES: editing
 
-* hide all unnecessary interfaces
+* global settings
+** hide all bar things
 #+BEGIN_SRC emacs-lisp
   (if
       (fboundp 'menu-bar-mode)
@@ -26,7 +27,6 @@
   (setq inhibit-startup-message t)
 #+END_SRC
 
-* global settings
 ** emacs-server
 #+begin_src emacs-lisp
 (server-start)
