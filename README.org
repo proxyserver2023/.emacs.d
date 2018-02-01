@@ -244,13 +244,11 @@ ref: purcell
 * elisp enhancement
 #+BEGIN_SRC emacs-lisp
   (require 'cl)
-
   (use-package dash
     :config (eval-after-load "dash" '(dash-enable-font-lock)))
-
   (use-package s)
-
   (use-package f)
+  (use-package diminish)
 #+END_SRC
 * appearance
 ** font-lock decoration
