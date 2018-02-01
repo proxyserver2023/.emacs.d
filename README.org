@@ -44,6 +44,80 @@
 (when (display-graphic-p)
   (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
 #+end_src
+* benchmarking :understand:
+
+ref: purcell
+#+begin_src emacs-lisp
+  (defun sanityinc/time-subtract-millis (b a)
+    (* 1000.0 (float-time (time-subtract b a))))
+
+
+  (defvar sanityinc/require-times nil
+    "A list of (FEATURE LOAD-START-TIME LOAD-DURATION).
+  LOAD-DURATION is the time taken in milliseconds to load FEATURE.")
+
+
+  (defadvice require (around sanityinc/build-require-times (feature &optional filename noerror) activate)
+    "Note in `sanityinc/require-times' the time taken to require each feature."
+    (let* ((already-loaded (memq feature features))
+           (require-start-time (and (not already-loaded) (current-time))))
+      (prog1
+          ad-do-it
+        (when (and (not already-loaded) (memq feature features))
+          (let ((time (sanityinc/time-subtract-millis (current-time) require-start-time)))
+            (add-to-list 'sanityinc/require-times
+                         (list feature require-start-time time)
+                         t))))))
+
+
+  (define-derived-mode sanityinc/require-times-mode tabulated-list-mode "Require-Times"
+    "Show times taken to `require' packages."
+    (setq tabulated-list-format
+          [("Start time (ms)" 20 sanityinc/require-times-sort-by-start-time-pred)
+           ("Feature" 30 t)
+           ("Time (ms)" 12 sanityinc/require-times-sort-by-load-time-pred)])
+    (setq tabulated-list-sort-key (cons "Start time (ms)" nil))
+    ;; (setq tabulated-list-padding 2)
+    (setq tabulated-list-entries #'sanityinc/require-times-tabulated-list-entries)
+    (tabulated-list-init-header)
+    (tablist-minor-mode))
+
+
+  (defun sanityinc/require-times-sort-by-start-time-pred (entry1 entry2)
+    (< (string-to-number (elt (nth 1 entry1) 0))
+       (string-to-number (elt (nth 1 entry2) 0))))
+
+  (defun sanityinc/require-times-sort-by-load-time-pred (entry1 entry2)
+    (> (string-to-number (elt (nth 1 entry1) 2))
+       (string-to-number (elt (nth 1 entry2) 2))))
+
+  (defun sanityinc/require-times-tabulated-list-entries ()
+    (cl-loop for (feature start-time millis) in sanityinc/require-times
+             with order = 0
+             do (incf order)
+             collect (list order
+                           (vector
+                            (format "%.3f" (sanityinc/time-subtract-millis start-time before-init-time))
+                            (symbol-name feature)
+                            (format "%.3f" millis)))))
+
+  (defun sanityinc/require-times ()
+    "Show a tabular view of how long various libraries took to load."
+    (interactive)
+    (with-current-buffer (get-buffer-create "*Require Times*")
+      (sanityinc/require-times-mode)
+      (tabulated-list-revert)
+      (display-buffer (current-buffer))))
+
+  
+
+
+  (defun sanityinc/show-init-time ()
+    (message "init completed in %.2fms"
+             (sanityinc/time-subtract-millis after-init-time before-init-time)))
+
+  (add-hook 'after-init-hook 'sanityinc/show-init-time)
+#+end_src
 * custom settings
 #+BEGIN_SRC emacs-lisp
   (setq custom-file
@@ -208,6 +282,12 @@
 #+begin_src emacs-lisp
 (global-set-key (kbd "RET") 'newline-and-indent)
 #+end_src
+** highlight indentation
+#+begin_src emacs-lisp
+(use-package highlight-indentation)
+(require 'highlight-indentation)
+(add-hook 'prog-mode-hook 'highlight-indentation)
+#+end_src
 * try
 #+begin_src emacs-lisp
 (use-package try)
@@ -217,44 +297,45 @@
 - saves all your opened buffers, their locations and sizes on disk to restore later
 #+begin_src emacs-lisp
   (use-package workgroups2
-  :config
-  (require 'workgroups2)
+    :config
+    (require 'workgroups2)
 
-  ;; Change prefix key (before activating WG)
-  (setq wg-prefix-key (kbd "C-c z"))
-  ;; Change workgroups session file
-  (setq wg-session-file "~/.emacs.d/.emacs_workgroups")
-  ;; What to do on Emacs exit / workgroups-mode exit?
-  (setq wg-emacs-exit-save-behavior           'save)
-  (setq wg-workgroups-mode-exit-save-behavior 'save)
+    ;; Change prefix key (before activating WG)
+    (setq wg-prefix-key (kbd "C-c z"))
+    ;; Change workgroups session file
+    (setq wg-session-file "~/.emacs.d/.emacs_workgroups")
+    ;; What to do on Emacs exit / workgroups-mode exit?
+    (setq wg-emacs-exit-save-behavior           'save)
+    (setq wg-workgroups-mode-exit-save-behavior 'save)
 
-  ;; Mode Line Changes
-  ;; Display workgroups in Mode Line?
-  (setq wg-mode-line-display-on t)
-  (setq wg-flag-modified t)
-  (setq wg-mode-line-decor-left-brace "["
-        wg-mode-line-decor-right-brace "]"
-        wg-mode-line-decor-divider ":")
-  (workgroups-mode 1))
+    ;; Mode Line Changes
+    ;; Display workgroups in Mode Line?
+    (setq wg-mode-line-display-on t)
+    (setq wg-flag-modified t)
+    (setq wg-mode-line-decor-left-brace "["
+          wg-mode-line-decor-right-brace "]"
+          wg-mode-line-decor-divider ":")
+    (workgroups-mode 1))
 #+end_src
 * hippie expand
 
-hippe-expand is a better version of dabbrev-expand while dabbrev-expand searches for words you already types in current buffers and other buffers, hippie-expand includes more sources such as filenames, kill ring…
+hippe-expand is a better version of dabbrev-expand while dabbrev-expand searches for words you already types in current buffers and other buffers,
+hippie-expand includes more sources such as filenames, kill ring…
 #+begin_src emacs-lisp
-(global-set-key (kbd "M-/") 'hippie-expand) ;; replace dabbrev-expand
-(setq
-hippie-expand-try-functions-list
-'(try-expand-dabbrev ;; Try to expand word "dynamically", searching the current buffer.
-   try-expand-dabbrev-all-buffers ;; Try to expand word "dynamically", searching all other buffers.
-   try-expand-dabbrev-from-kill ;; Try to expand word "dynamically", searching the kill ring.
-   try-complete-file-name-partially ;; Try to complete text as a file name, as many characters as unique.
-   try-complete-file-name ;; Try to complete text as a file name.
-   try-expand-all-abbrevs ;; Try to expand word before point according to all abbrev tables.
-   try-expand-list ;; Try to complete the current line to an entire line in the buffer.
-   try-expand-line ;; Try to complete the current line to an entire line in the buffer.
-   try-complete-lisp-symbol-partially ;; Try to complete as an Emacs Lisp symbol, as many characters as unique.
-   try-complete-lisp-symbol) ;; Try to complete word as an Emacs Lisp symbol.
-)
+  (global-set-key (kbd "M-/") 'hippie-expand) ;; replace dabbrev-expand
+  (setq
+   hippie-expand-try-functions-list
+   '(try-expand-dabbrev ;; Try to expand word "dynamically", searching the current buffer.
+     try-expand-dabbrev-all-buffers ;; Try to expand word "dynamically", searching all other buffers.
+     try-expand-dabbrev-from-kill ;; Try to expand word "dynamically", searching the kill ring.
+     try-complete-file-name-partially ;; Try to complete text as a file name, as many characters as unique.
+     try-complete-file-name ;; Try to complete text as a file name.
+     try-expand-all-abbrevs ;; Try to expand word before point according to all abbrev tables.
+     try-expand-list ;; Try to complete the current line to an entire line in the buffer.
+     try-expand-line ;; Try to complete the current line to an entire line in the buffer.
+     try-complete-lisp-symbol-partially ;; Try to complete as an Emacs Lisp symbol, as many characters as unique.
+     try-complete-lisp-symbol) ;; Try to complete word as an Emacs Lisp symbol.
+   )
 #+end_src
 * kill this buffer
 #+begin_src emacs-lisp
@@ -756,7 +837,8 @@ Required packages
 - auto-complete
 - epc
 - jedi
-*** __init__
+*** init
+
 #+begin_src emacs-lisp
 (add-hook 'python-mode-hook
           (lambda ()
@@ -786,22 +868,28 @@ Required packages
 #                   python3-isort
 #sudo pip3 install flake8 jedi autopep8 yapf importmagic
 #+end_src
+*** virtualenvwrapper
+#+begin_src emacs-lisp
+(use-package virtualenvwrapper
+  :ensure t
+  :config
+  (venv-initialize-interactive-shells)
+  (venv-initialize-eshell))
+#+end_src
 *** elpy
 #+begin_src emacs-lisp
-(use-package elpy
-:ensure t
-:config
-(elpy-enable)
-(setq elpy-rpc-python-command "python3"))
+  (use-package elpy
+  :ensure t
+  :config
+  (elpy-enable)
+  (setq elpy-rpc-python-command "python3"))
 #+end_src
 *** flycheck
 #+begin_src emacs-lisp
 (use-package flycheck
-:ensure t
-:config
-(when (require 'flycheck nil t)
-  (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
-  (add-hook 'elpy-mode-hook 'flycheck-mode)))
+  :ensure t
+  :init
+  (global-flycheck-mode t))
 #+end_src
 *** py-autopep8
 #+begin_src emacs-lisp
@@ -811,19 +899,7 @@ Required packages
 (require 'py-autopep8)
 (add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save))
 #+end_src
-*** Ipython/Jupyter
-#+begin_src emacs-lisp
-(setq python-shell-interpreter "ipython3"
-      python-shell-interpreter-args "-i --simple-prompt")
-;(elpy-use-ipython "ipython3")
-
-;; needs to work on this snippet
-;; not enough time
-;; probably let yourself know why jupyter is used?
-(use-package ein
-:ensure t)
-#+end_src
-*** anaconda
+# *** anaconda
 #+begin_src emacs-lisp
 (use-package anaconda-mode
 :ensure t
@@ -831,144 +907,25 @@ Required packages
 (add-hook 'python-mode-hook 'anaconda-mode)
 (add-hook 'python-mode-hook 'anaconda-eldoc-mode))
 #+end_src
-# *** epc
-# #+begin_src emacs-lisp
-# (use-package epc)
-# #+end_src
-# *** jedi 
-# #+begin_src emacs-lisp
-#   (use-package jedi
-#   :config
-#   (require 'jedi))
+*** epc
+#+begin_src emacs-lisp
+(use-package epc)
+#+end_src
+*** jedi 
+#+begin_src emacs-lisp
+  (use-package jedi
+    :ensure t
+    :init
+    (add-hook 'python-mode-hook 'jedi:setup)
+    (add-hook 'python-mode-hook 'jedi:ac-setup))
+#+end_src
+** latex
+#+begin_src emacs-lis
+;; latex
+(use-package tex
+:ensure auctex)
 
-#   ;; Global Jedi config vars
-
-#   (defvar jedi-config:use-system-python nil
-#     "Will use system python and active environment for Jedi server.
-#   May be necessary for some GUI environments (e.g., Mac OS X)")
-
-#   (defvar jedi-config:with-virtualenv nil
-#     "Set to non-nil to point to a particular virtualenv.")
-
-#   (defvar jedi-config:vcs-root-sentinel ".git")
-
-#   (defvar jedi-config:python-module-sentinel "__init__.py")
-
-
-#   ;; Helper functions
-
-#   ;; Small helper to scrape text from shell output
-#   (defun get-shell-output (cmd)
-#     (replace-regexp-in-string "[ \t\n]*$" "" (shell-command-to-string cmd)))
-
-#   ;; Ensure that PATH is taken from shell
-#   ;; Necessary on some environments without virtualenv
-#   ;; Taken from: http://stackoverflow.com/questions/8606954/path-and-exec-path-set-but-emacs-does-not-find-executable
-
-#   (defun set-exec-path-from-shell-PATH ()
-#     "Set up Emacs' `exec-path' and PATH environment variable to match that used by the user's shell."
-#     (interactive)
-#     (let ((path-from-shell (get-shell-output "$SHELL --login -i -c 'echo $PATH'")))
-#       (setenv "PATH" path-from-shell)
-#       (setq exec-path (split-string path-from-shell path-separator))))
-
-#   (defun get-project-root-with-file (buf repo-file &optional init-file)
-#         "Guesses that the python root is the less 'deep' of either:
-#            -- the root directory of the repository, or
-#            -- the directory before the first directory after the root
-#               having the init-file file (e.g., '__init__.py'."
-
-#         ;; make list of directories from root, removing empty
-#         (defun make-dir-list (path)
-#           (delq nil (mapcar (lambda (x) (and (not (string= x "")) x))
-#                             (split-string path "/"))))
-#         ;; convert a list of directories to a path starting at "/"
-#         (defun dir-list-to-path (dirs)
-#           (mapconcat 'identity (cons "" dirs) "/"))
-#         ;; a little something to try to find the "best" root directory
-#         (defun try-find-best-root (base-dir buffer-dir current)
-#           (cond
-#            (base-dir ;; traverse until we reach the base
-#             (try-find-best-root (cdr base-dir) (cdr buffer-dir)
-#                                 (append current (list (car buffer-dir)))))
-
-#            (buffer-dir ;; try until we hit the current directory
-#             (let* ((next-dir (append current (list (car buffer-dir))))
-#                    (file-file (concat (dir-list-to-path next-dir) "/" init-file)))
-#               (if (file-exists-p file-file)
-#                   (dir-list-to-path current)
-#                 (try-find-best-root nil (cdr buffer-dir) next-dir))))
-
-#            (t nil)))
-
-#         (let* ((buffer-dir (expand-file-name (file-name-directory (buffer-file-name buf))))
-#                (vc-root-dir (vc-find-root buffer-dir repo-file)))
-#           (if (and init-file vc-root-dir)
-#               (try-find-best-root
-#                (make-dir-list (expand-file-name vc-root-dir))
-#                (make-dir-list buffer-dir)
-#                '())
-#             vc-root-dir))) ;; default to vc root if init file not given
-
-#       ;; Set this variable to find project root
-#       (defvar jedi-config:find-root-function 'get-project-root-with-file)
-
-#       (defun current-buffer-project-root ()
-#         (funcall jedi-config:find-root-function
-#                  (current-buffer)
-#                  jedi-config:vcs-root-sentinel
-#                  jedi-config:python-module-sentinel))
-
-#       (defun jedi-config:setup-server-args ()
-#         ;; little helper macro for building the arglist
-#         (defmacro add-args (arg-list arg-name arg-value)
-#           `(setq ,arg-list (append ,arg-list (list ,arg-name ,arg-value))))
-#         ;; and now define the args
-#         (let ((project-root (current-buffer-project-root)))
-
-#           (make-local-variable 'jedi:server-args)
-
-#           (when project-root
-#             (message (format "Adding system path: %s" project-root))
-#             (add-args jedi:server-args "--sys-path" project-root))
-
-#           (when jedi-config:with-virtualenv
-#             (message (format "Adding virtualenv: %s" jedi-config:with-virtualenv))
-#             (add-args jedi:server-args "--virtual-env" jedi-config:with-virtualenv))))
-
-#       ;; Use system python
-#       (defun jedi-config:set-python-executable ()
-#         (set-exec-path-from-shell-PATH)
-#         (make-local-variable 'jedi:server-command)
-#         (set 'jedi:server-command
-#              (list (executable-find "python") ;; may need help if running from GUI
-#                    (cadr default-jedi-server-command))))
-
-#       ;; Now hook everything up
-#       ;; Hook up to autocomplete
-#       (add-to-list 'ac-sources 'ac-source-jedi-direct)
-
-#       ;; Enable Jedi setup on mode start
-#       (add-hook 'python-mode-hook 'jedi:setup)
-
-#       ;; Buffer-specific server options
-#       (add-hook 'python-mode-hook
-#                 'jedi-config:setup-server-args)
-#       (when jedi-config:use-system-python
-#         (add-hook 'python-mode-hook
-#                   'jedi-config:set-python-executable))
-
-#       ;; And custom keybindings
-#       (defun jedi-config:setup-keys ()
-#         (local-set-key (kbd "M-.") 'jedi:goto-definition)
-#         (local-set-key (kbd "M-,") 'jedi:goto-definition-pop-marker)
-#         (local-set-key (kbd "M-?") 'jedi:show-doc)
-#         (local-set-key (kbd "M-/") 'jedi:get-in-function-call))
-
-#       ;; Don't let tooltip show up automatically
-#       (setq jedi:get-in-function-call-delay 10000000)
-#       ;; Start completion at method dot
-#       (setq jedi:complete-on-dot t)
-#       ;; Use custom keybinds
-#       (add-hook 'python-mode-hook 'jedi-config:setup-keys)
-# #+end_src
+(defun tex-view ()
+    (interactive)
+    (tex-send-command "evince" (tex-append tex-print-file ".pdf")))
+#+end_src
