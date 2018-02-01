@@ -118,6 +118,14 @@ ref: purcell
 
   (add-hook 'after-init-hook 'sanityinc/show-init-time)
 #+end_src
+* garbage collection
+#+begin_src emacs-lisp
+(let ((normal-gc-cons-threshold (* 20 1024 1024))
+      (init-gc-cons-threshold (* 128 1024 1024)))
+  (setq gc-cons-threshold init-gc-cons-threshold)
+  (add-hook 'after-init-hook
+            (lambda () (setq gc-cons-threshold normal-gc-cons-threshold))))
+#+end_src
 * custom settings
 #+BEGIN_SRC emacs-lisp
   (setq custom-file
@@ -322,20 +330,20 @@ ref: purcell
 hippe-expand is a better version of dabbrev-expand while dabbrev-expand searches for words you already types in current buffers and other buffers,
 hippie-expand includes more sources such as filenames, kill ring…
 #+begin_src emacs-lisp
-  (global-set-key (kbd "M-/") 'hippie-expand) ;; replace dabbrev-expand
-  (setq
-   hippie-expand-try-functions-list
-   '(try-expand-dabbrev ;; Try to expand word "dynamically", searching the current buffer.
-     try-expand-dabbrev-all-buffers ;; Try to expand word "dynamically", searching all other buffers.
-     try-expand-dabbrev-from-kill ;; Try to expand word "dynamically", searching the kill ring.
-     try-complete-file-name-partially ;; Try to complete text as a file name, as many characters as unique.
-     try-complete-file-name ;; Try to complete text as a file name.
-     try-expand-all-abbrevs ;; Try to expand word before point according to all abbrev tables.
-     try-expand-list ;; Try to complete the current line to an entire line in the buffer.
-     try-expand-line ;; Try to complete the current line to an entire line in the buffer.
-     try-complete-lisp-symbol-partially ;; Try to complete as an Emacs Lisp symbol, as many characters as unique.
-     try-complete-lisp-symbol) ;; Try to complete word as an Emacs Lisp symbol.
-   )
+(global-set-key (kbd "M-/") 'hippie-expand) ;; replace dabbrev-expand
+(setq
+ hippie-expand-try-functions-list
+ '(try-expand-dabbrev ;; Try to expand word "dynamically", searching the current buffer.
+   try-expand-dabbrev-all-buffers ;; Try to expand word "dynamically", searching all other buffers.
+   try-expand-dabbrev-from-kill ;; Try to expand word "dynamically", searching the kill ring.
+   try-complete-file-name-partially ;; Try to complete text as a file name, as many characters as unique.
+   try-complete-file-name ;; Try to complete text as a file name.
+   try-expand-all-abbrevs ;; Try to expand word before point according to all abbrev tables.
+   try-expand-list ;; Try to complete the current line to an entire line in the buffer.
+   try-expand-line ;; Try to complete the current line to an entire line in the buffer.
+   try-complete-lisp-symbol-partially ;; Try to complete as an Emacs Lisp symbol, as many characters as unique.
+   try-complete-lisp-symbol) ;; Try to complete word as an Emacs Lisp symbol.
+ )
 #+end_src
 * kill this buffer
 #+begin_src emacs-lisp
