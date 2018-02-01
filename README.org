@@ -249,6 +249,8 @@ ref: purcell
   (use-package s)
   (use-package f)
   (use-package diminish)
+  (use-package wgrep)
+  (use-package scratch)
 #+END_SRC
 * appearance
 ** font-lock decoration
@@ -371,9 +373,9 @@ ref: purcell
 #+end_src
 ** highlight indentation
 #+begin_src emacs-lisp
-(use-package highlight-indentation)
-(require 'highlight-indentation)
-(add-hook 'prog-mode-hook 'highlight-indentation)
+;(use-package highlight-indentation)
+;(require 'highlight-indentation)
+;(add-hook 'prog-mode-hook 'highlight-indentation)
 #+end_src
 * try
 #+begin_src emacs-lisp
@@ -668,6 +670,12 @@ C-c p k Kill all buffers for project
 (projectile-global-mode))
 #+end_src
 
+* csv 
+#+begin_src emacs-lisp
+(add-auto-mode 'csv-mode "\\.[Cc][Ss][Vv]\\'")
+
+(setq csv-separators '("," ";" "|" " "))
+#+end_src
 * ORG
 ** global settings
 #+begin_src emacs-lisp
@@ -1015,4 +1023,10 @@ Required packages
 (defun tex-view ()
     (interactive)
     (tex-send-command "evince" (tex-append tex-print-file ".pdf")))
+#+end_src
+** erlang
+#+begin_src emacs-lisp
+  (use-package erlang
+    :config
+    (require 'erlang-start))
 #+end_src
