@@ -696,6 +696,8 @@ C-c p k Kill all buffers for project
 #+end_src
 * ORG
 ** global settings
+
+setting org mode for all .org, .org_archive and text files
 #+begin_src emacs-lisp
   (add-to-list
    'auto-mode-alist
@@ -713,15 +715,12 @@ should be accessible through global keys.
 (global-set-key "\C-cc" 'org-capture)
 #+end_src
 
-
 Files with the =.org= extension use Org Mode By Default.
 To turn on org mode in a file that does not have the extension =.org=,
 make the first line of a file look like this:
-
 #+begin_example
 MY PROJECTS -*- mode: org; -*-
 #+end_example
-
 which will select Org mode for this buffer no matter what the file’s name is.
 
 #+begin_src emacs-lisp
