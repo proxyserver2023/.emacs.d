@@ -35,7 +35,7 @@
 #+begin_src emacs-lisp
 (fset 'yes-or-no-p 'y-or-n-p)
 #+end_src
-** coding system :DRILL:
+** coding system :drill:
 #+begin_src emacs-lisp
 (set-terminal-coding-system 'utf-8)
 (set-keyboard-coding-system 'utf-8)
@@ -452,7 +452,7 @@ hippie-expand includes more sources such as filenames, kill ring…
          ("C-c [" . bm-previous)
          ("C-c ]" . bm-next)))
 #+end_src
-* windows management :DRILL:
+* windows management :drill:
 #+begin_src emacs-lisp
 (use-package ace-window
 :init
@@ -470,7 +470,7 @@ hippie-expand includes more sources such as filenames, kill ring…
   :config
   (define-key global-map (kbd "C-c SPC") 'ace-jump-mode))
 #+end_src
-* indent whole buffer :DRILL:
+* indent whole buffer :drill:
 #+begin_src emacs-lisp
 (defun iwb ()
   "indent whole buffer"
@@ -481,7 +481,7 @@ hippie-expand includes more sources such as filenames, kill ring…
 
 (global-set-key (kbd "C-c n") 'iwb)
 #+end_src
-* command log mode :DRILL:
+* command log mode :drill:
 #+begin_src emacs-lisp
 (use-package command-log-mode)
 #+end_src
@@ -495,7 +495,7 @@ zygospore lets you revert C-x 1 (delete-other-window) by pressing C-x 1 again
          ("RET" .   newline-and-indent)))
 #+end_src
 
-* origami :DRILL:
+* origami :drill:
 #+begin_src emacs-lisp
 (use-package origami
 :ensure t
@@ -513,7 +513,7 @@ zygospore lets you revert C-x 1 (delete-other-window) by pressing C-x 1 again
 (require 'duplicate-thing)
 (global-set-key (kbd "M-c") 'duplicate-thing))
 #+end_src
-* smartparens :DRILL:
+* smartparens :drill:
 #+begin_src emacs-lisp
 (use-package smartparens-config
 :ensure smartparens
@@ -622,7 +622,7 @@ Highly recommended.
 ;; this is the actual fold/unfold command
 (global-set-key (kbd "C-c t") #'vimish-fold-toggle)
 #+end_src
-* multiple-cursor :DRILL:
+* multiple-cursor :drill:
 #+begin_src emacs-lisp 
   (use-package multiple-cursors
     :config
@@ -639,8 +639,26 @@ Highly recommended.
    (lambda()
      (interactive)
      (find-file "~/.emacs.d/README.org")))
+
+  (global-set-key
+   (kbd "\e\ei")
+   (lambda()
+     (interactive)
+     (find-file "~/Dropbox/org/index.org")))
+
+  (global-set-key
+   (kbd "\e\el")
+   (lambda()
+     (interactive)
+     (find-file "~/Dropbox/org/links.org")))
+
+  (global-set-key
+   (kbd "\e\ef")
+   (lambda()
+     (interactive)
+     (find-file "~/Dropbox/org/finance.org")))
 #+END_SRC
-* projectile :DRILL:
+* projectile :drill:
 
 - jump to a file in project
 - jump to a directory in a project
@@ -679,6 +697,18 @@ C-c p k Kill all buffers for project
 * ORG
 ** global settings
 #+begin_src emacs-lisp
+  (add-to-list
+   'auto-mode-alist
+   '("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode))
+
+  (require 'org)
+
+  ;; Standard Key Bindings
+  (global-set-key "\C-cb" 'org-iswitchb)
+  (global-set-key "\C-cl" 'org-store-link)
+  (global-set-key "\C-ca" 'org-agenda)
+  (global-set-key "\C-cc" 'org-capture)
+
   (setq
    org-directory "~/Dropbox/org"
    org-default-notes-file (concat org-directory "/notes.org")
@@ -687,6 +717,72 @@ C-c p k Kill all buffers for project
    org-startup-folded (quote overview)
    org-startup-indented t
    )
+#+end_src
+
+custom key bindings
+#+begin_src emacs-lisp
+  (global-set-key (kbd "<f12>") 'org-agenda)
+  (global-set-key (kbd "<f5>") 'bh/org-todo)
+  (global-set-key (kbd "<S-f5>") 'bh/widen)
+  (global-set-key (kbd "<f7>") 'bh/set-truncate-lines)
+  (global-set-key (kbd "<f8>") 'org-cycle-agenda-files)
+  (global-set-key (kbd "<f9> <f9>") 'bh/show-org-agenda)
+  (global-set-key (kbd "<f9> b") 'bbdb)
+  (global-set-key (kbd "<f9> c") 'calendar)
+  (global-set-key (kbd "<f9> f") 'boxquote-insert-file)
+  (global-set-key (kbd "<f9> g") 'gnus)
+  (global-set-key (kbd "<f9> h") 'bh/hide-other)
+  (global-set-key (kbd "<f9> n") 'bh/toggle-next-task-display)
+
+  (global-set-key (kbd "<f9> I") 'bh/punch-in)
+  (global-set-key (kbd "<f9> O") 'bh/punch-out)
+
+  (global-set-key (kbd "<f9> o") 'bh/make-org-scratch)
+
+  (global-set-key (kbd "<f9> r") 'boxquote-region)
+  (global-set-key (kbd "<f9> s") 'bh/switch-to-scratch)
+
+  (global-set-key (kbd "<f9> t") 'bh/insert-inactive-timestamp)
+  (global-set-key (kbd "<f9> T") 'bh/toggle-insert-inactive-timestamp)
+
+  (global-set-key (kbd "<f9> v") 'visible-mode)
+  (global-set-key (kbd "<f9> l") 'org-toggle-link-display)
+  (global-set-key (kbd "<f9> SPC") 'bh/clock-in-last-task)
+  (global-set-key (kbd "C-<f9>") 'previous-buffer)
+  (global-set-key (kbd "M-<f9>") 'org-toggle-inline-images)
+  (global-set-key (kbd "C-x n r") 'narrow-to-region)
+  (global-set-key (kbd "C-<f10>") 'next-buffer)
+  (global-set-key (kbd "<f11>") 'org-clock-goto)
+  (global-set-key (kbd "C-<f11>") 'org-clock-in)
+  (global-set-key (kbd "C-s-<f12>") 'bh/save-then-publish)
+  (global-set-key (kbd "C-c c") 'org-capture)
+
+  (defun bh/hide-other ()
+    (interactive)
+    (save-excursion
+      (org-back-to-heading 'invisible-ok)
+      (hide-other)
+      (org-cycle)
+      (org-cycle)
+      (org-cycle)))
+
+  (defun bh/set-truncate-lines ()
+    "Toggle value of truncate-lines and refresh window display."
+    (interactive)
+    (setq truncate-lines (not truncate-lines))
+    ;; Now refresh window display (an idiom from simple.el):
+    (save-excursion
+      (set-window-start (selected-window)
+                        (window-start (selected-window)))))
+
+  (defun bh/make-org-scratch ()
+    (interactive)
+    (find-file "/tmp/publish/scratch.org")
+    (gnus-make-directory "/tmp/publish"))
+
+  (defun bh/switch-to-scratch ()
+    (interactive)
+    (switch-to-buffer "*scratch*"))
 #+end_src
 ** code-block shortcuts
 ref: sacha
@@ -720,31 +816,25 @@ ref: sacha
 #+end_src
 ** org agenda
 #+begin_src emacs-lisp
-    (global-set-key "\C-ca" 'org-agenda)
-
-    (setq org-agenda-custom-commands
-          '(
-            (
-             "c"
-             "Simple agenda view"
-             (
-              (agenda "")
-              (alltodo "")
-              )
-             )
-            )
-          )
-
-    (setq org-agenda-files
+  (setq org-agenda-custom-commands
+        '(
           (
-           list
-           "~/Dropbox/org/gcal.org"
-           "~/Dropbox/org/schedule.org"
-           "~/Dropbox/org/todo.org"
-           "~/Dropbox/org/links.org"
-           "~/Dropbox/org/index.org"
+           "c"
+           "Simple agenda view"
+           (
+            (agenda "")
+            (alltodo "")
+            )
            )
           )
+        )
+
+  (setq org-agenda-files
+        (
+         list
+         "~/Dropbox/org"
+         )
+        )
 #+end_src
 ** org-ac = Auto Complete Org Mode
 #+begin_src emacs-lisp
@@ -756,22 +846,22 @@ ref: sacha
 #+end_src
 ** org-capture
 #+begin_src emacs-lisp
-(global-set-key
-(kbd "C-c c")
-'org-capture)
-
 (setq
  org-capture-templates
  '(
-   ("j" "Journal" entry (file "~/Dropbox/org/journal.org")
+   ("j" "Journal" entry (file+headline "~/Dropbox/org/index.org" "Journal")
     "* %t\n** Day\n*** What am I Grateful For:\n1. %?\n2. \n3. \n*** What Would Make Today Great:\n1. \n2. \n3. \n*** Daily Affirmations I am:\n1. \n2. \n3. \n\n** Night\n*** 3 Amazing Things Happened Today:\n1. \n2. \n3. \n*** How could I Make Things Better\n1. \n2. \n3. \n" :prepend t)
    ("l" "Link" entry (file "~/Dropbox/org/links.org")
-    "* %?%^L %^g \n%T" :prepend t)
-   ("t" "Todo" entry (file "~/Dropbox/org/todo.org")
-    "* TODO %?\n%u%T" :prepend t)
-   ("n" "Notes" entry (file "~/Dropbox/org/notes.org")
-    "* %?\n%u" :prepend t)
-   ))
+    "* %?%^L %^G \n%U" :prepend t)
+   ("t" "Todo" entry (file+headline "~/Dropbox/org/index.org" "Tasks")
+    "* TODO [#A] %^{GOAL} %^G\nSCHEDULED: %^{SCHEDULED}T\nDEADLINE: %^{DEADLINE}T\n%a" :prepend t)
+   ("o" "One Things" entry (file+headline "~/Dropbox/org/index.org" "One Things")
+    "* TODO [#A] %^{GOAL} %^G\nSCHEDULED: %^{SCHEDULED}t\nDEADLINE: %^{DEADLINE}t" :prepend t)
+   ("n" "Notes" entry (file+headline "~/Dropbox/org/index.org" "Notes")
+    "* %?\n%U\n%a")
+   ("b" "Business Ideas" entry (file+headline "~/Dropbox/org/index.org" "Business Ideas")
+    "* %^{one_word} %^G\nDescription: %^{Description}\nNotes: %?\n%U\n")
+   ))   
 #+end_src
 ** set-default-browser
 #+begin_src emacs-lisp
@@ -1024,9 +1114,15 @@ Required packages
     (interactive)
     (tex-send-command "evince" (tex-append tex-print-file ".pdf")))
 #+end_src
-** erlang
+** erlang :drill:
+ref: purcell
 #+begin_src emacs-lisp
   (use-package erlang
     :config
     (require 'erlang-start))
+#+end_src
+** javascript :todo:
+ref: purcell
+#+begin_src emacs-lisp
+
 #+end_src
