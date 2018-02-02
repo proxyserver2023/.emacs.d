@@ -702,13 +702,29 @@ C-c p k Kill all buffers for project
    '("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode))
 
   (require 'org)
+#+end_src
 
-  ;; Standard Key Bindings
-  (global-set-key "\C-cb" 'org-iswitchb)
-  (global-set-key "\C-cl" 'org-store-link)
-  (global-set-key "\C-ca" 'org-agenda)
-  (global-set-key "\C-cc" 'org-capture)
+the four commands =org-store-link=, =org-capture=, =org-agenda=, =org-iswitchb=
+should be accessible through global keys.
+#+begin_src emacs-lisp
+(global-set-key "\C-cb" 'org-iswitchb)
+(global-set-key "\C-cl" 'org-store-link)
+(global-set-key "\C-ca" 'org-agenda)
+(global-set-key "\C-cc" 'org-capture)
+#+end_src
 
+
+Files with the =.org= extension use Org Mode By Default.
+To turn on org mode in a file that does not have the extension =.org=,
+make the first line of a file look like this:
+
+#+begin_example
+MY PROJECTS -*- mode: org; -*-
+#+end_example
+
+which will select Org mode for this buffer no matter what the file’s name is.
+
+#+begin_src emacs-lisp
   (setq
    org-directory "~/Dropbox/org"
    org-default-notes-file (concat org-directory "/notes.org")
@@ -784,6 +800,35 @@ custom key bindings
     (interactive)
     (switch-to-buffer "*scratch*"))
 #+end_src
+** org-todo-keywords
+#+begin_src emacs-lisp
+  (setq org-todo-keywords
+        (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
+                (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
+
+  (setq org-todo-keyword-faces
+        (quote (("TODO" :foreground "red" :weight bold)
+                ("NEXT" :foreground "blue" :weight bold)
+                ("DONE" :foreground "forest green" :weight bold)
+                ("WAITING" :foreground "orange" :weight bold)
+                ("HOLD" :foreground "magenta" :weight bold)
+                ("CANCELLED" :foreground "forest green" :weight bold)
+                ("MEETING" :foreground "forest green" :weight bold)
+                ("PHONE" :foreground "forest green" :weight bold))))
+
+    (setq org-log-done 'time)
+    (setq org-use-fast-todo-selection t)
+    (setq org-treat-S-cursor-todo-selection-as-state-change t)
+
+  (setq org-todo-state-tags-triggers
+        (quote (("CANCELLED" ("CANCELLED" . t))
+                ("WAITING" ("WAITING" . t))
+                ("HOLD" ("WAITING") ("HOLD" . t))
+                (done ("WAITING") ("HOLD"))
+                ("TODO" ("WAITING") ("CANCELLED") ("HOLD"))
+                ("NEXT" ("WAITING") ("CANCELLED") ("HOLD"))
+                ("DONE" ("WAITING") ("CANCELLED") ("HOLD")))))
+#+end_src
 ** code-block shortcuts
 ref: sacha
 #+BEGIN_SRC emacs-lisp
@@ -817,24 +862,16 @@ ref: sacha
 ** org agenda
 #+begin_src emacs-lisp
   (setq org-agenda-custom-commands
-        '(
-          (
-           "c"
-           "Simple agenda view"
-           (
-            (agenda "")
-            (alltodo "")
-            )
-           )
-          )
-        )
+        '(("c" "Simple agenda view" ((agenda "") (alltodo "")))))
 
   (setq org-agenda-files
-        (
-         list
-         "~/Dropbox/org"
-         )
-        )
+        (list "~/Dropbox/org"))
+
+  ;; Do not  dim blocked tasks
+  (setq org-agenda-dim-blocked-tasks nil)
+
+  ;; Compact the block agenda view
+  (setq org-agenda-compact-blocks t)
 #+end_src
 ** org-ac = Auto Complete Org Mode
 #+begin_src emacs-lisp
@@ -854,13 +891,19 @@ ref: sacha
    ("l" "Link" entry (file "~/Dropbox/org/links.org")
     "* %?%^L %^G \n%U" :prepend t)
    ("t" "Todo" entry (file+headline "~/Dropbox/org/index.org" "Tasks")
-    "* TODO [#A] %^{GOAL} %^G\nSCHEDULED: %^{SCHEDULED}T\nDEADLINE: %^{DEADLINE}T\n%a" :prepend t)
+    "* TODO [#A] %^{GOAL} %^G\nSCHEDULED: %^{SCHEDULED}T\nDEADLINE: %^{DEADLINE}T\n%a" :prepend t :clock-in t :clock-resume t)
    ("o" "One Things" entry (file+headline "~/Dropbox/org/index.org" "One Things")
     "* TODO [#A] %^{GOAL} %^G\nSCHEDULED: %^{SCHEDULED}t\nDEADLINE: %^{DEADLINE}t" :prepend t)
    ("n" "Notes" entry (file+headline "~/Dropbox/org/index.org" "Notes")
     "* %?\n%U\n%a")
    ("b" "Business Ideas" entry (file+headline "~/Dropbox/org/index.org" "Business Ideas")
     "* %^{one_word} %^G\nDescription: %^{Description}\nNotes: %?\n%U\n")
+    ("m" "Meeting" entry (file+headline "~/Dropbox/org/index.org" "Meeting")
+    "* MEETING with %? :MEETING:\n%U" :clock-in t :clock-resume t)
+    ("p" "Phone call" entry (file+headline  "~/Dropbox/org/index.org" "Phone Calls")
+    "* PHONE %? :PHONE:\n%U" :clock-in t :clock-resume t)
+    ("h" "Habit" entry (file+headline "~/Dropbox/org/index.org" "Habit")
+    "* NEXT %?\n%U\n%a\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")
    ))   
 #+end_src
 ** set-default-browser
@@ -1126,3 +1169,4 @@ ref: purcell
 #+begin_src emacs-lisp
 
 #+end_src
+
