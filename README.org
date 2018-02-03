@@ -2,7 +2,7 @@
 #+AUTHOR: Md. Alamin Mahamud
 #+EMAIL: alamin.ineedahelp@gmail.com
 
-#+STARTUP: overview indent inlineimages
+#+STARTUP: overview indent inlineimages hideblocks
 #+OPTIONS: H:5 num:nil tags:nil toc:nil timestamp:t
 #+LAYOUT: post
 #+DESCRIPTION: Loading Emacs Configuration using org-babel
@@ -132,6 +132,10 @@ ref: purcell
         (expand-file-name "custom.el" user-emacs-directory))
   (load custom-file)
 #+END_SRC
+* secret variables
+#+begin_src emacs-lisp
+(load "~/.emacs.d/.secrets")
+#+end_src
 * utils 
 ref: purcell
 ** after load alias
@@ -207,7 +211,7 @@ ref: purcell
   (setq package-archives nil)
   (setq package-archives
         '(
-          ("org"       . "http://orgmode.org/elpa/")
+          ("org"       . "https://orgmode.org/elpa/")
           ("gnu"       . "http://elpa.gnu.org/packages/")
           ("melpa"     . "http://melpa.org/packages/")
           ("marmalade" . "http://marmalade-repo.org/packages/")))
@@ -657,6 +661,12 @@ Highly recommended.
    (lambda()
      (interactive)
      (find-file "~/Dropbox/org/finance.org")))
+
+  (global-set-key
+   (kbd "\e\eg")
+   (lambda()
+     (interactive)
+     (find-file "~/Dropbox/org/gcal.org")))
 #+END_SRC
 * projectile :drill:
 
@@ -688,6 +698,14 @@ C-c p k Kill all buffers for project
 (projectile-global-mode))
 #+end_src
 
+* atomic chrome
+#+begin_src emacs-lisp
+  (use-package atomic-chrome
+    :config
+    (require 'atomic-chrome)
+    (atomic-chrome-start-server)
+    (setq atomic-chrome-buffer-open-style 'full))
+#+end_src
 * csv 
 #+begin_src emacs-lisp
 (add-auto-mode 'csv-mode "\\.[Cc][Ss][Vv]\\'")
@@ -885,6 +903,8 @@ ref: sacha
 (setq
  org-capture-templates
  '(
+   ("a" "Appointment" entry (file  "~/Dropbox/org/gcal.org" )
+   "* %?\n\n%^T\n\n:PROPERTIES:\n\n:END:\n\n")
    ("j" "Journal" entry (file+headline "~/Dropbox/org/index.org" "Journal")
     "* %t\n** Day\n*** What am I Grateful For:\n1. %?\n2. \n3. \n*** What Would Make Today Great:\n1. \n2. \n3. \n*** Daily Affirmations I am:\n1. \n2. \n3. \n\n** Night\n*** 3 Amazing Things Happened Today:\n1. \n2. \n3. \n*** How could I Make Things Better\n1. \n2. \n3. \n" :prepend t)
    ("l" "Link" entry (file "~/Dropbox/org/links.org")
@@ -937,6 +957,24 @@ use C-x C-s for closing out of the org-src-edit buffer
     '(define-key org-src-mode-map
        (kbd "C-x C-s") #'org-edit-src-exit))
 #+end_src
+** org-gcal
+#+begin_src emacs-lisp
+(setq package-check-signature nil)
+
+(use-package org-gcal
+  :ensure t
+  :config
+  (setq org-gcal-client-id org_gcal_client_id
+	org-gcal-client-secret org_gcal_client_secret
+	org-gcal-file-alist '(("alamin.ineedahelp@gmail.com" .  "~/Dropbox/org/gcal.org"))))
+
+(add-hook 'org-agenda-mode-hook (lambda () (org-gcal-sync) ))
+(add-hook 'org-capture-after-finalize-hook (lambda () (org-gcal-sync) ))
+#+end_src
+** TODO Things for drill
+1) [[https://orgmode.org/org.html#plain-lists][plain-lists]]
+2) 
+3) 
 * MAGIT
 
 #+begin_src emacs-lisp
