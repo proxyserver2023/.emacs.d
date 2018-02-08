@@ -3,11 +3,7 @@
 #+EMAIL: alamin.ineedahelp@gmail.com
 
 #+STARTUP: overview indent inlineimages hideblocks
-#+OPTIONS: H:5 num:nil tags:nil toc:nil timestamp:t
-#+LAYOUT: post
 #+DESCRIPTION: Loading Emacs Configuration using org-babel
-#+TAGS: emacs
-#+CATEGORIES: editing
 
 * global settings
 ** hide all bar things
@@ -117,14 +113,6 @@ ref: purcell
              (sanityinc/time-subtract-millis after-init-time before-init-time)))
 
   (add-hook 'after-init-hook 'sanityinc/show-init-time)
-#+end_src
-* garbage collection
-#+begin_src emacs-lisp
-(let ((normal-gc-cons-threshold (* 20 1024 1024))
-      (init-gc-cons-threshold (* 128 1024 1024)))
-  (setq gc-cons-threshold init-gc-cons-threshold)
-  (add-hook 'after-init-hook
-            (lambda () (setq gc-cons-threshold normal-gc-cons-threshold))))
 #+end_src
 * custom settings
 #+BEGIN_SRC emacs-lisp
@@ -377,9 +365,12 @@ ref: purcell
 #+end_src
 ** highlight indentation
 #+begin_src emacs-lisp
-;(use-package highlight-indentation)
-;(require 'highlight-indentation)
-;(add-hook 'prog-mode-hook 'highlight-indentation)
+(use-package highlight-indentation)
+(require 'highlight-indentation)
+(add-hook 'prog-mode-hook 'highlight-indentation-mode)
+(add-hook 'prog-mode-hook 'highlight-indentation-current-column-mode)
+(set-face-background 'highlight-indentation-face "#616161")
+(set-face-background 'highlight-indentation-current-column-face "#607D8B")
 #+end_src
 * try
 #+begin_src emacs-lisp
@@ -518,7 +509,7 @@ zygospore lets you revert C-x 1 (delete-other-window) by pressing C-x 1 again
 (global-set-key (kbd "M-c") 'duplicate-thing))
 #+end_src
 * smartparens :drill:
-#+begin_src emacs-lisp
+##+begin_src emacs-lisp
 (use-package smartparens-config
 :ensure smartparens
 :config
@@ -697,6 +688,12 @@ C-c p k Kill all buffers for project
 :config
 (projectile-global-mode))
 #+end_src
+* csv 
+#+begin_src emacs-lisp
+(add-auto-mode 'csv-mode "\\.[Cc][Ss][Vv]\\'")
+
+(setq csv-separators '("," ";" "|" " "))
+#+end_src
 
 * atomic chrome
 #+begin_src emacs-lisp
@@ -705,12 +702,6 @@ C-c p k Kill all buffers for project
     (require 'atomic-chrome)
     (atomic-chrome-start-server)
     (setq atomic-chrome-buffer-open-style 'full))
-#+end_src
-* csv 
-#+begin_src emacs-lisp
-(add-auto-mode 'csv-mode "\\.[Cc][Ss][Vv]\\'")
-
-(setq csv-separators '("," ";" "|" " "))
 #+end_src
 * ORG
 ** global settings
@@ -1087,6 +1078,35 @@ Helm Projectile
 #+end_src
 * PROGRAMMING
 ** emacs-lisp
+*** paredit
+#+begin_src emacs-lisp
+  (use-package paredit
+    :ensure t
+    :diminish "﹙﹚"
+    :init
+    (dolist (m (list 'emacs-lisp-mode-hook 'lisp-interaction-mode-hook 'eval-expression-minibuffer-setup-hook 'ielm-mode-hook))
+      (add-hook m 'enable-paredit-mode)))
+#+end_src
+*** ert
+*** apropos
+*** Key-bindings
+#+begin_src emacs-lisp
+  ;; (bind-key "C-c e b" 'do-eval-buffer)
+  ;; (bind-key "C-c e e" 'toggle-debug-on-error)
+  ;; (bind-key "C-c e f" 'emacs-lisp-byte-compile-and-load)
+  ;; (bind-key "C-c e r" 'eval-region)
+  ;; (bind-key "C-c e s" 'scratch)
+
+  ;; (bind-key "C-h e" 'lisp-find-map)
+  ;; (bind-key "C-h e e" 'view-echo-area-messages)
+  ;; (bind-key "C-h e f" 'find-function)
+  ;; (bind-key "C-h e k" 'find-function-on-key)
+  ;; (bind-key "C-h e l" 'find-library)
+  ;; (bind-key "C-h e v" 'find-variable)
+  ;; (bind-key "C-h e V" 'apropos-value)
+#+end_src
+*** eval-expr
+*** macrostep
 ** python
 
 IDE Features I will Need
@@ -1206,4 +1226,7 @@ ref: purcell
 #+begin_src emacs-lisp
 
 #+end_src
+
+* Try Packages
+1. org-present
 
