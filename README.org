@@ -5,6 +5,7 @@
 #+STARTUP: overview indent inlineimages hideblocks
 #+DESCRIPTION: Loading Emacs Configuration using org-babel
 
+
 * global settings
 ** hide all bar things
 #+BEGIN_SRC emacs-lisp
@@ -337,7 +338,7 @@ ref: purcell
 ** whitespace mode
 #+BEGIN_SRC emacs-lisp
   (use-package whitespace
-    :bind ("C-c S-w" . whitespace-mode)
+    :bind ("C-c T w" . whitespace-mode)
     :init
     (setq whitespace-line-column nil
           whitespace-display-mappings '((space-mark 32 [183] [46])
@@ -371,6 +372,32 @@ ref: purcell
 (add-hook 'prog-mode-hook 'highlight-indentation-current-column-mode)
 (set-face-background 'highlight-indentation-face "#616161")
 (set-face-background 'highlight-indentation-current-column-face "#607D8B")
+#+end_src
+** code block folding
+#+begin_src emacs-lisp
+(defun ha/hs-show-all ()
+  (interactive)
+  (hs-minor-mode 1)
+  (hs-show-all))
+
+(defun ha/hs-hide-all ()
+  (interactive)
+  (hs-minor-mode 1)
+  (hs-hide-all))
+
+(defun ha/hs-toggle-hiding ()
+  (interactive)
+  (hs-minor-mode 1)
+  (hs-toggle-hiding))
+#+end_src
+
+Seems that =C-c @= is too obnoxious to use, So I'll put my favourite on the =C-c h= prefix:
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-c T h") 'hs-minor-mode)
+  (global-set-key (kbd "C-c f a") 'ha/hs-hide-all)
+  (global-set-key (kbd "C-c f s") 'ha/hs-show-all)
+  (global-set-key (kbd "C-c f h") 'ha/hs-toggle-hiding)
+  (add-hook 'prog-mode-hook #'hs-minor-mode)
 #+end_src
 * try
 #+begin_src emacs-lisp
@@ -568,11 +595,57 @@ zygospore lets you revert C-x 1 (delete-other-window) by pressing C-x 1 again
 #+end_src
 * which-mode
 #+begin_src emacs-lisp
-(use-package which-key
-  :ensure t
-  :diminish which-key-mode
-  :config
-  (which-key-mode))
+  (use-package which-key
+    :ensure t
+    :defer 10
+    :diminish which-key-mode
+    :config
+
+    ;; Replacements for how KEY is replaced when which-key displays
+    ;;   KEY → FUNCTION
+    ;; Eg: After "C-c", display "right → winner-redo" as "▶ → winner-redo"
+    (setq which-key-key-replacement-alist
+          '(("<\\([[:alnum:]-]+\\)>" . "\\1")
+            ("left"                  . "◀")
+            ("right"                 . "▶")
+            ("up"                    . "▲")
+            ("down"                  . "▼")
+            ("delete"                . "DEL") ; delete key
+            ("\\`DEL\\'"             . "BS") ; backspace key
+            ("next"                  . "PgDn")
+            ("prior"                 . "PgUp"))
+
+          ;; List of "special" keys for which a KEY is displayed as just
+          ;; K but with "inverted video" face... not sure I like this.
+          which-key-special-keys '("RET" "DEL" ; delete key
+                                   "ESC" "BS" ; backspace key
+                                   "SPC" "TAB")
+
+          ;; Replacements for how part or whole of FUNCTION is replaced:
+          which-key-description-replacement-alist
+          '(("Prefix Command" . "prefix")
+            ("\\`calc-"       . "") ; Hide "calc-" prefixes when listing M-x calc keys
+            ("\\`projectile-" . "𝓟/")
+            ("\\`org-babel-"  . "ob/"))
+
+          ;; Underlines commands to emphasize some functions:
+          which-key-highlighted-command-list
+          '("\\(rectangle-\\)\\|\\(-rectangle\\)"
+            "\\`org-"))
+
+    ;; Change what string to display for a given *complete* key binding
+    ;; Eg: After "C-x", display "8 → +unicode" instead of "8 → +prefix"
+    (which-key-add-key-based-replacements
+      "C-x 8"   "unicode"
+      "C-c T"   "toggles-"
+      "C-c p s" "projectile-search"
+      "C-c p 4" "projectile-other-buffer-"
+      "C-x a"   "abbrev/expand"
+      "C-x r"   "rect/reg"
+      "C-c /"   "engine-mode-map"
+      "C-c C-v" "org-babel")
+
+    (which-key-mode 1))
 #+end_src
 * undo-tree
 
@@ -617,7 +690,7 @@ Highly recommended.
 ;; this is the actual fold/unfold command
 (global-set-key (kbd "C-c t") #'vimish-fold-toggle)
 #+end_src
-* multiple-cursor :drill:
+* multiple-cursor                                                     :drill:
 #+begin_src emacs-lisp 
   (use-package multiple-cursors
     :config
@@ -629,35 +702,85 @@ Highly recommended.
 #+end_src
 * frequent file shortcuts
 #+BEGIN_SRC emacs-lisp
+  ;; main config file
   (global-set-key
    (kbd "\e\ec")
    (lambda()
      (interactive)
      (find-file "~/.emacs.d/README.org")))
 
+  ;; main index file
   (global-set-key
    (kbd "\e\ei")
    (lambda()
      (interactive)
      (find-file "~/Dropbox/org/index.org")))
 
+
+  ;; reference for future use
+  (global-set-key
+   (kbd "\e\er")
+   (lambda()
+     (interactive)
+     (find-file "~/Dropbox/org/reference.org")))
+
+  ;; tickler.org
+  (global-set-key
+   (kbd "\e\et")
+   (lambda()
+     (interactive)
+     (find-file "~/Dropbox/org/tickler.org")))
+
+  ;; someday.org
+  (global-set-key
+   (kbd "\e\es")
+   (lambda()
+     (interactive)
+     (find-file "~/Dropbox/org/someday.org")))
+
+  ;; projects.org
+  (global-set-key
+   (kbd "\e\ep")
+   (lambda()
+     (interactive)
+     (find-file "~/Dropbox/org/projects.org")))
+
+  ;; waiting.org
+  (global-set-key
+   (kbd "\e\ew")
+   (lambda()
+     (interactive)
+     (find-file "~/Dropbox/org/waiting.org")))
+
+  ;; now.org
+  (global-set-key
+   (kbd "\e\en")
+   (lambda()
+     (interactive)
+     (find-file "~/Dropbox/org/now.org")))
+
+  ;; links
   (global-set-key
    (kbd "\e\el")
    (lambda()
      (interactive)
      (find-file "~/Dropbox/org/links.org")))
 
+  ;; finance
   (global-set-key
    (kbd "\e\ef")
    (lambda()
      (interactive)
      (find-file "~/Dropbox/org/finance.org")))
 
+  ;; appointments meetings
   (global-set-key
    (kbd "\e\eg")
    (lambda()
      (interactive)
      (find-file "~/Dropbox/org/gcal.org")))
+
+  ;; ends here
 #+END_SRC
 * projectile :drill:
 
@@ -703,6 +826,137 @@ C-c p k Kill all buffers for project
     (atomic-chrome-start-server)
     (setq atomic-chrome-buffer-open-style 'full))
 #+end_src
+* Key-bindings
+** Displaying Command Sequences
+
+** Function Key Definitions
+- F1 - Help? Isn’t Control-H good enough?
+- F2 - Special odd, little-used characters that I have to think about before remembering what its binding.
+- F3 - Define a keyboard macro
+- F4 - Replay a keyboard macro
+- F5 - Move/Drop/Delete a visual ‘mark’
+- F6 - Open to temporary, changeable commands…
+- F7 - Switch to another window … Control goes the other way.
+- F8 - Switch to buffer
+- F9 - My extension (replacement?) for C-c for changing colors and other odd bindings that I actually don’t use that often.
+#+begin_src emacs-lisp
+(global-set-key (kbd "<f7>") 'other-window)
+(global-set-key (kbd "C-<f7>") (lambda () (interactive) (other-window -1)))
+#+end_src
+*** F2 and F9 Helpers
+**** F9 Prefix
+#+begin_src emacs-lisp
+(define-prefix-command 'personal-global-map)
+(global-set-key (kbd "<f9>") 'personal-global-map)
+#+end_src
+**** F2 Prefix
+***** Pairs
+While ~M-‘~ inserts a pair of single quotes, I would also like to insert a pair of unicode quotes:
+#+begin_src emacs-lisp
+(defun insert-single-quotes (p)
+  "Inserts a pair of unicode rounded quotes, `SINGLE TURNED COMMA
+QUOTATION MARK' and `SINGLE COMMA QUOTATION MARK'."
+  (interactive "P")
+  (insert-pair p 8216 8217))
+
+(defun insert-double-quotes (p)
+  "Inserts a pair of unicode double rounded quotes."
+  (interactive "P")
+  (insert-pair p 8220 8221))
+
+(bind-key "M-C-'"  #'insert-single-quotes)  ; ‘Nice!’
+(bind-key "M-C-\"" #'insert-double-quotes)  ; “Goody”
+#+end_src
+***** Unicode Characters
+#+begin_src emacs-lisp
+(mapc (lambda (tuple)
+        (define-key key-translation-map
+            (kbd (concat "<f2> " (nth 0 tuple))) ; Keybinding
+            (kbd (nth 1 tuple))))                ; Character to insert
+      '(("<up>" "↑")
+        ("<down>" "↓")
+        ("<left>" "←")
+        ("<right>" "→")
+        ("S-<up>" "⇑")
+        ("S-<down>" "⇓")
+        ("S-<left>" "⇐")
+        ("S-<right>" "⇒")
+
+        ("p" "▯")   ;; Representation of a cursor
+        ("'" "’")
+        ("\"" "‘")
+
+        ("8" "•")
+        ("*" "°")
+        ("d" "†")
+        ("D" "‡")
+        ("-" "—")
+        ("." "…")
+        (";" "😉")
+        (")" "☺")
+
+        ("a" "α")   ;; Lowercase Greek is uppercase
+        ("b" "β")
+        ("e" "ε")
+        ("l" "λ")
+        ("p" "π")
+        ("m" "μ")
+        ("t" "θ")
+
+        ("!" "¹")   ; For footnotes and things
+        ("@" "²")
+        ("#" "³")
+        ("$" "⁴")
+
+        ("2" "½")   ; Fractions
+        ("3" "⅓")
+        ("4" "¼")))
+#+end_src
+* chatting
+##+begin_src emacs-lisp
+  (use-package jabber
+    :ensure t
+    :commands jabber-connect-all jabber-chat-with
+    :init
+    (define-key personal-global-map (kbd "a") 'jabber-connect-all)
+    (define-key personal-global-map (kbd "j") 'jabber-chat-with)
+    :config
+    (setq starttls-use-gnutls t
+          starttls-gnutls-program "gnutls-cli"
+          starttls-extra-arguments '("--starttls" "--insecure")
+
+          jabber-history-enabled t
+          jabber-use-global-history nil
+          jabber-backlog-number 40
+          jabber-backlog-days 30)
+
+    (defun my-jabber-chat-delete-or-bury ()
+      (interactive)
+      (if (eq 'jabber-chat-mode major-mode)
+          (condition-case e
+              (delete-frame)
+            (error
+             (if (string= "Attempt to delete the sole visible or iconified frame"
+                          (cadr e))
+                 (bury-buffer))))))
+
+    (define-key jabber-chat-mode-map [escape] 'my-jabber-chat-delete-or-bury))
+#+end_src
+* modeline
+#+begin_src emacs-lisp
+(use-package telephone-line)
+(require 'telephone-line)
+(telephone-line-mode 1)
+#+end_src
+cubed
+#+begin_src emacs-lisp
+(setq telephone-line-primary-left-separator 'telephone-line-cubed-left
+      telephone-line-secondary-left-separator 'telephone-line-cubed-hollow-left
+      telephone-line-primary-right-separator 'telephone-line-cubed-right
+      telephone-line-secondary-right-separator 'telephone-line-cubed-hollow-right)
+(setq telephone-line-height 24
+      telephone-line-evil-use-short-tag t)
+#+end_src
 * ORG
 ** global settings
 
@@ -744,7 +998,7 @@ which will select Org mode for this buffer no matter what the file’s name is.
 #+end_src
 
 custom key bindings
-#+begin_src emacs-lisp
+##+begin_src emacs-lisp
   (global-set-key (kbd "<f12>") 'org-agenda)
   (global-set-key (kbd "<f5>") 'bh/org-todo)
   (global-set-key (kbd "<S-f5>") 'bh/widen)
@@ -824,18 +1078,16 @@ custom key bindings
                 ("MEETING" :foreground "forest green" :weight bold)
                 ("PHONE" :foreground "forest green" :weight bold))))
 
-    (setq org-log-done 'time)
-    (setq org-use-fast-todo-selection t)
-    (setq org-treat-S-cursor-todo-selection-as-state-change t)
+  (setq org-log-done 'time)
+  (setq org-log-done 'note)
 
-  (setq org-todo-state-tags-triggers
-        (quote (("CANCELLED" ("CANCELLED" . t))
-                ("WAITING" ("WAITING" . t))
-                ("HOLD" ("WAITING") ("HOLD" . t))
-                (done ("WAITING") ("HOLD"))
-                ("TODO" ("WAITING") ("CANCELLED") ("HOLD"))
-                ("NEXT" ("WAITING") ("CANCELLED") ("HOLD"))
-                ("DONE" ("WAITING") ("CANCELLED") ("HOLD")))))
+(defun org-summary-todo (n-done n-not-done)
+  "Switch entry to DONE when all subentries are done, to TODO otherwise."
+  (let (org-log-done org-log-states)   ; turn off logging
+    (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
+
+(add-hook 'org-after-todo-statistics-hook 'org-summary-todo)
+
 #+end_src
 ** code-block shortcuts
 ref: sacha
@@ -863,7 +1115,6 @@ ref: sacha
 ** reveal.js
 #+begin_src emacs-lisp
 (use-package ox-reveal)
-
 (setq org-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
 (setq org-reveal-mathjax t)
 #+end_src
@@ -891,30 +1142,44 @@ ref: sacha
 #+end_src
 ** org-capture
 #+begin_src emacs-lisp
-(setq
- org-capture-templates
- '(
-   ("a" "Appointment" entry (file  "~/Dropbox/org/gcal.org" )
-   "* %?\n\n%^T\n\n:PROPERTIES:\n\n:END:\n\n")
-   ("j" "Journal" entry (file+headline "~/Dropbox/org/index.org" "Journal")
-    "* %t\n** Day\n*** What am I Grateful For:\n1. %?\n2. \n3. \n*** What Would Make Today Great:\n1. \n2. \n3. \n*** Daily Affirmations I am:\n1. \n2. \n3. \n\n** Night\n*** 3 Amazing Things Happened Today:\n1. \n2. \n3. \n*** How could I Make Things Better\n1. \n2. \n3. \n" :prepend t)
-   ("l" "Link" entry (file "~/Dropbox/org/links.org")
-    "* %?%^L %^G \n%U" :prepend t)
-   ("t" "Todo" entry (file+headline "~/Dropbox/org/index.org" "Tasks")
-    "* TODO [#A] %^{GOAL} %^G\nSCHEDULED: %^{SCHEDULED}T\nDEADLINE: %^{DEADLINE}T\n%a" :prepend t :clock-in t :clock-resume t)
-   ("o" "One Things" entry (file+headline "~/Dropbox/org/index.org" "One Things")
-    "* TODO [#A] %^{GOAL} %^G\nSCHEDULED: %^{SCHEDULED}t\nDEADLINE: %^{DEADLINE}t" :prepend t)
-   ("n" "Notes" entry (file+headline "~/Dropbox/org/index.org" "Notes")
-    "* %?\n%U\n%a")
-   ("b" "Business Ideas" entry (file+headline "~/Dropbox/org/index.org" "Business Ideas")
-    "* %^{one_word} %^G\nDescription: %^{Description}\nNotes: %?\n%U\n")
-    ("m" "Meeting" entry (file+headline "~/Dropbox/org/index.org" "Meeting")
-    "* MEETING with %? :MEETING:\n%U" :clock-in t :clock-resume t)
-    ("p" "Phone call" entry (file+headline  "~/Dropbox/org/index.org" "Phone Calls")
-    "* PHONE %? :PHONE:\n%U" :clock-in t :clock-resume t)
-    ("h" "Habit" entry (file+headline "~/Dropbox/org/index.org" "Habit")
-    "* NEXT %?\n%U\n%a\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")
-   ))   
+  (setq
+   org-capture-templates
+   '(
+     ("a" "Appointment" entry (file  "~/Dropbox/org/gcal.org" )
+     "* %?\n%^T")
+     ("c" "Capture" entry (file  "~/Dropbox/org/index.org" )
+     "* %?\n%U\n%a")
+     ("j" "Journal" entry (file+headline "~/Dropbox/org/reference.org" "Journal")
+      "* %t\n** Day\n*** What am I Grateful For:\n1. %?\n2. \n3. \n*** What Would Make Today Great:\n1. \n2. \n3. \n*** Daily Affirmations I am:\n1. \n2. \n3. \n\n** Night\n*** 3 Amazing Things Happened Today:\n1. \n2. \n3. \n*** How could I Make Things Better\n1. \n2. \n3. \n" :prepend t)
+     ("l" "Link" entry (file "~/Dropbox/org/links.org")
+      "* %?%^L %^G \n%U" :prepend t)
+     ("t" "Todo" entry (file+headline "~/Dropbox/org/index.org" "Tasks")
+      "* TODO [#A] %^{GOAL} %^G\nSCHEDULED: %^{SCHEDULED}T\nDEADLINE: %^{DEADLINE}T\n%a" :prepend t :clock-in t :clock-resume t)
+     ("o" "One Things" entry (file+headline "~/Dropbox/org/reference.org" "One Things")
+      "* TODO [#A] %^{GOAL} %^G\nSCHEDULED: %^{SCHEDULED}t\nDEADLINE: %^{DEADLINE}t" :prepend t)
+     ("n" "Notes" entry (file+headline "~/Dropbox/org/reference.org" "Notes")
+      "* %?\n%U\n%a")
+     ("b" "Business Ideas" entry (file+headline "~/Dropbox/org/reference.org" "Business Ideas")
+      "* %^{one_word} %^G\nDescription: %^{Description}\nNotes: %?\n%U\n")
+      ("m" "Meeting" entry (file+headline "~/Dropbox/org/index.org" "Meeting")
+      "* MEETING with %? :MEETING:\n%U" :clock-in t :clock-resume t)
+      ("p" "Phone call" entry (file+headline  "~/Dropbox/org/index.org" "Phone Calls")
+      "* PHONE %? :PHONE:\n%U" :clock-in t :clock-resume t)
+      ("h" "Habit" entry (file+headline "~/Dropbox/org/index.org" "Habit")
+      "* NEXT %?\n%U\n%a\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")   
+      ))
+#+end_src
+** org-refile
+#+begin_src emacs-lisp
+    (setq org-refile-targets
+          '(
+            ("~/Dropbox/org/reference.org" :level . 1)
+            ("~/Dropbox/org/someday.org" :level . 1)
+            ("~/Dropbox/org/tickler.org" :level . 1)
+            ("~/Dropbox/org/project.org" :level . 1)
+            ("~/Dropbox/org/now.org" :level . 1)
+            ("~/Dropbox/org/waiting.org" :level . 1)
+            ))
 #+end_src
 ** set-default-browser
 #+begin_src emacs-lisp
@@ -936,12 +1201,10 @@ ref: sacha
             (lambda () (org-bullets-mode 1))))
 #+end_src
 ** literate programming
-
 don't create a new window each time
 #+begin_src emacs-lisp
 (setq org-src-window-setup 'current-window)
 #+end_src
-
 use C-x C-s for closing out of the org-src-edit buffer
 #+begin_src emacs-lisp
   (eval-after-load 'org-src
@@ -961,11 +1224,7 @@ use C-x C-s for closing out of the org-src-edit buffer
 
 (add-hook 'org-agenda-mode-hook (lambda () (org-gcal-sync) ))
 (add-hook 'org-capture-after-finalize-hook (lambda () (org-gcal-sync) ))
-#+end_src
-** TODO Things for drill
-1) [[https://orgmode.org/org.html#plain-lists][plain-lists]]
-2) 
-3) 
+#+end_src 
 * MAGIT
 
 #+begin_src emacs-lisp
@@ -1122,8 +1381,8 @@ Required packages
 - auto-complete
 - epc
 - jedi
-*** init
 
+*** init
 #+begin_src emacs-lisp
 (add-hook 'python-mode-hook
           (lambda ()
@@ -1147,7 +1406,6 @@ Required packages
 ; try to automagically figure out indentation
 (setq py-smart-indentation t)
 #+end_src
-
 #+begin_src bash
 #sudo apt install -y python3-rope \
 #                   python3-isort
@@ -1184,14 +1442,7 @@ Required packages
 (require 'py-autopep8)
 (add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save))
 #+end_src
-# *** anaconda
-#+begin_src emacs-lisp
-(use-package anaconda-mode
-:ensure t
-:config
-(add-hook 'python-mode-hook 'anaconda-mode)
-(add-hook 'python-mode-hook 'anaconda-eldoc-mode))
-#+end_src
+
 *** epc
 #+begin_src emacs-lisp
 (use-package epc)
@@ -1230,3 +1481,5 @@ ref: purcell
 * Try Packages
 1. org-present
 
+* todo list [%]
+- [ ] Highlight and Narrowing :Howard:
