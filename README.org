@@ -5,8 +5,15 @@
 #+TAGS: Drill(d)
 
 * Introduction
+#+BEGIN_SRC emacs-lisp
+  (setq user-full-name "Alamin Mahamud")
+  (setq user-mail-address "alamin.ineedahelp@gmail.com")
+#+END_SRC
 * General Settings
-** hide all bar things
+** Platform Specific Configuration
+*** OS X Desktop
+*** OS X CLI in <terminal>
+** Maximum Workspace
 #+BEGIN_SRC emacs-lisp
   (if
       (fboundp 'menu-bar-mode)
@@ -22,35 +29,32 @@
 
   (setq inhibit-startup-message t)
 #+END_SRC
+** Client/server
 
-** emacs-server
+Emacs has a [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Emacs-Server.html#Emacs-Server][client/server]] model for editing. The client is invoked via [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Invoking-emacsclient.html][the
+=emacsclient= command]]. More information on configuration is available on the
+[[http://www.emacswiki.org/emacs/EmacsClient][EmacsWiki EmacsClient page]].
+
+We make sure the server is running, additionally guarded to check if the version
+of Emacs we're using supports the server package:
+
 #+begin_src emacs-lisp
-(server-start)
+  (when (require 'server nil t)
+    (unless (server-running-p)
+      (server-start)))
 #+end_src
-** replace yes wit y
-#+begin_src emacs-lisp
-(fset 'yes-or-no-p 'y-or-n-p)
-#+end_src
-** coding system                                                     :Drill:
-#+begin_src emacs-lisp
-(set-terminal-coding-system 'utf-8)
-(set-keyboard-coding-system 'utf-8)
-(set-language-environment "UTF-8")
-(prefer-coding-system 'utf-8)
-(when (display-graphic-p)
-  (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
-#+end_src
-** custom settings
+
+** Custom Settings
 #+BEGIN_SRC emacs-lisp
   (setq custom-file
         (expand-file-name "custom.el" user-emacs-directory))
   (load custom-file)
 #+END_SRC
-** secret variables
+** Load Secrets
 #+begin_src emacs-lisp
 (load "~/.emacs.d/.secrets")
 #+end_src
-** elisp enhancement
+** Elisp Enhancement
 #+BEGIN_SRC emacs-lisp
   (require 'cl)
   (use-package dash
@@ -90,49 +94,23 @@
   (require 'use-package)
 #+END_SRC
 * Appearance
-** font-lock decoration
+** Syntax Highlighting
 #+BEGIN_SRC emacs-lisp
   (setq font-lock-maximum-decoration t
         color-theme-is-global t
         truncate-partial-width-windows nil)
 #+END_SRC
-
-** visible-bell disable
+** Scratch Buffer
 #+BEGIN_SRC emacs-lisp
-  (setq visible-bell nil)
-  (setq ring-bell-function (lambda ()
-                             (invert-face 'mode-line)
-                             (run-with-timer 0.05 nil 'invert-face 'mode-line)))
+  (setq initial-scratch-message (concat ";; One Brick A Day, " user-login-name " - Emacs ♥ you!\n\n"))
 #+END_SRC
-** highlight current line
-#+BEGIN_SRC emacs-lisp
-  (global-hl-line-mode 0)
-#+END_SRC
-** frame-title-format
-#+BEGIN_SRC emacs-lisp
-  (when window-system
-    (setq frame-title-format '(buffer-file-name "%f" ("%b")))
-    (tooltip-mode -1)
-    (blink-cursor-mode -1)
-    )
-#+END_SRC
-** arjen-grey-theme
+** Arjen Grey Theme
 #+BEGIN_SRC emacs-lisp
   (use-package arjen-grey-theme
     :config
     (load-theme 'arjen-grey t))
 #+END_SRC
-** all-the-icons
-#+BEGIN_SRC emacs-lisp
-  (use-package all-the-icons)
-  (use-package all-the-icons-dired)
-  (use-package pretty-mode)
-#+END_SRC
-** scratch buffer
-#+BEGIN_SRC emacs-lisp
-  (setq initial-scratch-message (concat ";; One Brick A Day, " user-login-name " - Emacs ♥ you!\n\n"))
-#+END_SRC
-** fonts
+** Fonts
 #+BEGIN_SRC emacs-lisp
   (if (or (eq system-type 'darwin)(eq system-type 'gnu/linux) )
   ;    (set-face-attribute 'default nil :font "Consolas-14")
@@ -147,13 +125,109 @@
   (set-face-attribute 'italic nil
                       :family "Hack-Italic")
 #+END_SRC
-** highlight numbers
+** All The Icons
+#+BEGIN_SRC emacs-lisp
+  (use-package all-the-icons)
+  (use-package all-the-icons-dired)
+  (use-package pretty-mode)
+#+END_SRC
+** Cursor
+
+On modern operating systems, a vertical bar is used as a cursor:
+
+#+begin_src emacs-lisp
+  (when (display-graphic-p)
+    (setq-default cursor-type 'box))
+#+end_src
+
+Make the cursor blink (interestingly in Emacs 24.4+ the [[https://lists.gnu.org/archive/html/emacs-diffs/2013-07/msg00208.html][cursor automatically
+stops blinking after a period to conserve CPU]]).
+
+Make the cursor blink every second:
+
+#+begin_src emacs-lisp
+  (when (display-graphic-p)
+    (setq blink-cursor-interval 1.0)
+    (blink-cursor-mode 1))
+#+end_src
+
+** Typing
+
+Show the modifier combinations I just typed almost immediately:
+
+#+begin_src emacs-lisp
+  (setq echo-keystrokes 0.1)
+#+end_src
+
+Don't make me type =yes= or =no= to boolean interface questions:
+
+#+begin_src emacs-lisp
+  (defalias 'yes-or-no-p 'y-or-n-p)
+#+end_src
+
+** Bells
+
+Don't make a sound when [[http://www.gnu.org/software/emacs/manual/html_node/elisp/Beeping.html][ringing a bell]] - flash a visual bell instead:
+
+#+begin_src emacs-lisp
+  (setq visible-bell t)
+#+end_src
+
+Override the =ring-bell-function= to conditionally ring the bell only when it's
+not a valid quit case like hitting =esc= or =C-g=. Generally this means the bell
+will only ring when there's actually an error raised somehow:
+
+#+begin_src emacs-lisp
+  (setq ring-bell-function
+        (lambda ()
+          "Only rings the bell if it's not a valid quit case, e.g
+  keyboard-quit"
+          (unless (memq this-command
+                        '(isearch-abort abort-recursive-edit exit-minibuffer keyboard-quit))
+            (ding))))
+#+end_src
+
+** Buffer naming
+
+By default Emacs resolves conflicting buffer names by appending a number to
+them. For instance, if I open =~/src/thing/init.el= and
+=~/src/other-thing/init.el= they'll be named =init.el= and =init.el<2>=
+respectively.
+
+We can use [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Uniquify.html][Uniquify]] library to name them =thing/init.el= and
+=other-thing/init.el=, which is much easier to make sense of.
+
+#+begin_src emacs-lisp
+  (require 'uniquify)
+  (setq uniquify-buffer-name-style 'forward)
+#+end_src
+** Frame Title Format
+#+BEGIN_SRC emacs-lisp
+  (when window-system
+    (setq frame-title-format '(buffer-file-name "%f" ("%b")))
+    (tooltip-mode -1)
+    (blink-cursor-mode -1)
+    )
+#+END_SRC
+
+** Clipboard management
+
+Make sure that [[http://pragmaticemacs.com/emacs/add-the-system-clipboard-to-the-emacs-kill-ring/][out-of-Emacs clipboard gets into the kill ring]]:
+
+#+begin_src emacs-lisp
+  (setq save-interprogram-paste-before-kill t)
+#+end_src
+** Highlight Current Line
+#+BEGIN_SRC emacs-lisp
+  (global-hl-line-mode 0)
+#+END_SRC
+** Highlight Numbers
 #+BEGIN_SRC emacs-lisp
 (use-package highlight-numbers
 :config
 (add-hook 'prog-mode-hook 'highlight-numbers-mode))
 #+END_SRC
-** highlight symbol
+** Highlight Symbol
 #+BEGIN_SRC emacs-lisp
     (use-package highlight-symbol
     :config
@@ -175,8 +249,8 @@
   (global-set-key (kbd "M-n") 'highlight-symbol-next)
   (global-set-key (kbd "M-p") 'highlight-symbol-prev))
 #+END_SRC
-* My Packages
-** atomic chrome
+* Third Party Packages
+** Atomic Chrome
 #+begin_src emacs-lisp
   (use-package atomic-chrome
     :config
@@ -184,7 +258,7 @@
     (atomic-chrome-start-server)
     (setq atomic-chrome-buffer-open-style 'full))
 #+end_src
-** whitespace mode
+** Whitespace Mode
 #+BEGIN_SRC emacs-lisp
   (use-package whitespace
     :bind ("C-c T w" . whitespace-mode)
@@ -199,11 +273,11 @@
     (set-face-attribute 'whitespace-indentation nil :foreground "#666666" :background nil)
     :diminish whitespace-mode)
 #+END_SRC
-** try
+** Try
 #+begin_src emacs-lisp
 (use-package try)
 #+end_src
-** workgroups2
+** Workgroups2
 - create your workspace in emacs
 - saves all your opened buffers, their locations and sizes on disk to restore later
 #+begin_src emacs-lisp
@@ -228,8 +302,7 @@
           wg-mode-line-decor-divider ":")
     (workgroups-mode 1))
 #+end_src
-** hippie expand
-
+** Hippie Expand
 hippe-expand is a better version of dabbrev-expand while dabbrev-expand searches for words you already types in current buffers and other buffers,
 hippie-expand includes more sources such as filenames, kill ring…
 #+begin_src emacs-lisp
@@ -248,11 +321,7 @@ hippie-expand includes more sources such as filenames, kill ring…
    try-complete-lisp-symbol) ;; Try to complete word as an Emacs Lisp symbol.
  )
 #+end_src
-** kill this buffer
-#+begin_src emacs-lisp
-(global-set-key (kbd "C-x k") 'kill-this-buffer)
-#+end_src
-** auto-complete
+** Auto Complete
 #+begin_src emacs-lisp
 (use-package auto-complete
 :config
@@ -260,21 +329,21 @@ hippie-expand includes more sources such as filenames, kill ring…
 (ac-config-default)
 (setq ac-show-menu-immediately-on-auto-complete t))
 #+end_src
-** expand region
+** Expand Region
 #+begin_src emacs-lisp
 (use-package expand-region
 :config
 (require 'expand-region)
 (global-set-key (kbd "M-m") 'er/expand-region))
 #+end_src
-** bm = Bookmarks Manager
+** Bookmarks Manager
 #+begin_src emacs-lisp
 (use-package bm
   :bind (("C-c =" . bm-toggle)
          ("C-c [" . bm-previous)
          ("C-c ]" . bm-next)))
 #+end_src
-** windows management
+** Windows Management
 #+begin_src emacs-lisp
 (use-package ace-window
 :init
@@ -292,7 +361,7 @@ hippie-expand includes more sources such as filenames, kill ring…
   :config
   (define-key global-map (kbd "C-c SPC") 'ace-jump-mode))
 #+end_src
-** indent whole buffer 
+** Indent Whole Buffer
 #+begin_src emacs-lisp
 (defun iwb ()
   "indent whole buffer"
@@ -303,11 +372,11 @@ hippie-expand includes more sources such as filenames, kill ring…
 
 (global-set-key (kbd "C-c n") 'iwb)
 #+end_src
-** command log mode 
+** Command Log Mode
 #+begin_src emacs-lisp
 (use-package command-log-mode)
 #+end_src
-** zygospore
+** Zygospore
 
 zygospore lets you revert C-x 1 (delete-other-window) by pressing C-x 1 again
 [[https://github.com/LouisKottmann/zygospore.el/raw/master/demo.gif]]
@@ -317,7 +386,7 @@ zygospore lets you revert C-x 1 (delete-other-window) by pressing C-x 1 again
          ("RET" .   newline-and-indent)))
 #+end_src
 
-** origami
+** Origami
 #+begin_src emacs-lisp
 (use-package origami
 :ensure t
@@ -327,7 +396,7 @@ zygospore lets you revert C-x 1 (delete-other-window) by pressing C-x 1 again
 (define-key origami-mode-map (kbd "C-c f") 'origami-recursively-toggle-node)
 (define-key origami-mode-map (kbd "C-c F") 'origami-toggle-all-nodes))
 #+end_src
-** duplicate thing
+** Duplicate Thing
 #+begin_src emacs-lisp
 (use-package duplicate-thing
 :ensure t
@@ -335,7 +404,7 @@ zygospore lets you revert C-x 1 (delete-other-window) by pressing C-x 1 again
 (require 'duplicate-thing)
 (global-set-key (kbd "M-c") 'duplicate-thing))
 #+end_src
-** smartparens 
+** Smartparens
 #+begin_src emacs-lisp
 (use-package smartparens-config
 :ensure smartparens
@@ -393,7 +462,7 @@ zygospore lets you revert C-x 1 (delete-other-window) by pressing C-x 1 again
  ("C-c _"  . wrap-with-underscores)
  ("C-c `"  . wrap-with-back-quotes))
 #+end_src
-** which-mode
+** Which Mode
 #+begin_src emacs-lisp
   (use-package which-key
     :ensure t
@@ -447,7 +516,7 @@ zygospore lets you revert C-x 1 (delete-other-window) by pressing C-x 1 again
 
     (which-key-mode 1))
 #+end_src
-** undo-tree
+** Undo Tree
 
 undo-tree allows you to visual the whole history of your editing in a tree. 
 It also provides regular undo/redo behaviours in other editors. 
@@ -469,20 +538,21 @@ Highly recommended.
            ("C-S-z" . redo)))
 #+end_src
 
-** yasnippet
+** Yasnippet
 #+begin_src emacs-lisp
-(use-package yasnippet
-:ensure t
-:config
-(require 'yasnippet)
-(yas-global-mode 1))
+  (use-package yasnippet
+  :ensure t
+  :config
+  (require 'yasnippet)
+  (yas-global-mode 1)
+  (add-to-list 'yas-snippet-dirs "~/.emacs.d/snippets")
+  )
 #+end_src
-** vimish fold
+** Vimish Fold
 #+begin_src emacs-lisp
 (use-package vimish-fold)
-
 (require 'vimish-fold)
-(vimish-fold-global-mode 1)
+(vimish-fold-global-mode -1)
 ;; this registers a region for future folding/unfolding
 (global-set-key (kbd "C-c v") #'vimish-fold)
 ;; this unregisters the region under point from folding/unfolding
@@ -490,7 +560,7 @@ Highly recommended.
 ;; this is the actual fold/unfold command
 (global-set-key (kbd "C-c t") #'vimish-fold-toggle)
 #+end_src
-** multiple-cursor                                                   :Drill:
+** Multiple Cursors
 #+begin_src emacs-lisp 
   (use-package multiple-cursors
     :config
@@ -610,7 +680,7 @@ Helm Projectile
 (setq projectile-completion-system 'helm)
 (helm-projectile-on)
 #+end_src
-** projectile                                                        :Drill:
+** Projectile                                                        :Drill:
 
 - jump to a file in project
 - jump to a directory in a project
@@ -639,21 +709,34 @@ C-c p k Kill all buffers for project
 :config
 (projectile-global-mode))
 #+end_src
+** Hydra
+#+begin_src emacs-lisp
+(use-package hydra)
+#+end_src
 * Editing
-** linum-mode
+** Encoding System                                                   :Drill:
+#+begin_src emacs-lisp
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-language-environment "UTF-8")
+(prefer-coding-system 'utf-8)
+(when (display-graphic-p)
+  (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
+#+end_src
+** Linum Mode
 #+BEGIN_SRC emacs-lisp
   (add-hook 'prog-mode-hook 'linum-mode)
 #+END_SRC
-** delete-selection-mode
+** Delete Selection Mode
 
 #+BEGIN_SRC emacs-lisp
 (delete-selection-mode)
 #+END_SRC
-** newline-and-indent
+** Newline and Indent
 #+begin_src emacs-lisp
 (global-set-key (kbd "RET") 'newline-and-indent)
 #+end_src
-** highlight indentation
+** Highlight Indentation
 #+begin_src emacs-lisp
 (use-package highlight-indentation)
 (require 'highlight-indentation)
@@ -662,41 +745,51 @@ C-c p k Kill all buffers for project
 (set-face-background 'highlight-indentation-face "#616161")
 (set-face-background 'highlight-indentation-current-column-face "#607D8B")
 #+end_src
-** code block folding
-#+begin_src emacs-lisp
-(defun ha/hs-show-all ()
-  (interactive)
-  (hs-minor-mode 1)
-  (hs-show-all))
+** Code Block Folding
+#+BEGIN_SRC emacs-lisp
+(use-package hideshow
+    :ensure t
+    :bind (("C->" . my-toggle-hideshow-all)
+           ("C-<" . hs-hide-level)
+           ("C-;" . hs-toggle-hiding))
+    :config
+    ;; Hide the comments too when you do a 'hs-hide-all'
+    (setq hs-hide-comments nil)
+    ;; Set whether isearch opens folded comments, code, or both
+    ;; where x is code, comments, t (both), or nil (neither)
+    (setq hs-isearch-open 'x)
+    ;; Add more here
 
-(defun ha/hs-hide-all ()
-  (interactive)
-  (hs-minor-mode 1)
-  (hs-hide-all))
 
-(defun ha/hs-toggle-hiding ()
-  (interactive)
-  (hs-minor-mode 1)
-  (hs-toggle-hiding))
-#+end_src
+    (setq hs-set-up-overlay
+          (defun my-display-code-line-counts (ov)
+            (when (eq 'code (overlay-get ov 'hs))
+              (overlay-put ov 'display
+                           (propertize
+                            (format " ... <%d>"
+                                    (count-lines (overlay-start ov)
+                                                 (overlay-end ov)))
+                            'face 'font-lock-type-face)))))
 
-Seems that =C-c @= is too obnoxious to use, So I'll put my favourite on the =C-c h= prefix:
-#+begin_src emacs-lisp
-  (global-set-key (kbd "C-c T h") 'hs-minor-mode)
-  (global-set-key (kbd "C-c f a") 'ha/hs-hide-all)
-  (global-set-key (kbd "C-c f s") 'ha/hs-show-all)
-  (global-set-key (kbd "C-c f h") 'ha/hs-toggle-hiding)
-  (add-hook 'prog-mode-hook #'hs-minor-mode)
-#+end_src
-** csv 
-#+begin_src emacs-lisp
-(add-auto-mode 'csv-mode "\\.[Cc][Ss][Vv]\\'")
+    (defvar my-hs-hide nil "Current state of hideshow for toggling all.")
+         ;;;###autoload
+    (defun my-toggle-hideshow-all () "Toggle hideshow all."
+           (interactive)
+           (setq my-hs-hide (not my-hs-hide))
+           (if my-hs-hide
+               (hs-hide-all)
+             (hs-show-all)))
 
-(setq csv-separators '("," ";" "|" " "))
-#+end_src
-
+    (add-hook 'prog-mode-hook (lambda ()
+                                (hs-minor-mode 1)
+                                ))
+    (add-hook 'clojure-mode-hook (lambda ()
+                                (hs-minor-mode 1)
+                                ))
+    )
+#+END_SRC
 * Key Bindings
-** frequent file shortcuts
+** Frequent Files Shortcut
 #+BEGIN_SRC emacs-lisp
   ;; main config file
   (global-set-key
@@ -778,8 +871,12 @@ Seems that =C-c @= is too obnoxious to use, So I'll put my favourite on the =C-c
 
   ;; ends here
 #+END_SRC
+** Kill This Buffer
+#+begin_src emacs-lisp
+(global-set-key (kbd "C-x k") 'kill-this-buffer)
+#+end_src
 * Org Mode
-** global settings
+** Global Settings
 
 setting org mode for all .org, .org_archive and text files
 #+begin_src emacs-lisp
@@ -883,7 +980,7 @@ custom key bindings
     (interactive)
     (switch-to-buffer "*scratch*"))
 #+end_src
-** org-todo-keywords
+** Org Todo Keywords
 #+begin_src emacs-lisp
   (setq org-todo-keywords
         (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
@@ -910,7 +1007,7 @@ custom key bindings
 (add-hook 'org-after-todo-statistics-hook 'org-summary-todo)
 
 #+end_src
-** code-block shortcuts
+** Code Block Shortcuts
 ref: sacha
 #+BEGIN_SRC emacs-lisp
 (setq org-structure-template-alist
@@ -929,17 +1026,17 @@ ref: sacha
         ("i" "#+index: ?" "#+index: ?")
         ("I" "#+include %file ?" "<include file=%file markup=\"?\">")))
 #+END_SRC
-** htmlize
+** Htmlize
 #+begin_src emacs-lisp
 (use-package htmlize)
 #+end_src
-** reveal.js
+** Reveal.JS
 #+begin_src emacs-lisp
 (use-package ox-reveal)
 (setq org-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
 (setq org-reveal-mathjax t)
 #+end_src
-** org agenda
+** Org Agenda
 #+begin_src emacs-lisp
   (setq org-agenda-custom-commands
         '(("c" "Simple agenda view" ((agenda "") (alltodo "")))))
@@ -953,7 +1050,7 @@ ref: sacha
   ;; Compact the block agenda view
   (setq org-agenda-compact-blocks t)
 #+end_src
-** org-ac = Auto Complete Org Mode
+** Org AC : Auto Complete Org Mode
 #+begin_src emacs-lisp
 (use-package org-ac
       :init (progn
@@ -961,7 +1058,7 @@ ref: sacha
               (org-ac/config-default)
               ))
 #+end_src
-** org-capture
+** Org Capture
 #+begin_src emacs-lisp
   (setq
    org-capture-templates
@@ -990,7 +1087,7 @@ ref: sacha
       "* NEXT %?\n%U\n%a\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")   
       ))
 #+end_src
-** org-refile
+** Org Refile
 #+begin_src emacs-lisp
     (setq org-refile-targets
           '(
@@ -1002,26 +1099,26 @@ ref: sacha
             ("~/Dropbox/org/waiting.org" :level . 1)
             ))
 #+end_src
-** set-default-browser
+** Set Default Browser
 #+begin_src emacs-lisp
 (setq browse-url-browser-function 'browse-url-generic
       browse-url-generic-program "google-chrome")
 #+end_src
-** open pdf in evince
+** Open Pdf in Evince
 #+begin_src emacs-lisp
 (setq org-file-apps
       (append '(
                 ("\\.pdf\\'" . "evince %s")
                 ) org-file-apps ))
 #+end_src
-** org bullets
+** Org Bullets
 #+begin_src emacs-lisp
 (use-package org-bullets
   :config
   (add-hook 'org-mode-hook
             (lambda () (org-bullets-mode 1))))
 #+end_src
-** literate programming
+** Literate Programming
 don't create a new window each time
 #+begin_src emacs-lisp
 (setq org-src-window-setup 'current-window)
@@ -1032,7 +1129,7 @@ use C-x C-s for closing out of the org-src-edit buffer
     '(define-key org-src-mode-map
        (kbd "C-x C-s") #'org-edit-src-exit))
 #+end_src
-** org-gcal
+** Org Gcal
 #+begin_src emacs-lisp
 (setq package-check-signature nil)
 
@@ -1046,17 +1143,56 @@ use C-x C-s for closing out of the org-src-edit buffer
 (add-hook 'org-agenda-mode-hook (lambda () (org-gcal-sync) ))
 (add-hook 'org-capture-after-finalize-hook (lambda () (org-gcal-sync) ))
 #+end_src 
+** Org Indent
+#+BEGIN_SRC emacs-lisp
+   (eval-after-load "org-indent" '(diminish 'org-indent-mode))
+#+END_SRC
 * Programming
-** emacs-lisp
-*** paredit
-#+begin_src emacs-lisp
+** General Settings
+*** Paredit
+[[http://danmidwood.com/content/2014/11/21/animated-paredit.html][Dan Midwood]] has a great guide to using
+paredit.
+#+BEGIN_SRC emacs-lisp
   (use-package paredit
     :ensure t
-    :diminish "﹙﹚"
-    :init
-    (dolist (m (list 'emacs-lisp-mode-hook 'lisp-interaction-mode-hook 'eval-expression-minibuffer-setup-hook 'ielm-mode-hook))
-      (add-hook m 'enable-paredit-mode)))
-#+end_src
+    :diminish paredit-mode
+    :config
+    (add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
+    (add-hook 'eval-expression-minibuffer-setup-hook #'enable-paredit-mode)
+    (add-hook 'ielm-mode-hook             #'enable-paredit-mode)
+    (add-hook 'lisp-mode-hook             #'enable-paredit-mode)
+    (add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
+    (add-hook 'scheme-mode-hook           #'enable-paredit-mode)
+    :bind (("C-c d" . paredit-forward-down))
+    )
+
+  ;; Ensure paredit is used EVERYWHERE!
+  (use-package paredit-everywhere
+    :ensure t
+    :diminish paredit-everywhere-mode
+    :config
+    (add-hook 'prog-mode-hook #'paredit-everywhere-mode))
+
+  (use-package highlight-parentheses
+    :ensure t
+    :diminish highlight-parentheses-mode
+    :config
+    (add-hook 'emacs-lisp-mode-hook
+              (lambda()
+                (highlight-parentheses-mode)
+                )))
+
+  (use-package rainbow-delimiters
+    :ensure t
+    :config
+    (add-hook 'lisp-mode-hook
+              (lambda()
+                (rainbow-delimiters-mode)
+                )))
+
+  (global-highlight-parentheses-mode)
+#+END_SRC
+** Emacs Lisp
 *** ert
 *** apropos
 *** Key-bindings
@@ -1077,7 +1213,7 @@ use C-x C-s for closing out of the org-src-edit buffer
 #+end_src
 *** eval-expr
 *** macrostep
-** python
+** Python
 
 IDE Features I will Need
 - easily find files and switch between projects
@@ -1166,7 +1302,7 @@ Required packages
     (add-hook 'python-mode-hook 'jedi:setup)
     (add-hook 'python-mode-hook 'jedi:ac-setup))
 #+end_src
-** latex
+** Latex
 #+begin_src emacs-lis
 ;; latex
 (use-package tex
@@ -1176,22 +1312,32 @@ Required packages
     (interactive)
     (tex-send-command "evince" (tex-append tex-print-file ".pdf")))
 #+end_src
-** erlang :drill:
+** Erlang                                                            :drill:
 ref: purcell
 #+begin_src emacs-lisp
   (use-package erlang
     :config
     (require 'erlang-start))
 #+end_src
-** javascript :todo:
+** JavaScript
 ref: purcell
 #+begin_src emacs-lisp
 
 #+end_src
-* Email
-* Chat
+* Applications
+** Email
+** Chat
+** Docker
+#+begin_src emacs-lisp
+  (use-package dockerfile-mode
+    :ensure t)
+#+end_src
+* Blogging
+* Writing
 * Todo List [0%]
-- [ ] Highlight and Narrowing :Howard:
+- [ ] Highlight and Narrowing [Howard]
 - [ ] Org-Present
 - [ ] Chatting
 - [ ] Emailing
+- [ ] A Secure Emacs Environment [Build Fun Things]
+- [ ] Code Folding 
