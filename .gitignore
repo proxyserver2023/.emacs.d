@@ -5,3 +5,4 @@
 !.gitignore
 !.init.el
 !.README.org
+!/snippets
