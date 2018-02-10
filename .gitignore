@@ -4,4 +4,4 @@
 # but not the following files
 !init.el
 !README.org
-!/snippets/*
+!/snippets
