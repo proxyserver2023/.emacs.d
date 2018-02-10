@@ -1,12 +1,11 @@
 #+TITLE: Alamin's Emacs Configuration
 #+AUTHOR: Md. Alamin Mahamud
 #+EMAIL: alamin.ineedahelp@gmail.com
-
 #+STARTUP: overview indent inlineimages hideblocks
-#+DESCRIPTION: Loading Emacs Configuration using org-babel
+#+TAGS: Drill(d)
 
-
-* global settings
+* Introduction
+* General Settings
 ** hide all bar things
 #+BEGIN_SRC emacs-lisp
   (if
@@ -32,7 +31,7 @@
 #+begin_src emacs-lisp
 (fset 'yes-or-no-p 'y-or-n-p)
 #+end_src
-** coding system :drill:
+** coding system                                                     :Drill:
 #+begin_src emacs-lisp
 (set-terminal-coding-system 'utf-8)
 (set-keyboard-coding-system 'utf-8)
@@ -41,160 +40,28 @@
 (when (display-graphic-p)
   (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
 #+end_src
-* benchmarking :understand:
-
-ref: purcell
-#+begin_src emacs-lisp
-  (defun sanityinc/time-subtract-millis (b a)
-    (* 1000.0 (float-time (time-subtract b a))))
-
-
-  (defvar sanityinc/require-times nil
-    "A list of (FEATURE LOAD-START-TIME LOAD-DURATION).
-  LOAD-DURATION is the time taken in milliseconds to load FEATURE.")
-
-
-  (defadvice require (around sanityinc/build-require-times (feature &optional filename noerror) activate)
-    "Note in `sanityinc/require-times' the time taken to require each feature."
-    (let* ((already-loaded (memq feature features))
-           (require-start-time (and (not already-loaded) (current-time))))
-      (prog1
-          ad-do-it
-        (when (and (not already-loaded) (memq feature features))
-          (let ((time (sanityinc/time-subtract-millis (current-time) require-start-time)))
-            (add-to-list 'sanityinc/require-times
-                         (list feature require-start-time time)
-                         t))))))
-
-
-  (define-derived-mode sanityinc/require-times-mode tabulated-list-mode "Require-Times"
-    "Show times taken to `require' packages."
-    (setq tabulated-list-format
-          [("Start time (ms)" 20 sanityinc/require-times-sort-by-start-time-pred)
-           ("Feature" 30 t)
-           ("Time (ms)" 12 sanityinc/require-times-sort-by-load-time-pred)])
-    (setq tabulated-list-sort-key (cons "Start time (ms)" nil))
-    ;; (setq tabulated-list-padding 2)
-    (setq tabulated-list-entries #'sanityinc/require-times-tabulated-list-entries)
-    (tabulated-list-init-header)
-    (tablist-minor-mode))
-
-
-  (defun sanityinc/require-times-sort-by-start-time-pred (entry1 entry2)
-    (< (string-to-number (elt (nth 1 entry1) 0))
-       (string-to-number (elt (nth 1 entry2) 0))))
-
-  (defun sanityinc/require-times-sort-by-load-time-pred (entry1 entry2)
-    (> (string-to-number (elt (nth 1 entry1) 2))
-       (string-to-number (elt (nth 1 entry2) 2))))
-
-  (defun sanityinc/require-times-tabulated-list-entries ()
-    (cl-loop for (feature start-time millis) in sanityinc/require-times
-             with order = 0
-             do (incf order)
-             collect (list order
-                           (vector
-                            (format "%.3f" (sanityinc/time-subtract-millis start-time before-init-time))
-                            (symbol-name feature)
-                            (format "%.3f" millis)))))
-
-  (defun sanityinc/require-times ()
-    "Show a tabular view of how long various libraries took to load."
-    (interactive)
-    (with-current-buffer (get-buffer-create "*Require Times*")
-      (sanityinc/require-times-mode)
-      (tabulated-list-revert)
-      (display-buffer (current-buffer))))
-
-  
-
-
-  (defun sanityinc/show-init-time ()
-    (message "init completed in %.2fms"
-             (sanityinc/time-subtract-millis after-init-time before-init-time)))
-
-  (add-hook 'after-init-hook 'sanityinc/show-init-time)
-#+end_src
-* custom settings
+** custom settings
 #+BEGIN_SRC emacs-lisp
   (setq custom-file
         (expand-file-name "custom.el" user-emacs-directory))
   (load custom-file)
 #+END_SRC
-* secret variables
+** secret variables
 #+begin_src emacs-lisp
 (load "~/.emacs.d/.secrets")
 #+end_src
-* utils 
-ref: purcell
-** after load alias
-#+begin_src emacs-lisp
-  (if (fboundp 'with-eval-after-load)
-      (defalias 'after-load 'with-eval-after-load)
-    (defmacro after-load (feature &rest body)
-      "After FEATURE is loaded, evaluate BODY."
-      (declare (indent defun))
-      `(eval-after-load ,feature
-         '(progn ,@body))))
-#+end_src
-** auto-mode-alist
-#+begin_src emacs-lisp
-  (defun add-auto-mode (mode &rest patterns)
-    "Add entries to `auto-mode-alist' to use `MODE' for all given file `PATTERNS'"
-    (dolist (pattern patterns)
-      (add-to-list 'auto-mode-alist (cons pattern mode))))
-#+end_src
-** string utilities missing from core emacs
-#+begin_src emacs-lisp
-  (defun sanityinc/string-all-matches (regex str &optional group)
-    "Find all matches for `REGEX' within `STR', returning the full match string or group `GROUP'."
-    (let ((result nil)
-          (pos 0)
-          (group (or group 0)))
-      (while (string-match regex str pos)
-        (push (match-string group str) result)
-        (setq pos (match-end group)))
-      result))
-#+end_src
-** delete the current file :understand::shortcut:
-#+begin_src emacs-lisp
-(defun delete-this-file ()
-  "Delete the current file, and kill the buffer."
-  (interactive)
-  (unless (buffer-file-name)
-    (error "No file is currently being edited"))
-  (when (yes-or-no-p (format "Really delete '%s'?"
-                             (file-name-nondirectory buffer-file-name)))
-    (delete-file (buffer-file-name))
-    (kill-this-buffer)))
-#+end_src
-** rename the current file :understand::shortcut:
-#+begin_src emacs-lisp
-(defun rename-this-file-and-buffer (new-name)
-  "Renames both current buffer and file it's visiting to NEW-NAME."
-  (interactive "sNew name: ")
-  (let ((name (buffer-name))
-        (filename (buffer-file-name)))
-    (unless filename
-      (error "Buffer '%s' is not visiting a file!" name))
-    (progn
-      (when (file-exists-p filename)
-        (rename-file filename new-name 1))
-      (set-visited-file-name new-name)
-      (rename-buffer new-name))))
-#+end_src
-** browse current html file :understand:
-#+begin_src emacs-lisp
-(defun browse-current-file ()
-  "Open the current file as a URL using `browse-url'."
-  (interactive)
-  (let ((file-name (buffer-file-name)))
-    (if (and (fboundp 'tramp-tramp-file-p)
-             (tramp-tramp-file-p file-name))
-        (error "Cannot open tramp file")
-      (browse-url (concat "file://" file-name)))))
-#+end_src
-* package init
+** elisp enhancement
+#+BEGIN_SRC emacs-lisp
+  (require 'cl)
+  (use-package dash
+    :config (eval-after-load "dash" '(dash-enable-font-lock)))
+  (use-package s)
+  (use-package f)
+  (use-package diminish)
+  (use-package wgrep)
+  (use-package scratch)
+#+END_SRC
+* Package Initialization
 #+BEGIN_SRC emacs-lisp
   (require 'package)
   (setq package-archives nil)
@@ -222,30 +89,7 @@ ref: purcell
   (setq use-package-always-ensure t)
   (require 'use-package)
 #+END_SRC
-* exec path from shell
-#+begin_src emacs-lisp
-  (use-package exec-path-from-shell)
-  (require 'exec-path-from-shell)
-  (after-load 'exec-path-from-shell
-    (dolist (var '("SSH_AUTH_SOCK" "SSH_AGENT_PID" "GPG_AGENT_INFO" "LANG" "LC_CTYPE"))
-      (add-to-list 'exec-path-from-shell-variables var)))
-
-
-  (when (memq window-system '(mac ns x))
-    (exec-path-from-shell-initialize))
-#+end_src
-* elisp enhancement
-#+BEGIN_SRC emacs-lisp
-  (require 'cl)
-  (use-package dash
-    :config (eval-after-load "dash" '(dash-enable-font-lock)))
-  (use-package s)
-  (use-package f)
-  (use-package diminish)
-  (use-package wgrep)
-  (use-package scratch)
-#+END_SRC
-* appearance
+* Appearance
 ** font-lock decoration
 #+BEGIN_SRC emacs-lisp
   (setq font-lock-maximum-decoration t
@@ -263,10 +107,6 @@ ref: purcell
 ** highlight current line
 #+BEGIN_SRC emacs-lisp
   (global-hl-line-mode 0)
-#+END_SRC
-** show paren mode
-#+BEGIN_SRC emacs-lisp
-  (show-paren-mode 1)
 #+END_SRC
 ** frame-title-format
 #+BEGIN_SRC emacs-lisp
@@ -335,6 +175,15 @@ ref: purcell
   (global-set-key (kbd "M-n") 'highlight-symbol-next)
   (global-set-key (kbd "M-p") 'highlight-symbol-prev))
 #+END_SRC
+* My Packages
+** atomic chrome
+#+begin_src emacs-lisp
+  (use-package atomic-chrome
+    :config
+    (require 'atomic-chrome)
+    (atomic-chrome-start-server)
+    (setq atomic-chrome-buffer-open-style 'full))
+#+end_src
 ** whitespace mode
 #+BEGIN_SRC emacs-lisp
   (use-package whitespace
@@ -350,60 +199,11 @@ ref: purcell
     (set-face-attribute 'whitespace-indentation nil :foreground "#666666" :background nil)
     :diminish whitespace-mode)
 #+END_SRC
-* editing
-** linum-mode
-#+BEGIN_SRC emacs-lisp
-  (add-hook 'prog-mode-hook 'linum-mode)
-#+END_SRC
-** delete-selection-mode
-
-#+BEGIN_SRC emacs-lisp
-(delete-selection-mode)
-#+END_SRC
-** newline-and-indent
-#+begin_src emacs-lisp
-(global-set-key (kbd "RET") 'newline-and-indent)
-#+end_src
-** highlight indentation
-#+begin_src emacs-lisp
-(use-package highlight-indentation)
-(require 'highlight-indentation)
-(add-hook 'prog-mode-hook 'highlight-indentation-mode)
-(add-hook 'prog-mode-hook 'highlight-indentation-current-column-mode)
-(set-face-background 'highlight-indentation-face "#616161")
-(set-face-background 'highlight-indentation-current-column-face "#607D8B")
-#+end_src
-** code block folding
-#+begin_src emacs-lisp
-(defun ha/hs-show-all ()
-  (interactive)
-  (hs-minor-mode 1)
-  (hs-show-all))
-
-(defun ha/hs-hide-all ()
-  (interactive)
-  (hs-minor-mode 1)
-  (hs-hide-all))
-
-(defun ha/hs-toggle-hiding ()
-  (interactive)
-  (hs-minor-mode 1)
-  (hs-toggle-hiding))
-#+end_src
-
-Seems that =C-c @= is too obnoxious to use, So I'll put my favourite on the =C-c h= prefix:
-#+begin_src emacs-lisp
-  (global-set-key (kbd "C-c T h") 'hs-minor-mode)
-  (global-set-key (kbd "C-c f a") 'ha/hs-hide-all)
-  (global-set-key (kbd "C-c f s") 'ha/hs-show-all)
-  (global-set-key (kbd "C-c f h") 'ha/hs-toggle-hiding)
-  (add-hook 'prog-mode-hook #'hs-minor-mode)
-#+end_src
-* try
+** try
 #+begin_src emacs-lisp
 (use-package try)
 #+end_src
-* workgroups2
+** workgroups2
 - create your workspace in emacs
 - saves all your opened buffers, their locations and sizes on disk to restore later
 #+begin_src emacs-lisp
@@ -428,7 +228,7 @@ Seems that =C-c @= is too obnoxious to use, So I'll put my favourite on the =C-c
           wg-mode-line-decor-divider ":")
     (workgroups-mode 1))
 #+end_src
-* hippie expand
+** hippie expand
 
 hippe-expand is a better version of dabbrev-expand while dabbrev-expand searches for words you already types in current buffers and other buffers,
 hippie-expand includes more sources such as filenames, kill ring…
@@ -448,11 +248,11 @@ hippie-expand includes more sources such as filenames, kill ring…
    try-complete-lisp-symbol) ;; Try to complete word as an Emacs Lisp symbol.
  )
 #+end_src
-* kill this buffer
+** kill this buffer
 #+begin_src emacs-lisp
 (global-set-key (kbd "C-x k") 'kill-this-buffer)
 #+end_src
-* auto-complete
+** auto-complete
 #+begin_src emacs-lisp
 (use-package auto-complete
 :config
@@ -460,21 +260,21 @@ hippie-expand includes more sources such as filenames, kill ring…
 (ac-config-default)
 (setq ac-show-menu-immediately-on-auto-complete t))
 #+end_src
-* expand region
+** expand region
 #+begin_src emacs-lisp
 (use-package expand-region
 :config
 (require 'expand-region)
 (global-set-key (kbd "M-m") 'er/expand-region))
 #+end_src
-* bm = Bookmarks Manager
+** bm = Bookmarks Manager
 #+begin_src emacs-lisp
 (use-package bm
   :bind (("C-c =" . bm-toggle)
          ("C-c [" . bm-previous)
          ("C-c ]" . bm-next)))
 #+end_src
-* windows management :drill:
+** windows management
 #+begin_src emacs-lisp
 (use-package ace-window
 :init
@@ -492,7 +292,7 @@ hippie-expand includes more sources such as filenames, kill ring…
   :config
   (define-key global-map (kbd "C-c SPC") 'ace-jump-mode))
 #+end_src
-* indent whole buffer :drill:
+** indent whole buffer 
 #+begin_src emacs-lisp
 (defun iwb ()
   "indent whole buffer"
@@ -503,11 +303,11 @@ hippie-expand includes more sources such as filenames, kill ring…
 
 (global-set-key (kbd "C-c n") 'iwb)
 #+end_src
-* command log mode :drill:
+** command log mode 
 #+begin_src emacs-lisp
 (use-package command-log-mode)
 #+end_src
-* zygospore
+** zygospore
 
 zygospore lets you revert C-x 1 (delete-other-window) by pressing C-x 1 again
 [[https://github.com/LouisKottmann/zygospore.el/raw/master/demo.gif]]
@@ -517,7 +317,7 @@ zygospore lets you revert C-x 1 (delete-other-window) by pressing C-x 1 again
          ("RET" .   newline-and-indent)))
 #+end_src
 
-* origami :drill:
+** origami
 #+begin_src emacs-lisp
 (use-package origami
 :ensure t
@@ -527,7 +327,7 @@ zygospore lets you revert C-x 1 (delete-other-window) by pressing C-x 1 again
 (define-key origami-mode-map (kbd "C-c f") 'origami-recursively-toggle-node)
 (define-key origami-mode-map (kbd "C-c F") 'origami-toggle-all-nodes))
 #+end_src
-* duplicate thing
+** duplicate thing
 #+begin_src emacs-lisp
 (use-package duplicate-thing
 :ensure t
@@ -535,8 +335,8 @@ zygospore lets you revert C-x 1 (delete-other-window) by pressing C-x 1 again
 (require 'duplicate-thing)
 (global-set-key (kbd "M-c") 'duplicate-thing))
 #+end_src
-* smartparens :drill:
-##+begin_src emacs-lisp
+** smartparens 
+#+begin_src emacs-lisp
 (use-package smartparens-config
 :ensure smartparens
 :config
@@ -593,7 +393,7 @@ zygospore lets you revert C-x 1 (delete-other-window) by pressing C-x 1 again
  ("C-c _"  . wrap-with-underscores)
  ("C-c `"  . wrap-with-back-quotes))
 #+end_src
-* which-mode
+** which-mode
 #+begin_src emacs-lisp
   (use-package which-key
     :ensure t
@@ -647,7 +447,7 @@ zygospore lets you revert C-x 1 (delete-other-window) by pressing C-x 1 again
 
     (which-key-mode 1))
 #+end_src
-* undo-tree
+** undo-tree
 
 undo-tree allows you to visual the whole history of your editing in a tree. 
 It also provides regular undo/redo behaviours in other editors. 
@@ -669,7 +469,7 @@ Highly recommended.
            ("C-S-z" . redo)))
 #+end_src
 
-* yasnippet
+** yasnippet
 #+begin_src emacs-lisp
 (use-package yasnippet
 :ensure t
@@ -677,7 +477,7 @@ Highly recommended.
 (require 'yasnippet)
 (yas-global-mode 1))
 #+end_src
-* vimish fold
+** vimish fold
 #+begin_src emacs-lisp
 (use-package vimish-fold)
 
@@ -690,7 +490,7 @@ Highly recommended.
 ;; this is the actual fold/unfold command
 (global-set-key (kbd "C-c t") #'vimish-fold-toggle)
 #+end_src
-* multiple-cursor                                                     :drill:
+** multiple-cursor                                                   :Drill:
 #+begin_src emacs-lisp 
   (use-package multiple-cursors
     :config
@@ -700,7 +500,203 @@ Highly recommended.
     (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
     (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this))
 #+end_src
-* frequent file shortcuts
+
+** Magit
+#+begin_src emacs-lisp
+(use-package magit
+  :commands magit-status magit-blame
+  :init
+  (defadvice magit-status (around magit-fullscreen activate)
+    (window-configuration-to-register :magit-fullscreen)
+    ad-do-it
+    (delete-other-windows))
+  :config
+  (setq vc-follow-symlinks nil
+        magit-push-always-verify nil
+        magit-restore-window-configuration t)
+  :bind ("C-x g" . magit-status))
+#+end_src
+** Helm
+#+begin_src emacs-lisp
+    (use-package helm
+    :diminish helm-mode
+    ;; :init
+    ;; (setq helm-idle-delay 0.0
+    ;;       helm-input-idle-delay 0.01
+    ;;       helm-yas-display-key-on-candidate t
+    ;;       helm-quick-update t
+    ;;       helm-M-x-requires-pattern nil
+    ;;       helm-ff-skip-boring-files t)
+    ;; (helm-mode)
+    :ensure t)
+
+    (require 'helm)
+    (require 'helm-config)
+
+    ;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs
+    ;; Change to "C-c h"
+    (global-set-key (kbd "C-c h") 'helm-command-prefix)
+    (global-unset-key (kbd "C-x c"))
+    (global-set-key (kbd "M-x") #'helm-M-x)
+    (global-set-key (kbd "C-x r b") #'helm-filtered-bookmarks)
+    (global-set-key (kbd "C-x C-f") #'helm-find-files)
+    (global-set-key (kbd "M-y") 'helm-show-kill-ring)
+    (global-set-key (kbd "C-x b") 'helm-mini)
+    (global-set-key (kbd "C-c h o") 'helm-occur)
+    ; rebind tab to run persistent action
+    (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
+    ; make TAB work in terminal
+    (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
+    ; list actions using C-z
+    (define-key helm-map (kbd "C-z")  'helm-select-action)
+
+    (when (executable-find "curl")
+      (setq helm-google-suggest-use-curl-p t))
+
+    (setq helm-split-window-in-side-p       t ; open helm buffer inside current window, not occupy whole other window
+      helm-move-to-line-cycle-in-source     t ; move to end or beginning of source when reaching top or bottom of source.
+      helm-ff-search-library-in-sexp        t ; search for library in `require' and `declare-function' sexp.
+      helm-scroll-amount                    8 ; scroll 8 lines other window using M-<next>/M-<prior>
+      helm-ff-file-name-history-use-recentf t
+      helm-echo-input-in-header-line t)
+
+    (defun spacemacs//helm-hide-minibuffer-maybe ()
+      "Hide minibuffer in Helm session if we use the header line as input field."
+      (when (with-helm-buffer helm-echo-input-in-header-line)
+        (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
+          (overlay-put ov 'window (selected-window))
+          (overlay-put ov 'face
+                       (let ((bg-color (face-background 'default nil)))
+                         `(:background ,bg-color :foreground ,bg-color)))
+          (setq-local cursor-type nil))))
+
+    (add-hook 'helm-minibuffer-set-up-hook
+              'spacemacs//helm-hide-minibuffer-maybe)
+
+    (defun pl/helm-alive-p ()
+      (if (boundp 'helm-alive-p)
+          (symbol-value 'helm-alive-p)))
+
+  ;  (add-to-list 'golden-ratio-inhibit-functions 'pl/helm-alive-p)
+
+    (setq helm-M-x-fuzzy-match t) ;; optional fuzzy matching for helm-M-x
+    (setq helm-buffers-fuzzy-matching t
+        helm-recentf-fuzzy-match    t)
+    (setq helm-autoresize-max-height 0)
+    (setq helm-autoresize-min-height 20)
+    (helm-autoresize-mode 1)
+    (helm-mode 1)
+
+    (when (executable-find "ack-grep")
+      (setq helm-grep-default-command "ack-grep -Hn --no-group --no-color %e %p %f"
+            helm-grep-default-recurse-command "ack-grep -H --no-group --no-color %e %p %f"))
+    (setq helm-locate-fuzzy-match t)
+    (setq helm-apropos-fuzzy-match t)
+#+end_src
+
+helm-descbinds
+#+begin_src emacs-lisp
+(use-package helm-descbinds
+  :defer t
+  :bind(
+        ("C-h b" . helm-descbinds)
+        ("C-h w" . helm-descbinds)))
+#+end_src
+
+Helm Projectile
+#+begin_src emacs-lisp
+(use-package helm-projectile)
+(projectile-global-mode)
+(setq projectile-completion-system 'helm)
+(helm-projectile-on)
+#+end_src
+** projectile                                                        :Drill:
+
+- jump to a file in project
+- jump to a directory in a project
+- jump to file in a dir
+- jump to a project buffer
+- jump to a test in project
+- toggle between code and its test
+- jump to recently visited files in the project
+- switch between projects you have worked on
+- kill all project buffers
+- replace in project
+- multi-occur in project buffers
+- grep in project
+- regenerate project etags or gtags
+- visit project in dired
+- run make in a project with a single key chord
+- check for dirty repos
+
+Some Helpful Commands
+C-c p s Switch to project
+C-c p f List files in project
+C-c p k Kill all buffers for project
+
+#+begin_src emacs-lisp
+(use-package projectile
+:config
+(projectile-global-mode))
+#+end_src
+* Editing
+** linum-mode
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'prog-mode-hook 'linum-mode)
+#+END_SRC
+** delete-selection-mode
+
+#+BEGIN_SRC emacs-lisp
+(delete-selection-mode)
+#+END_SRC
+** newline-and-indent
+#+begin_src emacs-lisp
+(global-set-key (kbd "RET") 'newline-and-indent)
+#+end_src
+** highlight indentation
+#+begin_src emacs-lisp
+(use-package highlight-indentation)
+(require 'highlight-indentation)
+(add-hook 'prog-mode-hook 'highlight-indentation-mode)
+(add-hook 'prog-mode-hook 'highlight-indentation-current-column-mode)
+(set-face-background 'highlight-indentation-face "#616161")
+(set-face-background 'highlight-indentation-current-column-face "#607D8B")
+#+end_src
+** code block folding
+#+begin_src emacs-lisp
+(defun ha/hs-show-all ()
+  (interactive)
+  (hs-minor-mode 1)
+  (hs-show-all))
+
+(defun ha/hs-hide-all ()
+  (interactive)
+  (hs-minor-mode 1)
+  (hs-hide-all))
+
+(defun ha/hs-toggle-hiding ()
+  (interactive)
+  (hs-minor-mode 1)
+  (hs-toggle-hiding))
+#+end_src
+
+Seems that =C-c @= is too obnoxious to use, So I'll put my favourite on the =C-c h= prefix:
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-c T h") 'hs-minor-mode)
+  (global-set-key (kbd "C-c f a") 'ha/hs-hide-all)
+  (global-set-key (kbd "C-c f s") 'ha/hs-show-all)
+  (global-set-key (kbd "C-c f h") 'ha/hs-toggle-hiding)
+  (add-hook 'prog-mode-hook #'hs-minor-mode)
+#+end_src
+** csv 
+#+begin_src emacs-lisp
+(add-auto-mode 'csv-mode "\\.[Cc][Ss][Vv]\\'")
+
+(setq csv-separators '("," ";" "|" " "))
+#+end_src
+
+* Key Bindings
+** frequent file shortcuts
 #+BEGIN_SRC emacs-lisp
   ;; main config file
   (global-set-key
@@ -782,182 +778,7 @@ Highly recommended.
 
   ;; ends here
 #+END_SRC
-* projectile :drill:
-
-- jump to a file in project
-- jump to a directory in a project
-- jump to file in a dir
-- jump to a project buffer
-- jump to a test in project
-- toggle between code and its test
-- jump to recently visited files in the project
-- switch between projects you have worked on
-- kill all project buffers
-- replace in project
-- multi-occur in project buffers
-- grep in project
-- regenerate project etags or gtags
-- visit project in dired
-- run make in a project with a single key chord
-- check for dirty repos
-
-Some Helpful Commands
-C-c p s Switch to project
-C-c p f List files in project
-C-c p k Kill all buffers for project
-
-#+begin_src emacs-lisp
-(use-package projectile
-:config
-(projectile-global-mode))
-#+end_src
-* csv 
-#+begin_src emacs-lisp
-(add-auto-mode 'csv-mode "\\.[Cc][Ss][Vv]\\'")
-
-(setq csv-separators '("," ";" "|" " "))
-#+end_src
-
-* atomic chrome
-#+begin_src emacs-lisp
-  (use-package atomic-chrome
-    :config
-    (require 'atomic-chrome)
-    (atomic-chrome-start-server)
-    (setq atomic-chrome-buffer-open-style 'full))
-#+end_src
-* Key-bindings
-** Displaying Command Sequences
-
-** Function Key Definitions
-- F1 - Help? Isn’t Control-H good enough?
-- F2 - Special odd, little-used characters that I have to think about before remembering what its binding.
-- F3 - Define a keyboard macro
-- F4 - Replay a keyboard macro
-- F5 - Move/Drop/Delete a visual ‘mark’
-- F6 - Open to temporary, changeable commands…
-- F7 - Switch to another window … Control goes the other way.
-- F8 - Switch to buffer
-- F9 - My extension (replacement?) for C-c for changing colors and other odd bindings that I actually don’t use that often.
-#+begin_src emacs-lisp
-(global-set-key (kbd "<f7>") 'other-window)
-(global-set-key (kbd "C-<f7>") (lambda () (interactive) (other-window -1)))
-#+end_src
-*** F2 and F9 Helpers
-**** F9 Prefix
-#+begin_src emacs-lisp
-(define-prefix-command 'personal-global-map)
-(global-set-key (kbd "<f9>") 'personal-global-map)
-#+end_src
-**** F2 Prefix
-***** Pairs
-While ~M-‘~ inserts a pair of single quotes, I would also like to insert a pair of unicode quotes:
-#+begin_src emacs-lisp
-(defun insert-single-quotes (p)
-  "Inserts a pair of unicode rounded quotes, `SINGLE TURNED COMMA
-QUOTATION MARK' and `SINGLE COMMA QUOTATION MARK'."
-  (interactive "P")
-  (insert-pair p 8216 8217))
-
-(defun insert-double-quotes (p)
-  "Inserts a pair of unicode double rounded quotes."
-  (interactive "P")
-  (insert-pair p 8220 8221))
-
-(bind-key "M-C-'"  #'insert-single-quotes)  ; ‘Nice!’
-(bind-key "M-C-\"" #'insert-double-quotes)  ; “Goody”
-#+end_src
-***** Unicode Characters
-#+begin_src emacs-lisp
-(mapc (lambda (tuple)
-        (define-key key-translation-map
-            (kbd (concat "<f2> " (nth 0 tuple))) ; Keybinding
-            (kbd (nth 1 tuple))))                ; Character to insert
-      '(("<up>" "↑")
-        ("<down>" "↓")
-        ("<left>" "←")
-        ("<right>" "→")
-        ("S-<up>" "⇑")
-        ("S-<down>" "⇓")
-        ("S-<left>" "⇐")
-        ("S-<right>" "⇒")
-
-        ("p" "▯")   ;; Representation of a cursor
-        ("'" "’")
-        ("\"" "‘")
-
-        ("8" "•")
-        ("*" "°")
-        ("d" "†")
-        ("D" "‡")
-        ("-" "—")
-        ("." "…")
-        (";" "😉")
-        (")" "☺")
-
-        ("a" "α")   ;; Lowercase Greek is uppercase
-        ("b" "β")
-        ("e" "ε")
-        ("l" "λ")
-        ("p" "π")
-        ("m" "μ")
-        ("t" "θ")
-
-        ("!" "¹")   ; For footnotes and things
-        ("@" "²")
-        ("#" "³")
-        ("$" "⁴")
-
-        ("2" "½")   ; Fractions
-        ("3" "⅓")
-        ("4" "¼")))
-#+end_src
-* chatting
-##+begin_src emacs-lisp
-  (use-package jabber
-    :ensure t
-    :commands jabber-connect-all jabber-chat-with
-    :init
-    (define-key personal-global-map (kbd "a") 'jabber-connect-all)
-    (define-key personal-global-map (kbd "j") 'jabber-chat-with)
-    :config
-    (setq starttls-use-gnutls t
-          starttls-gnutls-program "gnutls-cli"
-          starttls-extra-arguments '("--starttls" "--insecure")
-
-          jabber-history-enabled t
-          jabber-use-global-history nil
-          jabber-backlog-number 40
-          jabber-backlog-days 30)
-
-    (defun my-jabber-chat-delete-or-bury ()
-      (interactive)
-      (if (eq 'jabber-chat-mode major-mode)
-          (condition-case e
-              (delete-frame)
-            (error
-             (if (string= "Attempt to delete the sole visible or iconified frame"
-                          (cadr e))
-                 (bury-buffer))))))
-
-    (define-key jabber-chat-mode-map [escape] 'my-jabber-chat-delete-or-bury))
-#+end_src
-* modeline
-#+begin_src emacs-lisp
-(use-package telephone-line)
-(require 'telephone-line)
-(telephone-line-mode 1)
-#+end_src
-cubed
-#+begin_src emacs-lisp
-(setq telephone-line-primary-left-separator 'telephone-line-cubed-left
-      telephone-line-secondary-left-separator 'telephone-line-cubed-hollow-left
-      telephone-line-primary-right-separator 'telephone-line-cubed-right
-      telephone-line-secondary-right-separator 'telephone-line-cubed-hollow-right)
-(setq telephone-line-height 24
-      telephone-line-evil-use-short-tag t)
-#+end_src
-* ORG
+* Org Mode
 ** global settings
 
 setting org mode for all .org, .org_archive and text files
@@ -1225,117 +1046,7 @@ use C-x C-s for closing out of the org-src-edit buffer
 (add-hook 'org-agenda-mode-hook (lambda () (org-gcal-sync) ))
 (add-hook 'org-capture-after-finalize-hook (lambda () (org-gcal-sync) ))
 #+end_src 
-* MAGIT
-
-#+begin_src emacs-lisp
-(use-package magit
-  :commands magit-status magit-blame
-  :init
-  (defadvice magit-status (around magit-fullscreen activate)
-    (window-configuration-to-register :magit-fullscreen)
-    ad-do-it
-    (delete-other-windows))
-  :config
-  (setq vc-follow-symlinks nil
-        magit-push-always-verify nil
-        magit-restore-window-configuration t)
-  :bind ("C-x g" . magit-status))
-#+end_src
-* HELM
-#+begin_src emacs-lisp
-    (use-package helm
-    :diminish helm-mode
-    ;; :init
-    ;; (setq helm-idle-delay 0.0
-    ;;       helm-input-idle-delay 0.01
-    ;;       helm-yas-display-key-on-candidate t
-    ;;       helm-quick-update t
-    ;;       helm-M-x-requires-pattern nil
-    ;;       helm-ff-skip-boring-files t)
-    ;; (helm-mode)
-    :ensure t)
-
-    (require 'helm)
-    (require 'helm-config)
-
-    ;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs
-    ;; Change to "C-c h"
-    (global-set-key (kbd "C-c h") 'helm-command-prefix)
-    (global-unset-key (kbd "C-x c"))
-    (global-set-key (kbd "M-x") #'helm-M-x)
-    (global-set-key (kbd "C-x r b") #'helm-filtered-bookmarks)
-    (global-set-key (kbd "C-x C-f") #'helm-find-files)
-    (global-set-key (kbd "M-y") 'helm-show-kill-ring)
-    (global-set-key (kbd "C-x b") 'helm-mini)
-    (global-set-key (kbd "C-c h o") 'helm-occur)
-    ; rebind tab to run persistent action
-    (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
-    ; make TAB work in terminal
-    (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
-    ; list actions using C-z
-    (define-key helm-map (kbd "C-z")  'helm-select-action)
-
-    (when (executable-find "curl")
-      (setq helm-google-suggest-use-curl-p t))
-
-    (setq helm-split-window-in-side-p       t ; open helm buffer inside current window, not occupy whole other window
-      helm-move-to-line-cycle-in-source     t ; move to end or beginning of source when reaching top or bottom of source.
-      helm-ff-search-library-in-sexp        t ; search for library in `require' and `declare-function' sexp.
-      helm-scroll-amount                    8 ; scroll 8 lines other window using M-<next>/M-<prior>
-      helm-ff-file-name-history-use-recentf t
-      helm-echo-input-in-header-line t)
-
-    (defun spacemacs//helm-hide-minibuffer-maybe ()
-      "Hide minibuffer in Helm session if we use the header line as input field."
-      (when (with-helm-buffer helm-echo-input-in-header-line)
-        (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
-          (overlay-put ov 'window (selected-window))
-          (overlay-put ov 'face
-                       (let ((bg-color (face-background 'default nil)))
-                         `(:background ,bg-color :foreground ,bg-color)))
-          (setq-local cursor-type nil))))
-
-    (add-hook 'helm-minibuffer-set-up-hook
-              'spacemacs//helm-hide-minibuffer-maybe)
-
-    (defun pl/helm-alive-p ()
-      (if (boundp 'helm-alive-p)
-          (symbol-value 'helm-alive-p)))
-
-  ;  (add-to-list 'golden-ratio-inhibit-functions 'pl/helm-alive-p)
-
-    (setq helm-M-x-fuzzy-match t) ;; optional fuzzy matching for helm-M-x
-    (setq helm-buffers-fuzzy-matching t
-        helm-recentf-fuzzy-match    t)
-    (setq helm-autoresize-max-height 0)
-    (setq helm-autoresize-min-height 20)
-    (helm-autoresize-mode 1)
-    (helm-mode 1)
-
-    (when (executable-find "ack-grep")
-      (setq helm-grep-default-command "ack-grep -Hn --no-group --no-color %e %p %f"
-            helm-grep-default-recurse-command "ack-grep -H --no-group --no-color %e %p %f"))
-    (setq helm-locate-fuzzy-match t)
-    (setq helm-apropos-fuzzy-match t)
-#+end_src
-
-helm-descbinds
-#+begin_src emacs-lisp
-(use-package helm-descbinds
-  :defer t
-  :bind(
-        ("C-h b" . helm-descbinds)
-        ("C-h w" . helm-descbinds)))
-#+end_src
-
-Helm Projectile
-#+begin_src emacs-lisp
-(use-package helm-projectile)
-(projectile-global-mode)
-(setq projectile-completion-system 'helm)
-(helm-projectile-on)
-#+end_src
-* PROGRAMMING
+* Programming
 ** emacs-lisp
 *** paredit
 #+begin_src emacs-lisp
@@ -1477,9 +1188,10 @@ ref: purcell
 #+begin_src emacs-lisp
 
 #+end_src
-
-* Try Packages
-1. org-present
-
-* todo list [%]
+* Email
+* Chat
+* Todo List [0%]
 - [ ] Highlight and Narrowing :Howard:
+- [ ] Org-Present
+- [ ] Chatting
+- [ ] Emailing
