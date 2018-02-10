@@ -712,6 +712,11 @@ C-c p k Kill all buffers for project
 #+begin_src emacs-lisp
 (use-package hydra)
 #+end_src
+** Rest Support
+#+BEGIN_SRC emacs-lisp
+(use-package restclient
+    :ensure t)
+#+END_SRC
 * Editing
 ** Encoding System                                                   :Drill:
 #+begin_src emacs-lisp
@@ -1340,3 +1345,5 @@ ref: purcell
 - [ ] Emailing
 - [ ] A Secure Emacs Environment [Build Fun Things]
 - [ ] Code Folding 
+- [ ] Clojure Support [ Build Fun Things ]
+- [ ] Rust Support [ Build Fun Things ]
