@@ -545,8 +545,7 @@ Highly recommended.
   :config
   (require 'yasnippet)
   (yas-global-mode 1)
-  (add-to-list 'yas-snippet-dirs "~/.emacs.d/snippets")
-  )
+  (add-to-list 'yas-snippet-dirs "~/.emacs.d/snippets"))
 #+end_src
 ** Vimish Fold
 #+begin_src emacs-lisp
