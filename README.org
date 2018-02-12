@@ -112,6 +112,11 @@ of Emacs we're using supports the server package:
       (load-theme 'arjen-grey t)))
 #+END_SRC
 ** Fonts
+
+For Syntax Highlighting
+#+begin_src emacs-lisp
+(global-font-lock-mode 1)
+#+end_src
 #+BEGIN_SRC emacs-lisp
   (if (or (eq system-type 'darwin)(eq system-type 'gnu/linux) )
   ;    (set-face-attribute 'default nil :font "Consolas-14")
@@ -532,7 +537,7 @@ Make sure that [[http://pragmaticemacs.com/emacs/add-the-system-clipboard-to-the
           wg-mode-line-decor-divider ":")
     (workgroups-mode 1))
 #+end_src
-** Hippie Expand
+** Hippie Expand                                                     :Drill:
 hippe-expand is a better version of dabbrev-expand while dabbrev-expand searches for words you already types in current buffers and other buffers,
 hippie-expand includes more sources such as filenames, kill ring…
 #+begin_src emacs-lisp
@@ -816,9 +821,9 @@ Highly recommended.
     :config
     (require 'multiple-cursors)
     (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
-    (global-set-key (kbd "C->") 'mc/mark-next-like-this)
-    (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
-    (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this))
+    (global-set-key (kbd "M-+") 'mc/mark-next-like-this)
+    (global-set-key (kbd "M--") 'mc/mark-previous-like-this)
+    (global-set-key (kbd "C-c M-+") 'mc/mark-all-like-this))
 #+end_src
 
 ** Magit
@@ -837,81 +842,103 @@ Highly recommended.
   :bind ("C-x g" . magit-status))
 #+end_src
 ** Helm
+
+_Author_: Tamas Patrovic, rubikitch, thierry volpiatto [[thierry.volpaitt@gmail.com]]
+_Homepages_: [[https://github.com/emacs-helm/helm]]
+
+_Features_: 
+1. incremental completion
+2. selection narrowing framework for emacs
+
+_Installation_: I am going to use =use-package=
+
+_Usage_:
+1. type parts of the candidate you are looking for. they are called patterns. =M-a= to select all.
+2. you can mark candidates with =C-SPC=; this is useful when you need to perform an action on many candidates of your choice
+3. you can insert marked candidates into the current buffer with =C-c C-i=. This is useful when you have narrowed to a list of candidates, i.e. files, and then you want to save such candidates
+4. if you find the current horizontal Helm window is small, you can always switch it to a vertical window with =C-t=. Running =C-t= again returns the Helm window back to horizontal and so on.
+
+When you execute a Helm command, you enter a Helm session. A Helm session is a dedicated state to working with Helm features.
+While in a Helm Session, a dedicated Helm buffer is always opened. When you quit a Helm Session, a Helm buffer is closed.
+
+In Helm you basically need to remember these 3 Commands:
+1. Access the action menu with =TAB=. An action is a command to run on marked candidates (one or more) and quits the current Helm Session. An action menu is a text-based menu that lists actions you can take.
+For example,  
+  - =Find File= (Open File)
+  - =Find File in Dired=
+  - =Grep File=
+2. =C-z= executes =helm-execute-persistent-action=. A persistent action is an action that you use in a Helm Session that does not quit the session.
+3. In some helm sessions, such as =helm-find-files= or =helm-mini= you can select more than one candidates and execute actions on them, such as =grep= or =open= 
+
 #+begin_src emacs-lisp
-    (use-package helm
-    :diminish helm-mode
-    ;; :init
-    ;; (setq helm-idle-delay 0.0
-    ;;       helm-input-idle-delay 0.01
-    ;;       helm-yas-display-key-on-candidate t
-    ;;       helm-quick-update t
-    ;;       helm-M-x-requires-pattern nil
-    ;;       helm-ff-skip-boring-files t)
-    ;; (helm-mode)
-    :ensure t)
+  (use-package helm
+  :diminish helm-mode
+  :init
+  (setq helm-idle-delay 0.0
+        helm-input-idle-delay 0.01
+        helm-yas-display-key-on-candidate t
+        helm-quick-update t
+        helm-M-x-requires-pattern nil
+        helm-ff-skip-boring-files t)
+  (helm-mode)
+  :ensure t)
 
-    (require 'helm)
-    (require 'helm-config)
+  (require 'helm)
+  (require 'helm-config)
 
-    ;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs
-    ;; Change to "C-c h"
-    (global-set-key (kbd "C-c h") 'helm-command-prefix)
-    (global-unset-key (kbd "C-x c"))
-    (global-set-key (kbd "M-x") #'helm-M-x)
-    (global-set-key (kbd "C-x r b") #'helm-filtered-bookmarks)
-    (global-set-key (kbd "C-x C-f") #'helm-find-files)
-    (global-set-key (kbd "M-y") 'helm-show-kill-ring)
-    (global-set-key (kbd "C-x b") 'helm-mini)
-    (global-set-key (kbd "C-c h o") 'helm-occur)
-    ; rebind tab to run persistent action
-    (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
-    ; make TAB work in terminal
-    (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
-    ; list actions using C-z
-    (define-key helm-map (kbd "C-z")  'helm-select-action)
+  ;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs
+  ;; Change to "C-c h"
+  (global-set-key (kbd "C-c h") 'helm-command-prefix)
+  (global-unset-key (kbd "C-x c"))
+  (global-set-key (kbd "M-x") #'helm-M-x)
+  (global-set-key (kbd "C-x r b") #'helm-filtered-bookmarks)
+  (global-set-key (kbd "C-x C-f") #'helm-find-files)
+  (global-set-key (kbd "M-y") 'helm-show-kill-ring)
+  (global-set-key (kbd "C-x b") 'helm-mini)
+  (global-set-key (kbd "C-c h o") 'helm-occur)
+  ; rebind tab to run persistent action
+  (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
+  ; make TAB work in terminal
+  (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
+  ; list actions using C-z
+  (define-key helm-map (kbd "C-z")  'helm-select-action)
 
-    (when (executable-find "curl")
-      (setq helm-google-suggest-use-curl-p t))
+  (when (executable-find "curl")
+    (setq helm-google-suggest-use-curl-p t))
 
-    (setq helm-split-window-in-side-p       t ; open helm buffer inside current window, not occupy whole other window
-      helm-move-to-line-cycle-in-source     t ; move to end or beginning of source when reaching top or bottom of source.
-      helm-ff-search-library-in-sexp        t ; search for library in `require' and `declare-function' sexp.
-      helm-scroll-amount                    8 ; scroll 8 lines other window using M-<next>/M-<prior>
-      helm-ff-file-name-history-use-recentf t
-      helm-echo-input-in-header-line t)
+  (setq helm-split-window-in-side-p       t ; open helm buffer inside current window, not occupy whole other window
+    helm-move-to-line-cycle-in-source     t ; move to end or beginning of source when reaching top or bottom of source.
+    helm-ff-search-library-in-sexp        t ; search for library in `require' and `declare-function' sexp.
+    helm-scroll-amount                    8 ; scroll 8 lines other window using M-<next>/M-<prior>
+    helm-ff-file-name-history-use-recentf t
+    helm-echo-input-in-header-line t)
 
-    (defun spacemacs//helm-hide-minibuffer-maybe ()
-      "Hide minibuffer in Helm session if we use the header line as input field."
-      (when (with-helm-buffer helm-echo-input-in-header-line)
-        (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
-          (overlay-put ov 'window (selected-window))
-          (overlay-put ov 'face
-                       (let ((bg-color (face-background 'default nil)))
-                         `(:background ,bg-color :foreground ,bg-color)))
-          (setq-local cursor-type nil))))
+  (defun spacemacs//helm-hide-minibuffer-maybe ()
+    "Hide minibuffer in Helm session if we use the header line as input field."
+    (when (with-helm-buffer helm-echo-input-in-header-line)
+      (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
+        (overlay-put ov 'window (selected-window))
+        (overlay-put ov 'face
+                     (let ((bg-color (face-background 'default nil)))
+                       `(:background ,bg-color :foreground ,bg-color)))
+        (setq-local cursor-type nil))))
 
-    (add-hook 'helm-minibuffer-set-up-hook
-              'spacemacs//helm-hide-minibuffer-maybe)
+  (add-hook 'helm-minibuffer-set-up-hook
+            'spacemacs//helm-hide-minibuffer-maybe)
 
-    (defun pl/helm-alive-p ()
-      (if (boundp 'helm-alive-p)
-          (symbol-value 'helm-alive-p)))
+  (setq helm-M-x-fuzzy-match t) ;; optional fuzzy matching for helm-M-x
+  (setq helm-buffers-fuzzy-matching t
+      helm-recentf-fuzzy-match    t)
+  (setq helm-autoresize-max-height 0)
+  (setq helm-autoresize-min-height 20)
+  (helm-autoresize-mode 1)
+  (helm-mode 1)
 
-  ;  (add-to-list 'golden-ratio-inhibit-functions 'pl/helm-alive-p)
-
-    (setq helm-M-x-fuzzy-match t) ;; optional fuzzy matching for helm-M-x
-    (setq helm-buffers-fuzzy-matching t
-        helm-recentf-fuzzy-match    t)
-    (setq helm-autoresize-max-height 0)
-    (setq helm-autoresize-min-height 20)
-    (helm-autoresize-mode 1)
-    (helm-mode 1)
-
-    (when (executable-find "ack-grep")
-      (setq helm-grep-default-command "ack-grep -Hn --no-group --no-color %e %p %f"
-            helm-grep-default-recurse-command "ack-grep -H --no-group --no-color %e %p %f"))
-    (setq helm-locate-fuzzy-match t)
-    (setq helm-apropos-fuzzy-match t)
+  (when (executable-find "ack-grep")
+    (setq helm-grep-default-command "ack-grep -Hn --no-group --no-color %e %p %f"
+          helm-grep-default-recurse-command "ack-grep -H --no-group --no-color %e %p %f"))
+  (setq helm-locate-fuzzy-match t)
+  (setq helm-apropos-fuzzy-match t)
 #+end_src
 
 helm-descbinds
@@ -922,16 +949,8 @@ helm-descbinds
         ("C-h b" . helm-descbinds)
         ("C-h w" . helm-descbinds)))
 #+end_src
-
-Helm Projectile
-#+begin_src emacs-lisp
-(use-package helm-projectile)
-(projectile-global-mode)
-(setq projectile-completion-system 'helm)
-(helm-projectile-on)
-#+end_src
 ** Projectile                                                        :Drill:
-
+_Features_:
 - jump to a file in project
 - jump to a directory in a project
 - jump to file in a dir
@@ -950,15 +969,77 @@ Helm Projectile
 - check for dirty repos
 
 Some Helpful Commands
-C-c p s Switch to project
-C-c p f List files in project
-C-c p k Kill all buffers for project
+- C-c p s Switch to project
+- C-c p f List files in project
+- C-c p k Kill all buffers for project
 
 #+begin_src emacs-lisp
 (use-package projectile
 :config
 (require 'projectile)
 (projectile-global-mode))
+#+end_src
+*** Helm Projectile
+_Demos_:
+1. Select and open multiple files:
+[[https://tuhdo.github.io/static/helm-projectile/helm-projectile-find-files-1.gif]]
+_Problem_: when I select multiple files it all opens in separate windows. Instead I want to open them behind the scenes. that means they would be opened in my buffer list.
+2. Open a file at point anywhere
+[[https://tuhdo.github.io/static/helm-projectile/helm-projectile-find-files-dwim-1.gif]]
+  - In the demo the first path is a file that I opened using a command from =M-x=.
+  - The second path is a directory that I opened using a key binding.
+  - The third path is highlighted in a region and I opened using command history in Helm, so no need to type anything.
+3. Copy Files anywhere
+[[https://tuhdo.github.io/static/helm-projectile/helm-projectile-find-file-copy.gif]]
+4. Delete Files anywhere
+[[https://tuhdo.github.io/static/helm-projectile/helm-projectile-find-file-delete.gif]]
+5. Switch between current file and other files with same names but different extensions
+[[https://tuhdo.github.io/static/helm-projectile/helm-projectile-find-other-file.gif]]
+  - First, I select helm-projectile-find-other-file and a list of other files displayed.
+  - Then, I marked a few files and press RET to open all.
+  - Finally, I use helm-mini to open a list of opened buffers and the files I marked and opened are there.
+6. =helm-projectile-switch-project=
+[[https://tuhdo.github.io/static/helm-projectile/helm-projectile-switch-project.gif]]
+  - Open Dired =C-d=
+  - Open Project Root =M-g=
+  -  Switch to Eshell =M-e=
+  - Grep in projects (C-s; add prefix to C-u to recursive grep): As you type the regexp in the mini buffer, the live grep results will be displayed incrementally.
+  - Compile Project =C-d=
+  - Remove Project =M-D=
+ [[https://tuhdo.github.io/static/helm-projectile/helm-projectile-remove-project.gif]]
+
+_File Management_:
+1. =helm-projectile-find-file= =C-c p f=
+   Open:
+   - find file:
+   - find file other window
+   - find file other Frame
+   - find file in Dired
+   - view file
+   - Open File Externally
+   Move and Rename
+   - Rename Files
+   - Serial Rename Files
+   Copy and Delete
+   - Copy Files
+   - Delete Files
+   Search and Replace
+   - Grep Files ;todo;
+   - ZGrep Files ;todo;
+   - Locate ;todo;
+   Virtual Directory Manager
+   Buffer Management
+   Search in Project
+   - helm projectile grep
+     [[https://tuhdo.github.io/static/helm-projectile/helm-projectile-grep.gif]]
+
+#+begin_src emacs-lisp
+  (use-package helm-projectile)
+  (projectile-global-mode)
+  (setq projectile-completion-system 'helm)
+  (setq projectile-switch-project-action 'helm-projectile)
+  (setq projectile-enable-caching t)
+  (helm-projectile-on)
 #+end_src
 ** Hydra
 #+begin_src emacs-lisp
@@ -969,6 +1050,61 @@ C-c p k Kill all buffers for project
 (use-package restclient
     :ensure t)
 #+END_SRC
+** Beacon Mode
+#+begin_src emacs-lisp
+  (use-package beacon
+    :config
+    (beacon-mode 1)
+    (setq beacon-color "#000000"))
+#+end_src
+** Hungry Delete
+#+begin_src emacs-lisp
+(use-package hungry-delete
+  :ensure t
+  :config
+  (global-hungry-delete-mode))
+#+end_src
+** Linum Mode
+*** Line Numbers
+Turn =linum-mode= on/off with =Command-K=. However, I turn this on automatically for programming modes.
+#+begin_src emacs-lisp
+  (use-package linum
+    :init
+    (add-hook 'prog-mode-hook 'linum-mode)
+    (add-hook 'linum-mode-hook (lambda () (set-face-attribute 'linum nil :height 110)))
+
+    :config
+    (defun linum-fringe-toggle ()
+      "Toggles the line numbers as well as the fringe."    (interactive)
+      (cond (linum-mode (fringe-mode '(0 . 0))
+                        (linum-mode -1))
+            (t          (fringe-mode '(8 . 0))
+                        (linum-mode 1))))
+
+    :bind (("A-C-k"   . linum-mode)
+           ("s-C-k"   . linum-mode)
+           ("A-C-M-k" . linum-fringe-toggle)
+           ("s-C-M-k" . linum-fringe-toggle)))
+#+end_src
+
+The Linum-Realtive Mode allows one to see the destination line as a relative distance
+#+begin_src emacs-lisp
+  (use-package linum-relative
+    :ensure t
+    :config
+    (defun linum-new-mode ()
+      "If line numbers aren't displayed, then display them.
+       Otherwise, toggle between absolute and relative numbers."
+      (interactive)
+      (if linum-mode
+          (linum-relative-toggle)
+        (linum-mode 1)))
+
+    :bind ("C-c k" . linum-new-mode)
+          ("C-c K" . linum-new-mode))   ;; For Linux
+
+#+end_src
+
 * Editing
 ** Encoding System                                                   :Drill:
 #+begin_src emacs-lisp
@@ -979,10 +1115,6 @@ C-c p k Kill all buffers for project
 (when (display-graphic-p)
   (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
 #+end_src
-** Linum Mode
-#+BEGIN_SRC emacs-lisp
-  (add-hook 'prog-mode-hook 'linum-mode)
-#+END_SRC
 ** Delete Selection Mode
 
 #+BEGIN_SRC emacs-lisp
@@ -1158,84 +1290,27 @@ make the first line of a file look like this:
 #+begin_example
 MY PROJECTS -*- mode: org; -*-
 #+end_example
-which will select Org mode for this buffer no matter what the file’s name is.
 
+which will select Org mode for this buffer no matter what the file’s name is.
 #+begin_src emacs-lisp
   (setq
    org-directory "~/Dropbox/org"
    org-default-notes-file (concat org-directory "/notes.org")
    org-export-html-postamble nil
    org-hide-leading-stars t
+   org-hide-emphasis-markers t
    org-startup-folded (quote overview)
    org-startup-indented t
    )
 #+end_src
 
-custom key bindings
-##+begin_src emacs-lisp
-  (global-set-key (kbd "<f12>") 'org-agenda)
-  (global-set-key (kbd "<f5>") 'bh/org-todo)
-  (global-set-key (kbd "<S-f5>") 'bh/widen)
-  (global-set-key (kbd "<f7>") 'bh/set-truncate-lines)
-  (global-set-key (kbd "<f8>") 'org-cycle-agenda-files)
-  (global-set-key (kbd "<f9> <f9>") 'bh/show-org-agenda)
-  (global-set-key (kbd "<f9> b") 'bbdb)
-  (global-set-key (kbd "<f9> c") 'calendar)
-  (global-set-key (kbd "<f9> f") 'boxquote-insert-file)
-  (global-set-key (kbd "<f9> g") 'gnus)
-  (global-set-key (kbd "<f9> h") 'bh/hide-other)
-  (global-set-key (kbd "<f9> n") 'bh/toggle-next-task-display)
-
-  (global-set-key (kbd "<f9> I") 'bh/punch-in)
-  (global-set-key (kbd "<f9> O") 'bh/punch-out)
-
-  (global-set-key (kbd "<f9> o") 'bh/make-org-scratch)
-
-  (global-set-key (kbd "<f9> r") 'boxquote-region)
-  (global-set-key (kbd "<f9> s") 'bh/switch-to-scratch)
-
-  (global-set-key (kbd "<f9> t") 'bh/insert-inactive-timestamp)
-  (global-set-key (kbd "<f9> T") 'bh/toggle-insert-inactive-timestamp)
-
-  (global-set-key (kbd "<f9> v") 'visible-mode)
-  (global-set-key (kbd "<f9> l") 'org-toggle-link-display)
-  (global-set-key (kbd "<f9> SPC") 'bh/clock-in-last-task)
-  (global-set-key (kbd "C-<f9>") 'previous-buffer)
-  (global-set-key (kbd "M-<f9>") 'org-toggle-inline-images)
-  (global-set-key (kbd "C-x n r") 'narrow-to-region)
-  (global-set-key (kbd "C-<f10>") 'next-buffer)
-  (global-set-key (kbd "<f11>") 'org-clock-goto)
-  (global-set-key (kbd "C-<f11>") 'org-clock-in)
-  (global-set-key (kbd "C-s-<f12>") 'bh/save-then-publish)
-  (global-set-key (kbd "C-c c") 'org-capture)
-
-  (defun bh/hide-other ()
-    (interactive)
-    (save-excursion
-      (org-back-to-heading 'invisible-ok)
-      (hide-other)
-      (org-cycle)
-      (org-cycle)
-      (org-cycle)))
-
-  (defun bh/set-truncate-lines ()
-    "Toggle value of truncate-lines and refresh window display."
-    (interactive)
-    (setq truncate-lines (not truncate-lines))
-    ;; Now refresh window display (an idiom from simple.el):
-    (save-excursion
-      (set-window-start (selected-window)
-                        (window-start (selected-window)))))
-
-  (defun bh/make-org-scratch ()
-    (interactive)
-    (find-file "/tmp/publish/scratch.org")
-    (gnus-make-directory "/tmp/publish"))
-
-  (defun bh/switch-to-scratch ()
-    (interactive)
-    (switch-to-buffer "*scratch*"))
+What does this snippet do?
+#+begin_src emacs-lisp
+(font-lock-add-keywords 'org-mode
+                          '(("^ +\\([-*]\\) "
+                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 #+end_src
+
 ** Org Todo Keywords
 #+begin_src emacs-lisp
   (setq org-todo-keywords
@@ -1282,11 +1357,16 @@ ref: sacha
         ("i" "#+index: ?" "#+index: ?")
         ("I" "#+include %file ?" "<include file=%file markup=\"?\">")))
 #+END_SRC
-** Htmlize
+** Htmlize RSS
 #+begin_src emacs-lisp
-(use-package htmlize)
+(require 'ox-html)
+(require 'ox-publish)
+(require 'ox-rss)
+(use-package htmlize
+   :ensure t)
+
 #+end_src
-** Reveal.JS
+** Org Reveal
 #+begin_src emacs-lisp
 (use-package ox-reveal)
 (setq org-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
@@ -1401,8 +1481,41 @@ use C-x C-s for closing out of the org-src-edit buffer
 #+end_src 
 ** Org Indent
 #+BEGIN_SRC emacs-lisp
-   (eval-after-load "org-indent" '(diminish 'org-indent-mode))
+  (eval-after-load "org-indent" '(diminish 'org-indent-mode))
 #+END_SRC
+** Org-Heading Customization
+#+begin_src emacs-lisp
+  (let* ((variable-tuple (cond ((x-list-fonts "Inconsolata") '(:font "Inconsolata"))
+                             ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
+                             ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
+                             ((x-list-fonts "Verdana")         '(:font "Verdana"))
+                             ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
+                             (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
+       (base-font-color     (face-foreground 'default nil 'default))
+       (headline           `(:inherit default :weight bold :foreground ,base-font-color)))
+
+  (custom-set-faces
+   '(org-block-begin-line
+     ((t (:foreground "#008ED1"))))
+   '(org-block-background
+     ((t (:background "#000000"))))
+   '(org-block
+     ((t (:background "#000000"))))
+   '(org-block-end-line
+     ((t (:foreground "#008ED1")))))
+
+  (custom-theme-set-faces 'user
+                          `(org-level-8 ((t (,@headline ,@variable-tuple))))
+                          `(org-level-7 ((t (,@headline ,@variable-tuple))))
+                          `(org-level-6 ((t (,@headline ,@variable-tuple))))
+                          `(org-level-5 ((t (,@headline ,@variable-tuple))))
+                          `(org-level-4 ((t (,@headline ,@variable-tuple :height 1.1))))
+                          `(org-level-3 ((t (,@headline ,@variable-tuple :height 1.25 :foreground "red"))))
+                          `(org-level-2 ((t (,@headline ,@variable-tuple :height 1.5 :foreground "green"))))
+                          `(org-level-1 ((t (,@headline ,@variable-tuple :height 1.75 :foreground "yellow"))))
+                          `(org-document-title ((t (,@headline ,@variable-tuple :height 1.5 :underline nil))))))
+
+#+end_src
 * Programming
 ** General Settings
 *** Paredit
@@ -1595,6 +1708,100 @@ ref: purcell
 #+begin_src emacs-lisp
 
 #+end_src
+** C/C++
+_Reference_: [[tuhdo1710@gmail.com]]
+*** Features 
+1. should be able to browse the Linux kernel source tree
+inside Emacs effortlessly, such as jump to definition/references at
+cursor, 
+2. go back and forth between jumping points, 
+3. finding any file
+4. instantly, switching between .h and .c/.cpp.
+*** Demos
+A few demos:
+
+- Switching between .h and .c/.cpp anywhere in the project like Linux
+  kernel. If more than one file exists, it displays a list of
+  possible candidates. The command collects files of the same names
+  but different across the project:
+
+[[file:static/c-ide/projectile-find-other-file.gif][file:static/c-ide/projectile-find-other-file.gif]]
+
+- Jump around Linux kernel source with ease using =helm-gtags=. The
+  demo begins when "START" appears at the bottom:
+
+[[file:static/c-ide/helm-gtags-jump-dwim.gif][file:static/c-ide/helm-gtags-jump-dwim.gif]]
+
+- Interactive outline tree using =moo-jump-local= from [[https://github.com/abo-abo/function-args][function-args]]
+  package:
+
+  [[file:static/c-ide/moo-jump-local.gif][file:static/c-ide/moo-jump-local.gif]]
+
+- Static outline tree as a file browser:
+
+[[file:static/c-ide/sr-speedbar.gif][file:static/c-ide/sr-speedbar.gif]]
+
+- Symbol references:
+
+[[file:static/c-ide/semantic-symref.gif][file:static/c-ide/semantic-symref.gif]]
+
+- Code completion 1:
+
+[[file:static/c-ide/semantic-boost-demo.gif][file:static/c-ide/semantic-boost-demo.gif]]
+
+- Code completion 2:
+
+[[file:static/auto_complete.gif][file:static/auto_complete.gif]]
+
+- Header completion:
+
+[[file:static/c-ide/company-c-header.png][file:static/c-ide/company-c-header.png]]
+
+- Show function interface and variable definition at the bottom:
+
+[[file:static/func_args.jpg][file:static/func_args.jpg]]
+
+[[file:static/c-ide/semantic-idle-summary-lambda.gif][file:static/c-ide/semantic-idle-summary-lambda.gif]]
+
+[[file:static/c-ide/semantic-idle-summary-variable.gif][file:static/c-ide/semantic-idle-summary-variable.gif]]
+
+
+- Show current function your cursor is inside at the top:
+
+[[file:static/c-ide/semantic-sticky-func.gif][file:static/c-ide/semantic-sticky-func.gif]]
+
+- Compilation support:
+
+[[file:static/c-ide/compilation-mode.gif][file:static/c-ide/compilation-mode.gif]]
+
+- Beautiful compile output:
+
+[[file:static/c-ide/compilation-compile.gif][file:static/c-ide/compilation-compile.gif]]
+
+- Fancy GDB debugging:
+
+[[file:static/c-ide/gdb-many-windows.gif][file:static/c-ide/gdb-many-windows.gif]]
+
+- Getting man pages for symbol at cursor:
+
+[[file:static/part3/helm-man-woman.gif][file:static/part3/helm-man-woman.gif]]
+
+*** Source Code Navigation
+*** Browse Source Tree with Speedbar File Browser
+*** General Completion with =company-mode=
+*** Demo Project
+*** Source Code completion using Clang
+*** Header file completion with =company-c-headers= Packages
+*** CEDET
+*** Code Refactoring
+*** Navigate system include path
+*** Project Management with Projectile
+*** Source Code Information
+*** Source Code Documentation
+*** Source Code Formatting
+*** Compilation Support
+*** Debugging
+
 * Applications
 ** Email
 ** Chat
