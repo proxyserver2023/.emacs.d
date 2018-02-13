@@ -1800,6 +1800,13 @@ A few demos:
 *** Source Code completion using Clang
 *** Header file completion with =company-c-headers= Packages
 *** CEDET
+**** What is CEDET?
+**** Why use CEDET?
+**** Installation
+**** Semantic minor modes
+**** CEDET can do more
+**** Source code navigation using Senator
+**** Project Management with IDE
 *** Code Refactoring
 *** Navigate system include path
 *** Project Management with Projectile
