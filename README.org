@@ -1041,6 +1041,30 @@ _File Management_:
   (setq projectile-enable-caching t)
   (helm-projectile-on)
 #+end_src
+** Helm Gtags
+#+begin_src emacs-lisp
+  (use-package helm-gtags
+    :config
+    (setq helm-gtags-ignore-case t
+          helm-gtags-auto-update t
+          helm-gtags-use-input-at-cursor t
+          helm-gtags-prefix-key "\C-cg"
+          helm-gtags-suggested-key-mapping t)
+    (require 'helm-gtags)
+    ;; Enable helm-gtags-mode
+    (add-hook 'dired-mode-hook 'helm-gtags-mode)
+    (add-hook 'eshell-mode-hook 'helm-gtags-mode)
+    (add-hook 'c-mode-hook 'helm-gtags-mode)
+    (add-hook 'c++-mode-hook 'helm-gtags-mode)
+    (add-hook 'asm-mode-hook 'helm-gtags-mode)
+
+    (define-key helm-gtags-mode-map (kbd "C-c g a") 'helm-gtags-tags-in-this-function)
+    (define-key helm-gtags-mode-map (kbd "C-j") 'helm-gtags-select)
+    (define-key helm-gtags-mode-map (kbd "C-M-.") 'helm-gtags-dwim)
+    (define-key helm-gtags-mode-map (kbd "C-M-,") 'helm-gtags-pop-stack)
+    (define-key helm-gtags-mode-map (kbd "C-c <") 'helm-gtags-previous-history)
+    (define-key helm-gtags-mode-map (kbd "C-c >") 'helm-gtags-next-history))
+#+end_src
 ** Hydra
 #+begin_src emacs-lisp
 (use-package hydra)
@@ -1788,7 +1812,57 @@ A few demos:
 
 *** Source Code Navigation
 **** Prerequisites
+- Install helm + helm-gtags.
+- Before using helm-gtags, remember to create a GTAGS database by running gtags at your project root in terminal:
+#+begin_src shell-script
+$ cd /path/to/project/root
+$ gtags
+#+end_src
+- After this a few files are created
+#+begin_src shell-script
+$ ls G*
+GPATH GRTAGS GTAGS
+#+end_src
+
+- GTAGS: definition database
+- GRTAGS: reference database
+- GPATH: path name database
+
 **** Basic Movements
+- *C-M-f* runs =forward-sexp=, move forward over a balanced
+  expression that can be a pair or a symbol. Demo:
+
+  [[file:static/c-ide/forward-func.gif][file:static/c-ide/forward-func.gif]]
+
+- *C-M-b* runs =backward-sexp=, move backward over a balanced
+  expression that can be a pair or a symbol. Demo:
+
+  [[file:static/c-ide/backward-func.gif][file:static/c-ide/backward-func.gif]]
+
+- *C-M-k* runs =kill-sexp=, kill balanced expression
+  forward that can be a pair or a symbol. Demo:
+
+  [[file:static/c-ide/kill-func-body.gif][file:static/c-ide/kill-func-body.gif]]
+
+- *C-M-<SPC>* or *C-M-@* runs =mark-sexp=, put mark after
+  following expression that can be a pair or a symbol. Demo:
+
+  [[file:static/c-ide/mark-func-body.gif][file:static/c-ide/mark-func-body.gif]]
+
+- *C-M-a* runs =beginning-of-defun=, which moves point to beginning of
+  a function. Demo:
+
+  [[file:static/c-ide/beginning-of-defun.gif][file:static/c-ide/beginning-of-defun.gif]]
+
+- *C-M-e* runs =end-of-defun=, which moves point to end of a
+  function. Demo:
+
+  [[file:static/c-ide/end-of-defun.gif][file:static/c-ide/end-of-defun.gif]]
+
+- *C-M-h* runs =mark-defun=, which put a region around whole current
+  or following function. Demo:
+
+  [[file:static/c-ide/mark-defun.gif][file:static/c-ide/mark-defun.gif]]
 **** Find Definitions in current Buffer
 **** Find References in Project
 **** Find functions that current functions call
