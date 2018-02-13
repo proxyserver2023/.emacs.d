@@ -1787,6 +1787,13 @@ A few demos:
 [[file:static/part3/helm-man-woman.gif][file:static/part3/helm-man-woman.gif]]
 
 *** Source Code Navigation
+**** Prerequisites
+**** Basic Movements
+**** Find Definitions in current Buffer
+**** Find References in Project
+**** Find functions that current functions call
+**** Find files in project
+**** View visited tags with tag stack
 *** Browse Source Tree with Speedbar File Browser
 *** General Completion with =company-mode=
 *** Demo Project
