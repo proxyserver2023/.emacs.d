@@ -3,12 +3,243 @@
 #+EMAIL: alamin.ineedahelp@gmail.com
 #+STARTUP: overview indent inlineimages hideblocks
 #+TAGS: Drill(d)
-
 * Introduction
 #+BEGIN_SRC emacs-lisp
   (setq user-full-name "Alamin Mahamud")
   (setq user-mail-address "alamin.ineedahelp@gmail.com")
 #+END_SRC
+
+*** Credits
+This Emacs Config has been created by shamelessly stealing other peoples config and docs.
+Special thanks to Howard Abrams, Magnar Sveen, Tu do Hoang, John Weigley, Sacha Chua, Arjen Wiersma
+
+*** Why Emacs?
+Some Demo
+- Performance: Editing a 39MB C source file with no problem. But well,
+  it's not your favorite editor's fault if it crashes from editing
+  such a large source file.
+
+  [[file:static/performance.gif][file:static/performance.gif]]
+
+- Programming:
+  - Jump to any header file:
+
+    [[file:static/jump_headers.gif][file:static/jump_headers.gif]]
+
+  - Autocompletion: Pay attention to completion candidates when
+    ~include <linux/printk.h>~ is present and when it's not.
+
+    [[file:static/auto_complete.gif][file:static/auto_complete.gif]]
+
+  - Showing function arguments:
+
+    [[file:static/func_args.jpg][file:static/func_args.jpg]]
+
+  - Quickly comment multiple lines:
+
+    [[file:static/comment.gif][file:static/comment.gif]]
+
+  - GDB:
+
+    #+BEGIN_CENTER
+    [[file:static/c-ide/gdb-many-windows.gif][file:static/c-ide/gdb-many-windows.gif]]
+    #+END_CENTER
+
+- Diff between current editing file and latest file revision:
+
+  [[file:static/vc-diff.jpg][file:static/vc-diff.jpg]]
+
+- Magit: From unstage -> stage -> commit -> push
+
+  [[file:static/magit.gif][file:static/magit.gif]]
+
+- Live Grep:
+
+  [[file:static/live_grep.gif][file:static/live_grep.gif]]
+
+- Quickly select any file in a directory under a Version Control
+  System, for example from the Linux kernel. Note that in the demos
+  you may see me type in the commands. You can think of it like the
+  start menu in Windows, but those commands can actually be executed
+  quickly with a shortcut.
+
+  [[file:static/helm-projectile/helm-projectile-find-files-1.gif][file:static/helm-projectile/helm-projectile-find-files-1.gif]]
+
+- Quickly select any file/directory from a previous working session:
+
+  [[file:static/helm-buffer-list.gif][file:static/helm-buffer-list.gif]]
+
+- Emacs is a PDF Reader: I can search text in the PDF file with
+  highlighting and a table of contents side by side. All can be
+  controlled with keyboard.
+
+  [[file:static/emacs-read-pdf.gif][file:static/emacs-read-pdf.gif]]/
+
+Finally, [[http://jtnimoy.net/workviewer.php?q%3D178][Emacs is featured in Tron Legacy]].
+
+*** A bit of history
+
+Quotes from Emacs Homepage:
+
+#+BEGIN_QUOTE
+For those curious about Emacs history: Emacs was originally
+implemented in 1976 on the MIT AI Lab's Incompatible Timesharing
+System (ITS), as a collection of TECO macros. The name “Emacs” was
+originally chosen as an abbreviation of “Editor MACroS”. This version
+of Emacs, GNU Emacs, was originally written in 1984. For more
+information, see the 1981 paper by Richard Stallman, describing the
+design of the original Emacs and the lessons to be learned from it,
+and a transcript of his 2002 speech at the International Lisp
+Conference, My Lisp Experiences and the Development of GNU Emacs. Here
+is the cover of the original Emacs Manual for ITS; the cover of the
+original Emacs Manual for Twenex; and (the only cartoon RMS has ever
+drawn) the Self-Documenting Extensible Editor.
+#+END_QUOTE
+
+*** "I don't want a complicated editor, I want something simple like Notepad"
+
+Well, that's your choice. But I suggest that writing code without any
+support is harmful.
+
+A programmer should automate things as much as possible if the
+automation cost does not outweigh the cost of doing it manually. One
+/really easy/ way to do this is by using a good editor that automates
+many menial and tedious tasks. For example, one of the things that
+annoy me is using the command *cd* to change into a deep directory
+path like this:
+
+=/path/to/a/very/long/long/long/long/long/long/..../directory/=
+
+In Emacs, if you have a directory under a version control system, you
+can immediately jump to any file quickly, even if it is buried 20
+levels deep (as demonstrated at the beginning).
+
+Another example is quickly commenting out multiple lines of code in a
+programming language that only supports single line comments. In many
+editors you would have to tediously comment them out line by line. But
+in Emacs you can simply highlight the lines and press a shortcut to
+comment them out.
+
+Many people think that writing programs manually makes them much
+cooler than "amateurs" that use a fancy =Integrated Development
+Environment=. I also used to think like that because working in a
+Linux environment requires understanding of the underlying processes,
+such as building software using a Makefile in C/C++, automating with a
+shell script, installing software by compiling... And this is already
+considered "user friendly" in the Linux world, as opposed to "click
+the nice little play button" in a typical IDE. However, I was
+wrong. While working with such tools allows me to understand what's
+going on, I do not need to type in code manually to understand it. If
+you get what a for loop does, typing it character by character is only
+tedious and interrupts your thinking.
+
+Writing code manually won't make you smarter, because you did the
+thinking before you started to type. Typing is just a mere reflection
+of your thoughts into the editor. You need to finish typing as fast as
+possible, because the quicker you finish, the quicker you can get back
+to your thinking. Only thoughts matter, and there's no value in
+manually typing the same things thousands of times. I must say, =Cut=,
+=Copy= and =Paste= are really great ideas and great automation tools
+because of their simplicity.
+
+If your job may require you to use an esoteric in-house programming
+language and if you don't like it, having an editor to help you finish
+the tasks as soon as possible is a way to make yourself happier.
+
+Typing too much can also lead to RSI. Manually typing too much code is
+harmful to your fingers. At least if you use a handsaw instead of a
+circular saw, you do some physical exercise in the process.
+
+In Sum:
+
+- Manually typing does not make you smarter. Not in any form.
+- Manually typing does not make you a better programmer.
+- Manually typing or other tedious tasks (navigating the file system,
+  remembering changes you made to your files...) are a waste of time if
+  automating is possible. Automate as much as you can.
+- Good editors help you automate boring tasks.
+- Typing too much potentially leads to RSI.
+
+Instead of wasting your time and memory on tedious tasks, you could
+save it for more interesting things.
+
+
+*** Installation
+**** Linux:
+:PROPERTIES:
+:ID:       8acc1c68-72e7-4116-8afd-2265dda008d2
+:END:
+Easy way to install if you are using Ubuntu: =sudo apt-get install
+emacs=. If you use other Linux distributions, use the package manager
+of your distribution and install Emacs. However, the package manager
+only has the latest stable Emacs; if you want the latest Emacs, build
+it from source according to the instructions below.
+
+To use Emacs with GUI:
+
+- Install GTK 3: =sudo apt-get install libgtk-3-dev libgtk-3-common libgtk-3-0=
+- Download [[http://www.gnu.org/software/emacs/][Emacs]]; or if you prefer the latest Emacs, get it from source: =git clone http://repo.or.cz/r/emacs.git=
+- If you download from the homepage, unpackage: =tar xvf
+  emacs-*.tar.gz=
+- Install GTK: =sudo apt-get install libgtk-3-dev libgtk-3-common
+  libgtk-3-0=. You have to use gtk3 to be able to use true type
+  fonts.
+- =cd emacs-<version>*=
+- =./autogen.sh=
+- Add prefix and path to where you want to install. This is useful if
+  you work on a remote server without root access: =./configure
+  --with-x-toolkit=gtk3 [--prefix=/path/to/dir]=
+
+  You should use GTKx 3, so you will be able to use true type fonts
+  such as Inconsolata for a better Emacs experience.
+- =make=
+- =sudo make install=
+
+If =./configure= tells you there are dependencies missing, you should
+install them. Recommended dependencies: libtiff, libgiff, libjpeg,
+libpng and libxml2 for viewing and browsing web inside Emacs:
+
+=sudo apt-get install libtiff5-dev libpng12-dev libjpeg-dev libgif-dev
+libgnutls-dev libxml2-dev=
+
+Using in Terminal only:
+
+- Download and unpackage as above.
+- =./configure --without-x [--prefix=/path/to/dir]=
+- =make=
+- =sudo make install=
+
+If you don't like to compile Emacs yourself, install from the package
+manager of your Linux distribution.
+
+After installation is done, add this line to your *.bashrc* or *.zshrc*:
+
+#+begin_src shell-script
+  alias em='emacs'
+#+end_src
+
+So you can start Emacs as fast as vim!
+
+**** Windows:
+:PROPERTIES:
+:ID:       301e3dcb-a00d-4b20-a5a8-f2b0946c56d1
+:END:
+You can either download it on GNU Emacs homepage or better, download
+the latest 64 bit version:
+http://semantic.supelec.fr/popineau/programming-emacs.html.
+
+After that, unpackage it in =C:\Program Files\= and create a shortcut
+to =C:\Program Files\Emacs\bin\emacsclientw.exe= on desktop.
+
+**** Mac OS X:
+:PROPERTIES:
+:ID:       f86712b7-d138-4ad3-aef0-494a744c3b34
+:END:
+Download compiled Emacs for Mac OS X: http://emacsformacosx.com/.
+
+You can also use this version that is more integrated with Mac OSX:
+https://github.com/railwaycat/emacs-mac-port
+
 * General Settings
 ** Platform Specific Configuration
 *** OS X Desktop
@@ -1909,3 +2140,4 @@ GPATH GRTAGS GTAGS
 - [ ] Code Folding 
 - [ ] Clojure Support [ Build Fun Things ]
 - [ ] Rust Support [ Build Fun Things ]
+* Credits
