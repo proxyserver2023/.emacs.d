@@ -77,6 +77,22 @@ Some Demo
 
 Finally, [[http://jtnimoy.net/workviewer.php?q%3D178][Emacs is featured in Tron Legacy]].
 
+**** Other people's "Why Emacs?"
+:PROPERTIES:
+:ID:       2da15989-7cfe-414e-ad39-3c09098bf045
+:END:
+[[http://semantic.supelec.fr/popineau/programming-emacs.html#sec-1]["Why Emacs?"]] by Fabrice Popinea. He is the maintainer of Emacs 64
+bit on Windows.
+
+[[http://batsov.com/articles/2011/11/19/why-emacs/]["Why Emacs?"]] by Bozhidar Batsov. He is the author of [[https://github.com/bbatsov/prelude][Emacs Prelude]],
+an Emacs distribution with convenient packages for new people to get
+start with Emacs.
+
+[[http://cs.mcgill.ca/~vfoley1/posts/2014-06-10-why-emacs.html][Why I use Emacs]] by Vincent Foley-Bourgon.
+
+[[http://gnuvince.wordpress.com/2012/02/19/why-i-still-use-emacs/][Why I Still Use Emacs]], also by Vincent Foley-Bourgon.
+
+[[http://emacs.sexy/][Emacs is sexy]].
 *** A bit of history
 
 Quotes from Emacs Homepage:
@@ -95,6 +111,77 @@ is the cover of the original Emacs Manual for ITS; the cover of the
 original Emacs Manual for Twenex; and (the only cartoon RMS has ever
 drawn) the Self-Documenting Extensible Editor.
 #+END_QUOTE
+
+**** More on Emacs history
+
+Ever heard of a computing system called *Lisp Machine*? I bet many of
+you don't. Me, too, until I started using Emacs and gradually learned
+enough to know such a thing ever existed. This old article is an
+interesting read: [[http://emacs.wordpress.com/2007/01/14/the-ghost-in-the-lisp-machine/][The Ghost in the Lisp Machine]]
+
+#+BEGIN_QUOTE
+A friend of mine used to say that Emacs fills our yearning for a Lisp
+Machine. I tend to agree with him: Emacs is not just an editor, but a
+full integrated environment where you can perform virtually any
+imaginable task; and, most importantly, the inner workings of the
+system are open to you to explore and extend. Using, for extra fun,
+Lisp. No, i don’t think that Elisp is the nicest Lisp incarnation
+around, but is far better than, say, C, and i still prefer it to other
+scripting languages. Moreover, the awesome range of libraries at your
+disposal makes up for many of the deficiencies in the language.
+
+Living in Emacs is addictive. Imagine an operating system where you
+can switch from writing code to browsing the web or chatting without
+leaving a consistent environment, with the same set of commands and
+shortcuts. Imagine a set of integrated applications where data is
+seamlessly shared, where any single functionality can be tweaked,
+extended and adapted to your particular needs. Where everything is
+easily scriptable. Imagine, in addition, that the environment provides
+powerful and complete interactive self-documentation facilities with
+which the user can find out what is available. I have yet to find an
+operating system providing such an integrated environment. Not even
+Mac OS X, where AppleScript support is often lacking and system
+services are underused.
+
+Of course, the key ingredient here is Emacs’ extensibility. Far from
+being an afterthought or simply one of its features, extensibility is
+the central aspect of Emacs’ architecture. Actually, the whole point
+of this post is to recommend you reading Richard Stallman’s 1981 essay
+EMACS: The Extensible, Customizable Display Editor, which explains
+much better than I could the strong points of Emacs design, i.e.,
+those traits that make Emacs more, much more, than just an
+editor. From the horse’s mouth:
+
+
+    /Extensibility means that the user can add new editing commands or
+    change old ones to fit his editing needs, while he is/
+    /editing. EMACS is written in a modular fashion, composed of many
+    separate and independent functions. The user extends EMACS by/
+    /adding or replacing functions, writing their definitions in the
+    same language that was used to write the original EMACS system. We/
+    /will explain below why this is the only method of extension which
+    is practical in use: others are theoretically equally good but/
+    /discourage use, or discourage nontrivial use/.
+
+    [...]
+
+    /User customization helps in another, subtler way, by making the
+    whole user community into a breeding and testing ground for new/
+    /ideas. Users think of small changes, try them, and give them to
+    other users–if an idea becomes popular, it can be incorporated/
+    /into the core system. When we poll users on suggested changes,
+    they can respond on the basis of actual experience rather than/
+    /thought experiments./
+
+The article goes on explaining the organization of the Emacs system,
+how it depends on its interpreter, Elisp’s main features and how
+built-in self-documentation is provided. Also interesting is the list
+of related systems at the end of the essay: Lisp machines, LOGO,
+MacLisp and Smalltalk. We’re definitely in good company!
+#+END_QUOTE
+
+Emacs is a miniature of a Lisp Machine. You can take a tour at the
+[[http://www.sts.tu-harburg.de/~r.f.moeller/symbolics-info/symbolics.html][Lisp Machine online museum]].
 
 *** "I don't want a complicated editor, I want something simple like Notepad"
 
@@ -240,7 +327,8 @@ https://github.com/railwaycat/emacs-mac-port
 
 *** Swap Control and Capslock
 
-Now I don't swap control and capslock.
+*Now I don't swap control and capslock.*
+
 But those of who are interested can do this. by following these links.
 
 Swapping Control and Capslock, in general, is not required to make the
@@ -277,10 +365,7 @@ ubuntu 13.10]].
 :END:
 Follow this answer on StackOverflow: [[http://stackoverflow.com/a/162907/496700][Emacs on Mac OS X Leopard key
 bindings]]
-**** If you don't like to swap Capslock and Control...
-:PROPERTIES:
-:ID:       cefa92ca-8234-44bf-9ae5-66dc76aadd0d
-:END:
+**** If you don't like to swap Capslock and Control
 You can use your palm to press Control in standard PC keyboard.
 *** Concepts
 **** Commands
@@ -2647,7 +2732,7 @@ C-k*. For example, you can bind a macro to *C-x C-k 1*, another to
   Emacs Lisp code inside =~/.emacs.d/init.el=:
 
   #+begin_src emacs-lisp
-    (load-file "~/.emacs.d/macros")
+    ;(load-file "~/.emacs.d/macros")
   #+end_src
 
   The above code essentially loads a file at a path. Only files that
@@ -2933,10 +3018,152 @@ I suggest you to use eshell, since you can use any Emacs commands
 within Eshell as well. However, in Eshell, to send an interrupt
 signal, instead of =Ctrl+C=, you need to press twice: =Ctrl+C
 Ctrl+C=.
+*** Demo: Browsing the kernel source tree
+:PROPERTIES:
+:ID:       879d6e18-4162-43f6-b5e8-39fa5b5266c7
+:END:
+You can enjoy exploring the kernel source tree by following these steps:
+
+- Clone the kernel source: =git clone https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git ~/linux=
+- *C-x d* and navigate to =~/linux=, then press *Enter*.
+
+  [[https://tuhdo.github.io/static/linux-dir.gif]]
+
+  Then, turn on ggtags: =M-x ggtags-mode= .
+
+- Emacs has a file explorer, as you've seen above, called =Dired=,
+  short for =(Dir)ectory (Ed)it=.
+
+- Before start browsing the kernel, you need to create a database for
+  quick searching. Press =M-x=, type =ggtags-create-tags=. It asks for
+  a directory; since you're in the root directory of Linux already,
+  press *Enter*; =ggtags= asks whether you use =ctags= (which is
+  another tag generating program, works with more languages but has
+  less features). Type =no=, press *Enter* and wait for =ggtags= to
+  generate the database.
+
+  [[https://tuhdo.github.io/static/ggtags-create-tags.gif]]
+
+- After the tag database is done generating, a message at the bottom of
+  your Emacs prints a message =GTAGS generated in ~/linux=. Now you
+  can start going anywhere in Linux source tree in an instant instead
+  of spending hours to grep!
+
+- Let's find a file in Linux. Every C program, whether large or small
+  must have a ~main()~ function, and a file containing the
+  function. Let's find out where the ~main()~ of Linux kernel is.
+
+- =M-x=, type =ggtags-find-file=. *C-c M-f* also executes
+  =ggtags-find-file=. A prompt ask for a file to find. You can also
+  invoke =ggtags-find-file= with =C-c M-f=.
+
+- Enter =main.c= to the prompt and press *Enter*.
+- You will see a list of =main.c= files below in various directory:
+
+  [[https://tuhdo.github.io/static/candidates.jpg]]
+
+  You can visit each file by pressing *M-n* (*n* means /next/) to go
+  down or *M-p* to  up (*p* means /previous/).
+
+  Press *M-s s*. A prompt appears waiting for something to search; type
+  =init/main.c=. As you type, the candidate buffer got highlighted gradually.
+
+- Finally you get into the correct file. This is where Linux
+  starts after the bootloader stage.
+
+- Now, you see a lot of names in this file: variable names, function
+  names... Now, you want to find where all of these names are defined
+  and where they are used. Let's scroll down a bit, either with *Page
+  Down* key or scrolling with the mouse or search for it. If you want
+  to search, press *C-s* and type =kernel_init= and press *C-s*
+  repeatedly. *C-s* is available everywhere in Emacs. *M-s s* is just
+  available in *ggtags*. You see a function declaration like this:
+
+  #+begin_src c
+    static int kernel_init(void *);
+  #+end_src
+
+  This is the whole process of finding the file:
+
+  [[https://tuhdo.github.io/static/ggtags-find-file.gif]]
+
+  You can find definitions or references of a tag easily. Now, let's
+  go back to the declaration ~static int kernel_init(void *);~
+  again. Move your cursor on =kernel_init=.
+
+  Press *M-.* jumps to its definition. *M-.* again jumps to its
+  references, where the function is called. *M-.* again jumps to the
+  definition again. Basically, if the current view is definition,
+  pressing *M-.* switches to references and vice verse. Usually, you
+  will also see a list of candidates similar to the one you saw using
+  =ggtags-find-file= above. Use *M-n* or *M-p* to select next/previous
+  match.
+
+  If you want to go back to where you were, press *M-** (or
+  *M-Shift-8*) brings you back to the previous place where you
+  jumped.
+
+  If you want to jump to a C header file, for example:
+
+  #+begin_src c
+    #include <linux/kernel.h>
+  #+end_src
+
+  Move your cursor onto that line and press *M-.*.
+
+  Again, you can search for candidates using *M-s s*.
+
+  After navigating for a while, you may have jumped to many places. To
+  view the history of where you were, press *C-c M-h*:
+
+  [[https://tuhdo.github.io/static/ggtags-view-tag-history.gif]]
+
+  If you want to have a list of all the tags you visited, press *C-c
+  M-/*. The different between this command and the above command is
+  that, *C-c M-h* stores the places in files you visited, while *C-c
+  M-/* stores the tag operations you performed. After press *C-c M-/*,
+  if you   select an entry in the result list, it displays the result
+  list of   the tag in the selected entry, along with your match
+  candidate you selected in the past:
+
+  [[https://tuhdo.github.io/static/ggtags-rerun.gif]]
+
+  If you create, edit or delete a source file in your project, upon
+  saving =ggtags= automatically updates the database of your
+  project. How convenient!
+
+  That's it for *basic* navigation. Yes, it's just the basic. This is
+  just the tip of the iceberg. In Emacs, you have a toolchain called
+  [[http://cedet.sourceforge.net/][CEDET]], short for =Collection of Emacs Development Environment
+  Tools=, which offers features such as highlighting, project, smart
+  jump, context-sensitive completion, symbol references, code
+  generation...  And Emacs includes CEDET by default from Emacs
+  23.2. CEDET is also a language framework for language writers to
+  create such tools within Emacs for their languages, but currently
+  the best supported language in CEDET is C/C++.
+
+  =ggtags= solves your navigation need, but does not offer the above
+  features.  However, with =ggtags= alone, it's far enough for your
+  C/C++ projects, thanks to GNU Global for working nicely on large
+  source tree like the Linux kernel.. After all, many people write
+  C/C++ source code on a bare minimum editor and waste a lot of time
+  doing things manually instead of focusing on their problems.
+
+  After this demo, are you convinced now? If you want to harness the
+  power of Emacs even further, you need to learn Emacs
+  properly. Finally, close everything you don't need with *C-x k*
+
 * General Settings
 ** Platform Specific Configuration
 *** OS X Desktop
+- Left option key is remapped to M-
+- M-3 prints a literal # (UK Mac keyboards being weird)
+- We use the Arjen Grey theme
+- Font is Monaco
 *** OS X CLI in <terminal>
+- When the Solarized Dark iTerm2 theme is installed, we use the solarized-dark color theme
+- Cut/paste are made to write/read from the clipboard (via pbcopy and pbpaste)
+- Mouse highlighting works via xTerm capabilities
 ** Maximum Workspace
 #+BEGIN_SRC emacs-lisp
   (if
@@ -4833,5 +5060,5 @@ GPATH GRTAGS GTAGS
 - [ ] Code Folding 
 - [ ] Clojure Support [ Build Fun Things ]
 - [ ] Rust Support [ Build Fun Things ]
-* Credits
+
 
