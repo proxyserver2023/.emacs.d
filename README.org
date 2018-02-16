@@ -3,6 +3,7 @@
 #+EMAIL: alamin.ineedahelp@gmail.com
 #+STARTUP: overview indent inlineimages hideblocks
 #+TAGS: Drill(d)
+
 * Introduction
 #+BEGIN_SRC emacs-lisp
   (setq user-full-name "Alamin Mahamud")
@@ -3206,6 +3207,16 @@ of Emacs we're using supports the server package:
   (use-package wgrep)
   (use-package scratch)
 #+END_SRC
+** Encoding System                                                   :Drill:
+#+begin_src emacs-lisp
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-language-environment "UTF-8")
+(prefer-coding-system 'utf-8)
+(when (display-graphic-p)
+  (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
+#+end_src
+
 * Package Initialization
 #+BEGIN_SRC emacs-lisp
   (require 'package)
@@ -3623,6 +3634,24 @@ Make sure that [[http://pragmaticemacs.com/emacs/add-the-system-clipboard-to-the
               (list lhs middle rhs)))))
 
     (setq-default mode-line-format (my-mode-line))
+
+#+end_src
+* Built In Packages Customizations
+** Delete Selection Mode
+#+BEGIN_SRC emacs-lisp
+(delete-selection-mode)
+#+END_SRC
+** Newline and Indent
+#+begin_src emacs-lisp
+(global-set-key (kbd "RET") 'newline-and-indent)
+#+end_src
+
+** Dired Details
+#+begin_src emacs-lisp
+(require 'dired-details)
+(setq-default dired-details-hidden-string "--- ")
+(dired-details-install)
+(setq dired-dwim-target t)
 
 #+end_src
 * Third Party Packages
@@ -4270,25 +4299,6 @@ The Linum-Realtive Mode allows one to see the destination line as a relative dis
 
 #+end_src
 
-* Editing
-** Encoding System                                                   :Drill:
-#+begin_src emacs-lisp
-(set-terminal-coding-system 'utf-8)
-(set-keyboard-coding-system 'utf-8)
-(set-language-environment "UTF-8")
-(prefer-coding-system 'utf-8)
-(when (display-graphic-p)
-  (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
-#+end_src
-** Delete Selection Mode
-
-#+BEGIN_SRC emacs-lisp
-(delete-selection-mode)
-#+END_SRC
-** Newline and Indent
-#+begin_src emacs-lisp
-(global-set-key (kbd "RET") 'newline-and-indent)
-#+end_src
 ** Highlight Indentation
 #+begin_src emacs-lisp
 (use-package highlight-indentation)
@@ -4341,6 +4351,7 @@ The Linum-Realtive Mode allows one to see the destination line as a relative dis
                                 ))
     )
 #+END_SRC
+
 * Key Bindings
 ** Frequent Files Shortcut
 #+BEGIN_SRC emacs-lisp
