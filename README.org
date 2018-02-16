@@ -300,7 +300,2664 @@ two types of functions in Emacs:
       directly use them.
 
 =execute-extended-command= is bound to *M-x*.
+**** Emacs Key Notation
+Taken from here: [[http://www.emacswiki.org/emacs/EmacsKeyNotation][EmacsWiki]]
 
+| Prefix | Meaning                                                   |
+|--------+-----------------------------------------------------------|
+| =C-=     | (press and hold) the Control key                          |
+|--------+-----------------------------------------------------------|
+| =M-=     | the Meta key (the Alt key, on most keyboards)             |
+|--------+-----------------------------------------------------------|
+| =S-=     | the Shift key (e.g.‘S-TAB’ means Shift Tab)               |
+|--------+-----------------------------------------------------------|
+| =DEL=    | the Backspace key (not the Delete key). Inside Emacs, =DEL= |
+|        | is written as =<backspace>=.                                |
+|--------+-----------------------------------------------------------|
+| =RET=    | the Return or Enter key                                   |
+|--------+-----------------------------------------------------------|
+| =SPC=    | the Space bar key                                         |
+|--------+-----------------------------------------------------------|
+| =ESC=    | the Escape key                                            |
+|--------+-----------------------------------------------------------|
+| =TAB=    | the TAB key                                               |
+|--------+-----------------------------------------------------------|
+
+A notation such as *C-M-x* (or, equivalently, *M-C-x*) means press and
+hold both Control and Meta (Alt) keys while hitting the *x* key. From
+now on, I won't say something like "Press *M-x*" anymore. For example,
+if I say "*C-x C-f* your files", you should replace *C-x C-f* with its
+command like this in your head: "=find-file= your files". All commands
+use verbs, I think, so don't worry. Try to recall the command from the
+key binding; it will help you get used to Emacs quicker. One exception
+though: I only say "press *key*" if *key* is a single character on the
+keyboard.
+
+If you see =M-x command=, it means you need to *M-x* and type
+*command*.
+
+A prefix key is a part of a full key binding. For example, a full key
+binding is *C-x r l* to run the command =bookmark-bmenu-list=, then
+*C-x* and *C-x r* are its prefixes. Note that key sequence such as
+*C-x* and *M-x* are considered a single character. Knowing prefix key
+is handy: if you forget key bindings of some commands that use the
+same prefix key, and remember the prefix, you can press the prefix key
+and *C-h* to get a list of commands with that prefix.
+
+For example, *C-x r* is the prefix for /register/ and /bookmark/
+commands in Emacs. However, you forget a specific key binding for a
+command in those features. *C-x r C-h* lists all key bindings that have
+prefix *C-x r*.
+
+Finally, *C-g* executes the command =keyboard-quit=, which cancels anything
+Emacs is executing. If you press any key sequence wrongly, *C-g* to
+cancel that incorrectly pressed key sequence and start again.
+
+As you gradually learn Emacs, you will see the key bindings are really
+systematically organized and mnemonic. Whenever you see key bindings
+ending with *n* and *p*, it usually means *next* and *previous*; *o*
+means *open*; *h* means *help*; *C-h* is standard prefix for help
+commands; key bindings such as *o* and *C-o* are frequently used in
+many built-in tools such as /Dired/, /Ibuffer/, /Occur/...
+**** Ask for help - from Emacs
+***** Built-in help system
+:PROPERTIES:
+:ID:       47d6ff15-1cf5-4a6a-a6b8-f4c83bac3927
+:END:
+I will describe some most useful commands based on my experience. I
+will not list all, so you have to rely on Emacs to get your
+information:
+
+*C-h m* runs =describe-mode= to see all the key bindings
+and documentation of current major mode and minor modes of a buffer.
+
+*C-h w* runs =where-is= to get which keystrokes invoke a given command.
+
+*C-h c* runs =describe-key-briefly= to find out what command is
+bound to a key. For example, after *C-h c*, run *C-x C-f* gives
+you *find-files*.
+
+*C-h k* runs =describe-key= to find out what command is bound to a
+key, along with the documentation of the command. Use this if you want
+to know how to use a command.
+
+*C-h e* runs =view-echo-area-messages=, allow you to see the
+logging of echo area messages.
+
+*C-h v* runs =describe-variable=, and asks you for a variable; you can
+*TAB* to complete a variable. This command is important, because aside
+from describing a variable, it allows you to customize the behavior
+of Emacs and 3rd party packages. But for now, you don't need it.
+
+*C-h C-h* runs *help-for-help*. Use this command if you want to see
+a list of available help commands. Remember, if you partially remember a
+key binding, just press as much as you can remember and then press
+*C-h*, Emacs will list available commands for that prefix. Prefix *C-h*
+is no exception. *C-h C-h* simply returns all key bindings and
+commands of prefix *C-h*.
+
+***** Info
+:PROPERTIES:
+:ID:       c40810fc-9af0-4b13-8fd2-db999d3e9859
+:END:
+=M-x info= or *C-h i* to see all the Info manual in Emacs. If you
+want to learn more about Emacs, after reading my series of manuals,
+the official Emacs manual in Info.
+
+=M-x info-emacs-manual= or, *C-h r*, or *<f1> r* to see manual section
+for Emacs.
+
+Use Info often whenever you need to learn something in Emacs. Use it
+early to create a good habit of reading documentation, and this is
+beneficial not only for Emacs.
+
+***** Man
+:PROPERTIES:
+:ID:       6edee0b5-213a-4fd4-9c40-041206b86a52
+:END:
+You can view man pages with two commands:
+
+- =M-x man=: Get a UNIX manual page and put it in a buffer.
+- =M-x woman=: Browse UN*X man page for TOPIC (Without using external
+  Man program). It means, you can view man page without having the
+  =man= program installed, while the =man= command above invokes
+  external =man= program.
+
+**** Point
+Point is your current cursor position. From now on, instead of saying
+"current cursor", I say "point".
+**** Opening files
+:PROPERTIES:
+:ID:       cdb163ad-eb98-46af-83b5-d9ad1803a0d1
+:END:
+Let's learn one especially handy command. =M-x find-=, then press
+*TAB*. You will see Emacs offers you a list of possible commands with
+prefix =find-=. Select the command =find-file=, either by clicking on
+it in the list; or keep typing a few more characters, and pressing
+*TAB* until the command is completed. After =find-file= is in your
+prompt, press *RET*. For quickly running =find-file=, you can use key
+binding *C-x C-f*.
+
+You can use *wildcard expression* to select more than one file. For
+example, if your directory contains these file:
+
+- =file_a_1.c=
+- =file_a_2.c=
+- =file_a_3.c=
+- =file_b_1.c=
+- =file_b_1.h=
+- =file_b_2.c=
+
+Then in *find-file* prompt, you can open all file with extension =.c=
+like this: =file*.c=. Or if you only want to select file with character
+=a= in it: =*a*.c=. Or if you only want to select file with =1= and
+extension =.c.= in it: =*1.c=. Basically, wildcard expression =*=
+accepts anything.
+
+During the exercise, if something happens, for example, you press the
+wrong keys and Emacs is behaving weird, just press *C-g*.
+
+The command you have just executed is for browsing and opening files
+in Emacs, similar to =Open With= in regular editors, except that
+instead of navigating with the mouse, you navigate with keyboard,
+which is much faster.
+
+If you use =find-file= to navigate to an existing file in a deep
+directory and press *RET*, it opens that file. Otherwise, if the file
+does not exist and you press *RET*, you create a new file. Woot, two
+features in a single command, so convenient. If you intend to open a
+file at first, but then realize that you want to create a file
+there, =Open With= doesn't allow you to do that. You have to navigate
+all the way back with typical *New File* feature in regular editors.
+
+Another interesting command in Emacs is =find-file-at-point=.
+What this function does is that if you have a path to a directory or
+file under point,  =M-x ffap= opens that directory or file directly!
+
+[[https://tuhdo.github.io/static/ffap.gif]]
+
+As you see in the demo, if for some reason, the directory at
+point does not exist, =ffap= tries the parent directory until one
+exist. In the example, only =/home/= exists and got fed into the
+prompt.
+**** Ido mode
+:PROPERTIES:
+:ID:       a1982da3-6c2d-4d8b-bdaf-ab4d9d37e1a7
+:END:
+Emacs has an interesting feature called *Ido*, short for
+*Interactively Do Things*. In essence, *Ido* is a superior interface
+to interactively select things in Emacs compared to a plain prompt.
+
+To activate *Ido*, =M-x ido-mode=. Let's open a file with *C-x
+C-f*. Do you find this:
+
+[[https://tuhdo.github.io/static/find-file-normal.gif]]
+
+Or this:
+
+[[https://tuhdo.github.io/static/find-file-ido.gif]]
+
+Which is better?
+
+Once enabled, Ido is used for most commands that require you to select
+something from a list.
+
+A few things to note for when using *Ido*:
+
+- If you want to use wildcard expression, you have to temporary revert
+  to ordinary =find-file= via *C-f*.
+
+- If you want to select the current directory, *C-d*. This invokes
+  *Dired* file manager to open the directory and list the files in
+  current directory. You will learn Dired in later section. For now,
+  if you open the directory, close the current listing by *C-x k* and
+  press *RET*.
+
+- You select a directory in =find-file= prompt by pressing *RET*, not
+  *TAB* like ordinary =find-file=.
+
+Regardless, an alternative interface for completion and narrowing
+exists, arguably more powerful, but you have to install a 3rd party
+package. The package is called Helm. However, let's stick with *Ido*
+through the rest of this manual.
+
+**** Buffer
+Buffer is where you edit your file content. Buffer holds content
+of a file temporarily. Anything you write into the buffer won't make
+it into file until you explicitly save it with =save-buffer=
+command. *C-x C-s* executes the command =save-buffer=, so you can *C-x
+C-s* your files. You can also execute this from =M-x*=
+
+To save a buffer as other file ("Save As" in other editors), *C-x
+C-w*, which runs the commands =write-file=.
+
+To kill a buffer, *C-x k*. If you want to kill the current buffer,
+*RET* immediately. Otherwise, type into the prompt the buffer name you
+want to kill.
+
+In the previous section I said that point is in your file, well,
+actually point is not in a file but in a buffer. From now on, keep
+file and buffer two separate and distinct concepts. When I say file, I
+refer to physical file and when I say buffer, I refer to the temporary
+content of the file that is being displayed.
+
+*_Exercise_*: Practice *C-x b* to get used to it.
+
+
+| Key       | Binding                             |
+|-----------+-------------------------------------|
+| =C-x C-s= | *Command*: =save-buffer=            |
+|           | Save the buffer at point            |
+|-----------+-------------------------------------|
+| =C-x C-w= | *Command*: =write-file=             |
+|           | Save the buffer to a different file |
+|-----------+-------------------------------------|
+| =C-x b=   | *Command*: =switch-to-buffer=       |
+|           | Switch to a different buffer        |
+|-----------+-------------------------------------|
+| =C-x k=   | *Command*: =kill-buffer=            |
+|           | Kill a buffer. *RET* to kill the    |
+|           | currently  active one               |
+|-----------+-------------------------------------|
+
+**** Major mode
+:PROPERTIES:
+:ID:       2d67567c-985d-49af-83d1-f36ebda0e20c
+:END:
+Major modes provide specialized facilities for working on a particular
+file type, such as syntax highlighting for a programming language.
+Major modes are mutually exclusive; each buffer has one and only one
+major mode at any time.
+
+Emacs is bundled with many major modes for editing source code in
+different languages: C, C++, Java, Lisp, bash, asm... For example,
+when opening a file with =.c= extension, Emacs automatically
+recognizes it's a C file and selects the C major mode to highlight the
+buffer properly.
+
+**** Minor mode
+:PROPERTIES:
+:ID:       9e9200cb-9205-4931-8795-b9c9e00f95f2
+:END:
+Minor modes are optional features which you can turn on or off, not
+necessarily specific to a type of file or buffer. For example, Auto
+Fill mode is a minor mode in which *SPC* breaks lines between words
+as you type. Minor modes are independent of one another, and of the
+selected major mode.
+
+**** Basic buffer managements
+:PROPERTIES:
+:ID:       520961cd-e999-4730-a208-dfa8db1c5fa3
+:END:
+So, you learn how to open file and create buffer of that file.
+In other editors, you got something called "tabs". Every time you open a
+file, you get a file tab for selecting an "opening file" (which is called
+buffer in Emacs). It quickly becomes a nuisance once you have lots of
+file tabs. If you use multi-row support for file tabs, it eats up your
+editing space.
+
+How do you switch between opening buffers? *C-x b* opens a prompt to
+enter a buffer name. You can *TAB* to complete the buffer name similar
+to how you complete file names in *C-x C-f*.
+
+After you open a file, and if point is in that buffer, *C-x C-f*
+prompts the current directory, so you can open another file within
+this directory. For example, buffer A is from =~/dir1/= and buffer B
+is in =~/dir2/=, if point is in buffer A, *C-x C-f* starts in
+=~/dir1/=; if point is in buffer B, *C-x C-f* starts in =~/dir2/=.
+
+In an Emacs session, you may have a lot of buffers, including
+non-file buffers such as shell buffers, email buffers... How do you
+manage buffers when it's getting large? *C-x C-b* executes
+=list-buffers=, provide you a list of buffer in which you can
+search. However, =list-buffers= is a simple command for buffer
+management. Emacs also provides =ibuffer=, which is a superior
+alternative. You will surely want to use =ibuffer=, but first let's
+replace =list-buffers= with =ibuffer= (by placing next directive to your =~/.emacs= file):
+
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-x C-b") 'ibuffer)
+#+end_src
+
+Remember to save into =*scratch*= buffer and then =M-x eval-buffer=
+for the setup to take effect.
+
+Let's play with *ibuffer*.
+
+*_Exercise_*:
+
+- First, open many files with different extensions. The Emacs source
+  you used for installation is an great practice target. If you use a
+  built binary, [[http://ftp.gnu.org/gnu/emacs/emacs-24.3.tar.gz][download it]] and unpackage. Let's assume you download
+  and unpackage it at =~/Downloads/emacs-24.3=.
+
+- *C-x C-f*, navigate to =emacs-24.3/lisp/= and open all Lisp files:
+  =*.el=. If you use *Ido*, remember to *C-f* before type into the prompt
+
+- *C-x C-f*, navigate to =emacs-24.3/src/= and open all C files:
+  =*.c=.
+
+- Open *ibuffer* by *C-x C-b*. You see a huge list of buffers.
+
+Now the fun begins.
+
+- Suppose that you want to work with C code. */ m* and enter a major
+  mode to select buffers that belong to this major mode. Prefix */* in
+  *ibuffer* groups filtering commands. *TAB* to see a list of major
+  modes:
+
+  [[https://tuhdo.github.io/static/ibuffer-filter-major.gif]]
+
+- Enter =c-mode=.
+
+- Only C buffers remain. But you open buffers in two major modes:
+  =c-mode= and =emacs-lisp-mode=. You can create each group for one by
+  pressing */ g*, and give the group a name. Only execute */ g* after
+  executing any filtering commands.
+
+- Up to this point, the filtering is still applied. Press */ /* to
+  remove previous filter and return the full buffer list.
+
+- Let's create another group based filtering. */ m* and enter
+  =emacs-lisp-mode=. Create another group with */ g* and give it a
+  name. Now, every time you open files that their buffers satisfy the
+  filtering criteria, the buffers are put into appropriate groups.
+
+- To open a buffer, *o* or *C-o*. *o* opens a buffer and switch point
+  to it. *C-o* leaves point on the buffer list. Let's open a buffer
+  with *o* and *C-o*. To switch back to the other buffer, do *C-x
+  o*. *C-x o* executes =other-window= command, which cycles among the
+  opening buffers (technically the buffers are in Emacs "windows",
+  and you are cycling "windows", but we will get to that later).
+
+- Either using *C-o* or *o* creates another buffer below, leaving
+  you two horizontal buffers. You probably don't like the layout because you
+  have a big screen. If you use *o*, *C-x o* to switch back to the
+  list and *C-x 1* to close other buffer. If you have multiple buffers
+  opened, *C-x 1* closes all others and leave the active buffer (the
+  one with point, which is our buffer list) remains. To close an
+  active buffer, *C-x 0*. *C-x 3* to create a vertical buffer to the
+  right. It creates an exact duplicate of the active buffer. Now, *o*
+  on any C buffer again, and point is in that buffer:
+
+  [[https://tuhdo.github.io/static/c-x-3.gif]]
+
+- Edit something in the buffer. Switch back to =ibuffer= and press
+  *g*, which runs the command =ibuffer-update= to refresh the
+  list. You will see an asterisk on the left of your just edited
+  buffer. It indicates that buffer has been modified.
+
+- You can also mark a buffer by pressing *m* on multiple entries to
+  perform various operations:
+
+  - *view*: press *A* to view the marked buffers
+
+  - *save*: press *S* to save the marked buffers
+
+  - *close*: press *D* to close the marked buffers
+
+  - *revert*: press *V* to discard changes to the marked buffers
+
+  To unmark a buffer, press *u* on the marked entries.
+
+- Another way to open the buffer: *e* (/enter/), *f* (/find/) or *RET*
+  to bury and replace the list with selected buffer. Switch back to
+  the list using *C-x C-b* again.
+
+To sum up, I will list the key bindings your used in this section
+along with other useful key bindings:
+
+- *C-x C-b* to open =ibuffer=.
+- *o* or *C-o* to open a buffer at point.
+- *e*, *f* or *RET* bury the buffer list and replace it with the
+  buffer content.
+- *=* to compare the current buffer content with its file.
+
+*Tip*: When point is on an entry, *C-x C-f* starts at the current
+directory of buffer of that entry.
+
+- Filtering commands:
+
+| Key   | Bindings                        |
+|-------+---------------------------------|
+| =/ m= | Add a filter by a major mode    |
+|-------+---------------------------------|
+| =/ n= | Add a filter by buffer name.    |
+|-------+---------------------------------|
+| =/ c= | Add a filter by buffer content. |
+|-------+---------------------------------|
+| =/ f= | Add a filter by filename        |
+|-------+---------------------------------|
+| =/ >= | Add a filter by buffer size     |
+|-------+---------------------------------|
+| =/ <= | Add a filter by buffer size     |
+|-------+---------------------------------|
+| =/ /= | Remove all filters in effect    |
+|-------+---------------------------------|
+
+- Filter group commands:
+
+| Key   | Bindings                                    |
+|-------+-------------------------------------|
+| =/ g= | Create a filter group from filters  |
+|-------+-------------------------------------|
+| =TAB= | Move to next filter group           |
+|-------+-------------------------------------|
+| =M-p= | Move to previous filter group       |
+|-------+-------------------------------------|
+| =/ \= | Remove all active filter groups     |
+|-------+-------------------------------------|
+| =/ S= | Save the current groups with a name |
+|-------+-------------------------------------|
+| =/ R= | Restore previously saved groups     |
+|-------+-------------------------------------|
+| =/ X= | Delete previously saved groups      |
+|-------+-------------------------------------|
+
+- Sorting commands:
+
+| Key   | Bindings                          |
+|-------+-----------------------------------|
+| =,=   | Rotate between sorting modes      |
+|-------+-----------------------------------|
+| =s i= | Reverse current sorting order     |
+|-------+-----------------------------------|
+| =s a= | Sort buffers by alphabet          |
+|-------+-----------------------------------|
+| =s f= | Sort buffers by filename          |
+|-------+-----------------------------------|
+| =s v= | Sort buffers by last viewing time |
+|-------+-----------------------------------|
+| =s s= | Sort buffers by size              |
+|-------+-----------------------------------|
+| =s m= | Sort buffers by major modes       |
+|-------+-----------------------------------|
+
+To quit =ibuffer=, press *q*.
+
+**** Bookmark: save locations across Emacs sessions
+:PROPERTIES:
+:ID:       801bd37d-dd77-4d3d-9925-4980cabaefd7
+:END:
+When you read books, you usually cannot read all at once and place a
+bookmark to go back to continue reading later. Emacs allows you to
+bookmark too.
+
+| Key       | Binding                                                                       |
+|-----------+-------------------------------------------------------------------------------|
+| =C-x r m= | *Command*: =bookmark-set=                                                     |
+|           | Set bookmark at point. After executing the command, a prompt asks for a name. |
+|           | Enter the name and *RET*.                                                     |
+|-----------+-------------------------------------------------------------------------------|
+| =C-x r b= | *Command*: =bookmark-jump=                                                    |
+|           | Jump to a saved bookmark, specified by user. *TAB* for getting bookmark list. |
+|           |                                                                               |
+|-----------+-------------------------------------------------------------------------------|
+| =C-x r l= | *Command*: =bookmark-bmenu-list=                                              |
+|           | Open the list of all bookmarks.                                               |
+|-----------+-------------------------------------------------------------------------------|
+
+Remember that key bindings are easy. You just need to remember that *C-x
+r* is the prefix for bookmark related commands. *m* stands for *mark*,
+meaning you *mark* something in some place; *b* stands for bookmark,
+meaning you can switch to any bookmark quickly, similar to *C-x b*
+switches to buffers quickly. Finally, *l* means *list* for listing
+bookmarks, analogous to =ibuffer= for listing buffers. If you want to
+preserve the bookmarks across Emacs sessions, *C-x r l* to open the
+bookmark list and press *s* to save the list to file.
+
+If you understand how to manage buffers, managing bookmarks is the
+same, with different but similar key bindings. Finally, you cannot
+only bookmark buffers that are associated with files, you can bookmark
+non-file buffers too:
+
+- =Dired= buffers
+- Info buffers
+- Man pages
+
+A few useful key bindings when in =bookmark-bmenu-list=:
+
+| Key   | Binding                                                         |
+|-------+-----------------------------------------------------------------|
+| =RET= | Open a bookmark.                                                |
+|       | After you opened the bookmark, you can go back to bookmark list |
+|       | by *C-x r l*.                                                   |
+|-------+-----------------------------------------------------------------|
+| =1=   | Open a bookmark and close other buffers                         |
+|-------+-----------------------------------------------------------------|
+| =n=   | Go to next entry                                                |
+|-------+-----------------------------------------------------------------|
+| =p=   | Go to previous entry                                            |
+|-------+-----------------------------------------------------------------|
+| =s=   | Save the current bookmark list to file.                         |
+|-------+-----------------------------------------------------------------|
+| =o=   | Open bookmark in other window and move point to it. If you      |
+|       | want to view side by side, *C-x 3* to create a vertical buffer  |
+|       | and bookmark will be opened in the vertical buffer.             |
+|-------+-----------------------------------------------------------------|
+| =C-o= | Similar to =o= but point remains on the bookmark list.          |
+|-------+-----------------------------------------------------------------|
+| =r=   | Rename bookmark at point.                                       |
+|-------+-----------------------------------------------------------------|
+| =m=   | Mark bookmark at point for displaying.                          |
+|-------+-----------------------------------------------------------------|
+| =v=   | Display all marked bookmarks.                                   |
+|-------+-----------------------------------------------------------------|
+| =d=   | Flag bookmark for deletion.                                     |
+|-------+-----------------------------------------------------------------|
+| =x=   | Delete flagged bookmarks.                                       |
+|-------+-----------------------------------------------------------------|
+| =u=   | Unmark marked or flagged bookmarks.                             |
+|-------+-----------------------------------------------------------------|
+
+*_Exercise_*:
+
+- Open files and create a few bookmarks. *C-x r b* to switch between
+  them.
+- *C-h i* to open Info. Pick a node and enter as deep as you
+  want. Then bookmark and kill current Info buffer.
+- *C-x r l* to open the bookmark list and practice the key bindings in the table.
+
+**** Basic motion commands
+:PROPERTIES:
+:ID:       C405EA55-1F5B-4828-A83D-4EC96C5B6AD1
+:END:
+These key bindings are also used by popular shells such as *bash* or
+*zsh*. I highly recommended you to master these key bindings.
+
+- Move forward one char: *C-f* (f stands for *forward*)
+- Move backward one char: *C-b* (b stands for *backward*)
+- Move upward one line: *C-p* (p stands for *previous*)
+- Move downward one line: *C-n* (n stands for *next*)
+
+The above operations can also be done with arrow keys. If you don't
+like the above key bindings, the arrow keys offer equivalent features.
+
+- Move to beginning of line: *C-a*
+- Move to end of line: *C-e*
+- Move forward one word, *M-f*.
+- Move backward one word, *M-b*.
+
+These key bindings are in Emacs only:
+
+- Scroll forward one screen: *C-v*, *page down*
+- Scroll backward one screen: *M-v*, *page up*
+- Move to the beginning of a sentence: *M-a*
+- Move to the end of a sentence: *M-e*
+- Recenter a screen: *C-l*
+- Re-position point to the top, middle and bottom of the current
+  screen: *M-r*
+- Move to top of the buffer: *M-<*
+- Move to end of the buffer: *M->*
+- Move to the nth character: *M-g c* (c stands for =character=)
+- Move to the nth line: *M-g l* for Emacs < 23.2, *M-g g* for emacs >=
+  23.2) (l/g stands for =line=)
+
+Recenter means making the current line point the center of your
+screen.
+
+*_Exercise_*: execute the above commands using the key bindings at
+least 10 times or until you remember. You can perform these motion
+commands on any buffer.
+**** Useful built-in key bindings for navigating pairs
+:PROPERTIES:
+:ID:       7522b365-52f4-4fa9-b316-7843b772c59a
+:END:
+
+- *C-M-f* binds to =forward-sexp=, move forward over a balanced
+  expression. Demo:
+
+  [[https://tuhdo.github.io/static/part3/forward-sexp.gif]]
+
+- *C-M-b* binds to =backward-sexp=, move backward over a balanced
+  expression. Demo:
+
+  [[https://tuhdo.github.io/static/part3/backward-sexp.gif]]
+
+- *C-M-k* binds to =kill-sexp=, kill balanced expression
+  forward. Demo:
+
+  [[https://tuhdo.github.io/static/part3/kill-sexp.gif]]
+
+- *C-M-t* binds to =transpose-sexps=, transpose expressions. Demo:
+
+  [[https://tuhdo.github.io/static/part3/transpose-sexp.gif]]
+
+- *C-M-<SPC>* or *C-M-@* binds to =mark-sexp=, put mark after
+  following expression. Demo:
+
+  [[https://tuhdo.github.io/static/part3/mark-sexp.gif]]
+
+**** Basic editing commands
+:PROPERTIES:
+:ID:       11496600-7D09-468D-A6BC-C6113ACCCAC7
+:END:
+In Emacs, =kill= means =Cut= in other editors. These key bindings also
+work under the terminal.
+
+- Kill a character at the point: *C-d*
+- Kill entire line: *C-S-DEL* (remember, *DEL* is your *<backspace>* key)
+- Kill forward to the end of a word from current point: *M-d*
+- Kill backward to the beginning of a word from the current point:
+  *M-DEL*
+- Kill all spaces at point: *M-\*
+- Kill all spaces except one at point: *M-SPC*
+- Kill to the end of line: *C-k*
+- Kill a sentence: *M-k*
+
+When you kill something, the killed content is put into the Kill Ring.
+
+If you write code, you can also quickly add comments or
+comment/uncomment code with *M-;*:
+
+- If you do not highlight a text region, *M-;* adds a comment to the
+  end of line.
+- If you highlight a region (i.e. with a mouse), *M-;* comments out
+  the region.
+
+**** Dynamic Abbreviations
+:PROPERTIES:
+:ID:       8232e425-1aec-4a4a-85de-900faa19a8b1
+:END:
+Dynamic Abbreviations are a completion feature in Emacs, but work for
+text and is context-independent. After you type a word once, if you
+type that word again, you can type it partially and *M-/* to complete
+it. If you type a prefix that has many candidates, *M-/* cycles the
+candidates. This is a really cool feature and you ought to try it.
+
+*_Exercise_*:
+
+- Type "thisIsaVeryVeryVeryVeryLongWord" into a buffer of your choice.
+- Add newline or whitespace.
+- Type "thisIs" and *M-/*. Great, Emacs automatically completes for you.
+- Type "random" into your buffer and *M-/*. You will see Emacs
+  tell your that no dynamic abbreviations found.
+- Type "randomWord" and add a whitespace. Now, type "random" and *M-/*
+  again. Emacs can now happily complete "random" for you. Remember that
+  to let Emacs remember your words, you have to type a complete word.
+**** Kill ring
+:PROPERTIES:
+:ID:       7F7CD162-4C59-43D8-B445-ECB28D042CC0
+:END:
+
+Kill ring is the list of previously killed contents. You can insert the
+most recently killed element by *C-y*.
+
+If you supply a number, using *C-<number>* - *<number>* can be any
+number - before you *C-y*, to paste the nth entry in the kill
+ring. The most recent entry is 1st entry. *C-1 C-y* is the same as
+*C-y*; *C-2 C-y* is the 2nd most recent entry, make that entry the
+head of the list and so on...
+
+Let's play with the kill ring for a while. Open a buffer and insert
+these 3 lines:
+
+#+BEGIN_HTML
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;aaa <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bbb <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ccc
+#+END_HTML
+
+Then:
+
+- Kill the three lines with *C-k*, from top to bottom.
+
+- *C-y* or *C-1 C-y*, you will see =ccc= got inserted.
+
+- *C-2 C-y*, you will see =bbb= got inserted; *C-y* again, you will
+  see =bbb= got inserted again. =bbb= now becomes head of the list.
+
+- *C-2 C-y*, you will see =aaa= got inserted; *C-y* again, you will
+  see =aaa= got inserted again. =aaa= now bedcomes head of the list.
+
+- Insert the 3 lines and kill all again.
+
+- *C-3 C-y*, you will see =aaa= got inserted; *C-y* again, you will
+  see =aaa= got inserted again. =aaa= now bedcomes head of the list
+
+- ... and so on ...
+
+*C-<number>* is called prefix argument. Basically it's for altering
+the behavior of you command. You will learn about prefix
+argument in later section.
+
+Alternatively to the above sequence, you can use *M-y* which runs
+=yank-pop=. By default, when *C-y*, it inserts the most recent killed
+text. If you want to retrieve earlier kill texts, after *C-y*, *M-y*
+to cycle through the entries in =kill-ring=. You must first run *C-y*,
+otherwise *M-y* has no effect.
+
+You may wonder, what happens if the kill ring getting really large,
+how can you remember where is which? That's right. It's a problem, and
+that's when the 3rd party plugins shine. However, you can view the
+kill ring with *C-h v*, then enter =kill-ring=. After this, you will
+see the =kill-ring= content, but in its code form, which is not really
+pretty and friendly.
+
+**** Mark and region
+:PROPERTIES:
+:ID:       01EA0EFF-2A5F-4E68-8A29-A9DB8A0DB2EA
+:END:
+Mark is a record of a position in a buffer. It's like when reading a
+book, you record various places in a book and these records are called
+bookmarks. It is similar, except it is buffer mark in Emacs (Emacs also
+has bookmark, but we will discuss later).
+
+When you set mark between two points in a buffer, the text between two
+points are highlighted. We call the highlighted text a region.
+When the region is highlighted, we say the region is active;
+to deactivate a region, press *C-g* or move point around, just
+like in other text editors.
+
+*_Exercise_*:
+
++ Place a mark in buffer with *C-SPC C-SPC*. Let's call this mark *A*.
+
++ Move to another place in the buffer, place another mark with *C-SPC
+  C-SPC*. this is mark *B*.
+
++ Move to another place and *C-SPC C-SPC* again. This is mark *C*.
+
++ Now press *C-u C-SPC*. You can see point goes back to mark
+  *B*.
+
++ *C-u C-SPC* again. Point goes back to mark *A*.
+
++ *C-u C-SPC* again. Point goes back to mark *C*.
+
++ Let's create a region: *C-SPC*, then move point forward. What
+  happened?
+
++ The highlighted area is called a region. You can perform editing
+  commands on the region:
+  - *C-w* to kill the region
+  - *M-w* to copy the region
+  - *C-y* to yank (equivalent to paste) the region.
+
++ Let's copy or kill a region; you should select a big region. Now
+  yank (paste) it elsewhere. After yanking, you notice point is
+  not at the original location anymore. If you want to return to the
+  where you yanked, *C-u C-SPC* or *C-x C-x*.
+
+  When you yank, you create a mark at point before the new content is
+  inserted. After the content is inserted, point moves according to
+  the size of the content. In general, most Emacs commands that create
+  sudden displacement push marks, so you can go back to previous
+  locations without having to tediously scroll the whole buffer.
+
+  *C-x C-x* executes the command =exchange-point-and-mark=, which
+  exchanges the point and the mark created when you yank with
+  *C-y*. Try and see. When this command is executed, region bounded by
+  the mark and point is activated.  Using *C-x C-x* is really
+  convenient. Instead of highlighting line by line for =Copy= or
+  =Kill=, you can do this:
+
+  [[https://tuhdo.github.io/static/c-x-c-x.gif]]
+
+  Remember when you have to highlight a big region and for some
+  reason, you lose the highlighting and have to do it all over
+  again. *C-x C-x* saves you from that tedium.
+
+  *C-u C-SPC* simply returns you to previous mark location inserted
+  when you *C-y*. This command won't activate region.
+
+  Practice until you get used to these two commands.
+**** Mark ring
+:PROPERTIES:
+:ID:       025E9CF4-B70C-41FA-A51D-AE3E2391227D
+:END:
+Emacs stores buffer marks in a list, that's why you are able to cycle
+through various marks in the exercise above. You can cycle through the
+list to jump to a mark, or with extension packages, you can have a
+list and interactively select it. *Helm* is an excellent example of
+such an extension. We will discuss more on extension packages later.
+
+**** Global mark ring
+:PROPERTIES:
+:ID:       4B4B71A3-80F4-4716-80FB-FA0270B88357
+:END:
+Mark ring is local to each buffer. If you switch to another buffer,
+you have a new local mark ring.
+
+Global mark ring is like mark ring, but they persist across
+buffers. Each time you set a mark, that mark is set in global mark
+ring in addition to the buffer's mark ring.
+
+You cycle the global mark ring by *C-x C-SPC*.
+
+**** Undo/redo
+:PROPERTIES:
+:ID:       709F26BC-3A20-47C1-93C6-264C00CD5C89
+:END:
+To undo: *C-/* or *C-x u*
+
+To redo, it's quite tricky to do because you have to understand how
+undo in emacs works. When you edit, emacs tracks changes in your
+current editing file. For example, you insert the following line in
+your file:
+
+ #+BEGIN_HTML
+ aaa <br />
+ bbb <br />
+ ccc
+ #+END_HTML
+
+Then, Emacs tracks the history like this:
+
+- insert: "aaa"
+- insert: "bbb"
+- insert: "ccc"
+
+Now, execute undo twice. Your file becomes:
+
+aaa
+
+The history of the file changes:
+
+- insert: "aaa"
+- insert: "bbb"
+- insert: "ccc"
+- undo insert: "ccc"
+- undo insert: "bbb"
+
+How do insert back *bbb* and *ccc*. By undo your previous undos! ook
+closely at the above change history again. You see that Emacs keeps
+track your recent undo actions. execute some motion command, i.e
+*C-f*, then try *C-/* twice and see what happens.
+
+Great, you get your old content, *bbb* and *ccc* back. That is because
+you have just undone the latest "undo insert: ..." entries in the file
+history.
+
+When you was execute a series of undoing, /without any other commands in
+between/, Emacs keeps reverting to the older content. The series of
+*undo insert: ...* got inserted into your file history when you break the
+undo series with other commands.
+
+Again, two features in one command, but a bit confusing this time.
+
+*_Exercise_*: Practice undoing/redoing until you get used to.
+**** Search for text
+:PROPERTIES:
+:ID:       ca3e54c5-fbc6-457f-b82e-55fe59cc3ef9
+:END:
+Content search is an essential feature in every editor. Emacs has many
+built-in tools for this problem.
+**** Incremental search
+:PROPERTIES:
+:ID:       84B3D9CC-C246-4D3C-9022-49CB47813094
+:END:
+So, you want to look for something in the buffer? *C-s* invokes
+=isearch-forward=, allows you to look forward from the current point
+for something. After *C-s*, you are prompted to enter the content to
+search for. Enter the content, and press *C-s* repeatedly to travel
+through the matches forward.
+
+Similarly, *C-r* invokes =isearch-backward=, allows you to look
+backward from the current point. Press *C-r* repeatedly to travel
+through the matches backward.
+
+=isearch= can be invoked from any valid buffer. You can perform
+=isearch= on =ibuffer=.
+
+*_Exercise_*:
+
+Open a reasonably large text file of your choice for practicing.
+
+*C-s*, then type the search content and repeatedly press *C-s*. After
+repeated a few times, press *C-r* repeatedly. What happened?
+
+You can invoke *C-r* within *C-s* and vice verse to go to the next and
+previous match.
+
+*C-g* to cancels the current search session.
+
+Move point to a word. *C-s* then *C-w*, selects content from point to
+end of a word. For example, if point is on character 'e' of "Hello
+world" *C-w* feeds "ello" into current *C-s* prompt.
+
+*C-w* again feeds " world" into current prompt to become "ello world"
+and so on.
+
+*C-g*, then *C-s* again. You can select the old input to search again with:
+
+- *M-p* moves to the previous input.
+- *M-n* moves to the next input.
+
+If you want to search with regexp, *C-u C-s*.
+
+Now you get the basics of Isearch, it has more useful commands that
+are bound to *M-s* prefix key:
+
+| Key       | Binding                                      |
+|-----------+----------------------------------------------|
+| =M-s .=   | *Command*: =isearch-forward-symbol-at-point= |
+|           | Feed the symbol at point to *C-s*            |
+|           | perform search                               |
+|-----------+----------------------------------------------|
+| =M-s o=   | *Command*: =occur=                           |
+|           | Run =occur=                                  |
+|-----------+----------------------------------------------|
+| =M-s h .= | *Command*: =highlight-symbol-at-point=       |
+|           | Highlight the symbol at point                |
+|-----------+----------------------------------------------|
+| =M-s h l= | *Command*: =highlight-lines-matching-regexp= |
+|           | Highlight lines that match input regexp      |
+|-----------+----------------------------------------------|
+| =M-s h r= | *Command*: =highlight-regexp=                |
+|           | Highlight according to regexp                |
+|-----------+----------------------------------------------|
+| =M-s h u= | *Command*: =unhighlight-regexp=              |
+|           | Turn off highlighting strings that match     |
+|           | regexp.                                      |
+|-----------+----------------------------------------------|
+
+**** Occur
+:PROPERTIES:
+:ID:       e49a59d6-efab-401c-9164-0ae45806e719
+:END:
+Command =occur= lists all line that match a string or a regexp and
+displays the search result in a buffer named =*Occur*=. =occur= is
+useful in situation where you have a large number of matches and need
+a better tool to manage rather than going back and forth with
+Isearch. For example, you have a match around line 1000, but you are
+currently at line 500. In between the two lines are many other
+matches. You cannot use Isearch to jump through them all. This is
+where =*Occur*= is handy. =*Occur*= is also useful for query and
+replace a string with another, and allow you to verify that you did
+indeed replace the correct string.
+
+To invoke =occur=, run =M-s o=; if you =M-s o= in Isearch prompt,
+=occur= will get the text currently using. Quite convenient. You can
+use *M-g n* and *M-g p* to go to next/previous matches, or use the
+mouse to scroll. If you feel *M-g p* and *M-g n* to go back and forth
+is annoying, you can repeat it using *C-x z* which runs =repeat=:
+
+- *M-g n* to go to next match.
+- *C-x z* to repeat previous command.
+- From now on, keep pressing *z* to repeat previous command until your
+  press a different character.
+
+Demo, notice how the inactive cursor at the =*Occur*= buffer moves as point in
+my main buffer moves:
+
+[[https://tuhdo.github.io/static/occur.gif]]
+
+You can operate directly on occur buffer. In =*Occur*= buffer, use
+*C-p* and *C-n* to go to previous and next entries. Press *o* jumps to
+the match at point and switch point to buffer that contains the
+match; *C-o* to open the match at point but not switching buffer. If
+you want to edit the matches, press *e* to enter =occur-edit-mode=;
+after that, you can edit anywhere in the =*Occur*= buffer and see your
+changes updated as you type on the other buffer. You can do any
+editing commands when in =occur-edit-mode=, such as commands for query
+replace in previous section to replace all matches.
+
+Demo:
+
+[[https://tuhdo.github.io/static/occur-edit.gif]]
+
+Here are key bindings in =occur=:
+
+| Key       | Binding                             |
+|-----------+-------------------------------------|
+| =C-n=     | Go to next line                     |
+|-----------+-------------------------------------|
+| =C-p=     | Go to previous line                 |
+|-----------+-------------------------------------|
+| =<=       | Go to beginning of buffer           |
+|-----------+-------------------------------------|
+| =>=       | Go to end of buffer                 |
+|-----------+-------------------------------------|
+| =e=       | Edit current =*Occur*= buffer       |
+|-----------+-------------------------------------|
+| =C-c C-c= | When finish with editing, =C-c C-c= |
+|           | to exit editing mode                |
+|-----------+-------------------------------------|
+| =g=       | If your searching file is updated,  |
+|           | press =g= refreshes the =*Occur*=   |
+|           | buffer to reflect the changes       |
+|-----------+-------------------------------------|
+| =o=       | Jump to the match and switch point  |
+|-----------+-------------------------------------|
+| =C-o=     | Jump to the match but point remain  |
+|           | on =*Occur*=                        |
+|-----------+-------------------------------------|
+
+If you want to have this table (and more key bindings), in =*Occur*=
+buffer runs *C-h m* or press *h*. Finally, press *q* to quit =*Occur*=
+buffer.
+
+**** Query replace
+:PROPERTIES:
+:ID:       4145517f-b864-47f3-bc8b-63509a59d26c
+:END:
+To replace something, *M-%* to execute *query-replace*. *M-%* asks you
+two inputs:
+
+- A string to be replaced.
+- A string to replace.
+
+Supply the inputs and *RET*.
+
+Emacs will ask your confirmation to replace a matched string. If you
+want to replace all, press *!* instead of answer yes or no (*Note:* it
+will replace ocurrences only *beneath* your current point).
+
+If you want to query and replace with regexp, *C-M-%*. *Tip*: this
+command is a bit hard to press; to make it easy, use both of your
+hands:
+
+- It can be that left hand presses *%* (or *S-5*) and right hand presses
+  *C-M-*.
+- It can be that right hand presses *C-* first, then left hand presses
+  *M-%*.
+
+**** Multi-occur
+:PROPERTIES:
+:ID:       49674610-411e-4345-a954-f333bced3969
+:END:
+It is the same as =occur= except it asks user for multiple buffers.
+
+- =multi-occur= asks for buffers to search. You enter buffer by buffer
+  until you give it empty input.
+- =multi-occur-in-matching-buffers= requires a regexp, and it searches
+  for occurences in buffers that match the regexp.
+
+**** Grep
+:PROPERTIES:
+:ID:       9e55a123-c29d-4b48-bc2c-4e2d0ab191c5
+:END:
+=M-x rgrep= allows you to search for text with external =grep= command
+and displays the results in a buffer. The good thing about running
+=grep= in Emacs is that the raw output are processed. The end results
+are colored and clickable, so that you can quickly visit the matched
+location!
+
+=rgrep= recursively greps for =regexp= in =files= in directory tree rooted
+at =dir=. You will be prompted for these three inputs when =rgrep= runs.
+
+With *C-u* prefix, you can edit the constructed shell command line
+before it is executed. With two *C-u* prefixes, directly edit and run
+=grep-find-command= (this is a variable), which is the underlying
+command used for executing =rgrep=.
+
+[[https://tuhdo.github.io/static/grep.gif]]
+
+When you get a list of results displayed in a buffer named =*grep*=,
+you can click on the results or use *M-g p* and *M-g n* to back and
+forth between grep results, even if point is not active in =*grep*=
+buffer.
+
+The following key bindings are available:
+
+| Key     | Description                                                           |
+|---------+-----------------------------------------------------------------------|
+| *TAB*   | Go to next match, but *do not* display matched buffer                 |
+|---------+-----------------------------------------------------------------------|
+| *S-TAB* | Go to previous match, but *do not* display matched buffer             |
+|---------+-----------------------------------------------------------------------|
+| *{*     | Go to previous file, *do not* display matched buffer                  |
+|---------+-----------------------------------------------------------------------|
+| *}*     | Go to next file, *do not* display matched buffer                      |
+|---------+-----------------------------------------------------------------------|
+| *C-o*   | Display matched location, but *do not* switch point to matched buffer |
+|         | (Only available in Emacs > 24.3)                                              |
+|---------+-----------------------------------------------------------------------|
+| *n*     | Display next matched buffer, but *do not* switch point                |
+|---------+-----------------------------------------------------------------------|
+| *p*     | Display previous matched buffer, but *do not* switch point            |
+|---------+-----------------------------------------------------------------------|
+| *M-g n* | Display next matched buffer, switch point to matched position         |
+|---------+-----------------------------------------------------------------------|
+| *M-g p* | Display previous matched buffer, switch point to matched position     |
+|---------+-----------------------------------------------------------------------|
+| *RET*   | Display matched location, switch point to matched bufer               |
+|---------+-----------------------------------------------------------------------|
+| *SPC*   | Scroll down, equivalent to *C-v*                                      |
+|---------+-----------------------------------------------------------------------|
+| *S-SPC* | Scroll up, equivalent to *M-v*                                        |
+|---------+-----------------------------------------------------------------------|
+| *g*     | Refresh the =*grep*= buffer with previously executed command          |
+|---------+-----------------------------------------------------------------------|
+| *q*     | Quit =*grep*= buffer                                                  |
+|---------+-----------------------------------------------------------------------|
+
+To get the list of key bindings, in =*grep*= buffer, type =?= or =h=
+or *C-h m*. Such a big list of key bindings, but worry not. These key
+bindings are quite common in other Emacs utilities. You can reuse many
+of these key bindings.
+
+**** Modeline
+:PROPERTIES:
+:ID:       d0ff17f7-bb7f-4923-b4d9-ddbf7b8a143b
+:END:
+The mode line is the empty area below the buffer. It has useful
+summary information about the buffer shown in the window.
+
+The text displayed in the mode line has the following format:
+
+#+BEGIN_CENTER
+~cs:ch-fr     |  buf |  pos line | (major minor)~
+
+For example, a modeline looks like this:
+#+END_CENTER
+
+
+[[https://tuhdo.github.io/static/modeline.jpg]]
+
+=cs= describes the character set of the text in the buffer. Do you see
+the character =U= in the picture? It means your text is represented by
+UTF-8 coding system.
+
+If you type text in different human languages, and if the input method is
+on, to the left of the =U= appears the symbol of that language,
+i.e. =\U=, the backslash means =TeX input method=. *C-\* prompts you
+to select a language. After selecting, subsequent *C-\* toggles the
+selected input method on and off. You can set the input method again
+with =M-x set-input-method=.
+
+=ch= describes editing state of current buffer:
+
+- This shows two dashes (‘--’) if the buffer displayed in the window
+  has the same contents as the corresponding file on the disk; i.e.,
+  if the buffer is “unmodified”.
+- If the buffer is modified, it shows two stars (‘**’). For a
+  read-only buffer, it shows ‘%*’ if the buffer is modified, and ‘%%’
+  otherwise. You can see that in the picture, the buffer is modified.
+
+=fr= gives the selected frame name. A frame is a Emacs window in your
+OS. For example, these are two Emacs frames:
+
+[[https://tuhdo.github.io/static/frames-gui.gif]]
+
+If you are using the GUI version of Emacs, it will always be a
+dash. However, if you use Emacs in terminal, you cannot have multiple
+frame window like the above screenshot. Instead, Emacs creates
+/virtual frames/ with names like F1, F2..., Fn like this (notice my
+mouse pointer):
+
+[[https://tuhdo.github.io/static/frames-term.gif]]
+
+=buf= is buffer name. Buffer name is usually file name; but they can
+have different names.
+
+=pos= is display the current position of your viewing screen. If your
+viewing screen starts from the first line, it displays as =Top=. If
+you viewing screen contains the last line of your buffer, it displays
+as =Bottom=. Otherwise, it displays *%* position, i.e. 20% means you
+viewing screen is 20% away from the top.
+
+=line= displays the current line number.
+
+=major= displays the current major mode.
+
+=minor= displays the current minor mode.
+
+**** Minibuffer
+:PROPERTIES:
+:ID:       c20af14e-8eca-4698-b4b0-d95ded1724ee
+:END:
+=Minibuffer= is the small area at the bottom of your Emacs screen.
+
+The =Minibuffer= is where Emacs commands read complicated arguments,
+such as file names, buffer names, Emacs command names, or Lisp
+expressions. When you execute =find-file=, it asks for your file from the
+=Minibuffer=, which is one of =find-file= required argument. Remember I
+said earlier that in Emacs, everything is a function. =find-file= is a
+command, in other words, it's an interactive function. As a function,
+it also takes arguments. =Minibuffer= is where users can feed arguments
+to the interactive functions.
+
+Minibuffer has an input history. If you enter anything into the
+minibuffer and *RET*, minibuffer remembers the input and you can access
+the input again with:
+
+- *M-p* moves to the previous input in minibuffer history.
+- *M-n* moves to the next input in minibuffer history.
+- *M-r* searches for an input that matches the supplied regexp.
+
+It works on any command that get input from the minibuffer, as you
+already used *M-p* and *M-n* to get old inputs in Isearch.
+
+**** Echo area
+:PROPERTIES:
+:ID:       e5ca41b8-5058-4f98-8b21-c906bc80a4d7
+:END:
+=Minibuffer= can be used for output as well. The echo area is used for
+displaying messages made with the message primitive, and for echoing
+keystrokes.
+
+Both =Minibuffer= and =Echo Area=, although serve different purposes,
+share the same physical space. You should not be confused between the two.
+
+**** Frames
+:PROPERTIES:
+:ID:       9d06632d-a923-47ee-8ca2-e2b4a106dad3
+:END:
+
+An application window in an operating system is called a *Frame* in
+Emacs. So, you execute *Emacs* from the command line and open Emacs,
+that's a frame that contains your Emacs session. Emacs can have
+multiple frames to hold different parts of Emacs, such as a separate
+frame to hold the minibuffer.
+
+Personally, I only use a single frame. However, frames can be useful
+if you want to organize buffers into different groups.  For example,
+each frame can be a project: frame F1 holds buffers related to my C
+programming projects, frame F2 holds buffers related to customizing
+Emacs, frame F3 holds buffers related to emails and reading,
+newsgroups...
+
+As stated earlier, multiple frames under the terminal have names
+F1, F2 .... Fn for each frame.
+
+These are the key bindings for manipulating frames:
+
+| Key         | Binding                                               |
+|-------------+-------------------------------------------------------|
+| =C-x 5 C-f= | *Command*: =find-file-other-frame=                    |
+|             | Open file in a different frame                        |
+|-------------+-------------------------------------------------------|
+| =C-x 5 f=   | *Command*: =find-file-other-frame=                    |
+|             | Same as *C-x 5 C-f*                                   |
+|-------------+-------------------------------------------------------|
+| =C-x 5 C-o= | *Command*: =display-buffer-other-frame=               |
+|             | Open buffer in a different frame and move point there |
+|-------------+-------------------------------------------------------|
+| =C-x 5 .=   | *Command*: =find-tag-other-frame=                     |
+|             | Find tag at point in a different frame                |
+|-------------+-------------------------------------------------------|
+| =C-x 5 0=   | *Command*: =delete-frame=                             |
+|             | Delete the current frame point is in                  |
+|-------------+-------------------------------------------------------|
+| =C-x 5 1=   | *Command*: =delete-other-frames=                      |
+|             | Delete other frames except the one at point       |
+|-------------+-------------------------------------------------------|
+| =C-x 5 2=   | *Command*: =make-frame-command=                       |
+|             | Create a frame                                        |
+|-------------+-------------------------------------------------------|
+| =C-x 5 b=   | *Command*: =switch-to-buffer-other-frame=             |
+|             | Same as *C-x 5 C-o*                                   |
+|-------------+-------------------------------------------------------|
+| =C-x 5 d=   | *Command*: =dired-other-frame=                        |
+|             | Open a Dired buffer in another frame                  |
+|-------------+-------------------------------------------------------|
+| =C-x 5 m=   | *Command*: =compose-mail-other-frame=                 |
+|             | Open another frame for composing email                |
+|-------------+-------------------------------------------------------|
+| =C-x 5 o=   | *Command*: =other-frame=                              |
+|             | Cycle through available frames                        |
+|-------------+-------------------------------------------------------|
+| =C-x 5 r=   | *Command*: =find-file-read-only-other-frame=          |
+|             | Open file for read only in another frame              |
+|-------------+-------------------------------------------------------|
+
+**** Window
+:PROPERTIES:
+:ID:       f988d119-d683-4568-8b38-cb3b700b7abf
+:END:
+Unlike other editors, Emacs can split your frame area into multiple smaller
+areas. Each such area is called a =window=. You can divide a frame
+into as many windows as you want and each window can have anything in
+it, i.e. your current editing buffer, file management buffer, help
+buffer, a shell... Basically anything that Emacs can display. Let's try them out:
+
+*_Exercise_*:
+
+*C-x 2* to split the current window into two horizontal windows. After
+splitting, you will have the exact duplicate of your current editing
+buffer. =split-window-below= is bound to *C-x 2*.
+
+*C-x 3* to split your current window into two vertical windows. After
+splitting, you will have the exact duplicate of your current editing
+buffer. =split-window-right= is bound to *C-x 3*.
+
+Now, after you execute the two commands above, you will have three
+windows: two above and one below. Each window can hold a buffer. With
+the above two commands, you can create arbitrary window layout. In
+Emacs, a window layout is called a *window configuration*.
+
+To navigate through the windows, use *C-x o* which runs the command
+=other-window=. Try cycle around the windows a few times to get used
+to it.
+
+In Emacs, =<next>= is the *PageDown* key, =<prior>= is the *PageUp*
+key. *M-<next>* runs =scroll-other-window= and scroll the other
+window forward; *M-<prior>* runs =scroll-other-window-down= and scroll
+the other window backward. Other window is the window that you visit
+when *C-x o*.
+
+*C-x 0* closes the window at point.
+
+*C-x 1* closes all other windows except the current selected
+one. Create another window, then try *C-x 1*.
+
+*C-x 4* is a common prefix for opening things in other buffer. Things
+here can be files, shell, or a tree explorer. Here are standard *C-x
+4* bindings:
+
+|-------------+------------------------------------------------------------------|
+| Key         | Binding                                                          |
+|-------------+------------------------------------------------------------------|
+| =C-x 4 C-f= | *Command*: =find-file-other-window=                              |
+|             | Just like *find-file* discussed earlier, except open file        |
+|             | in new window. If the current frame only has one window,         |
+|             | a new window is created.                                         |
+|-------------+------------------------------------------------------------------|
+| =C-x 4 C-o= | *Command*: =display-buffer=                                      |
+|             | Select a buffer from buffer list and display it in another       |
+|             | window but not move point to that window.                        |
+|-------------+------------------------------------------------------------------|
+| =C-x 4 .=   | *Command*: =find-tag-other-window=                               |
+|             | Open the tag at point in another window (more on this later)     |
+|-------------+------------------------------------------------------------------|
+| =C-x 4 0=   | *Command*: =kill-buffer-and-window=                              |
+|             | Just like *C-x 0* but kill the buffer in that window as well.    |
+|-------------+------------------------------------------------------------------|
+| =C-x 4 a=   | *Command*: =add-change-log-entry-other-window=                   |
+|             | Open another buffer and allow you to record the change of        |
+|             | the current editing file. These days, you use version control    |
+|             | system to manage file changes,and Emacs does this better.        |
+|             | Probably this feature exists when thing like Git does not exist. |
+|-------------+------------------------------------------------------------------|
+| =C-x 4 b=   | *Command*: =switch-to-buffer-other-window=                       |
+|             | Open a selected buffer in another window and move point to       |
+|             | that window.                                                     |
+|-------------+------------------------------------------------------------------|
+| =C-x 4 c=   | *Command*: =clone-indirect-buffer-other-window=                  |
+|             | Clone the current buffer in another window and give it a         |
+|             | different buffer name.                                           |
+|-------------+------------------------------------------------------------------|
+| =C-x 4 d=   | *Command*: =dired-other-window=                                  |
+|             | Open a *dired* buffer in another window. *Dired* is a built-int  |
+|             | file manager in Emacs. We will discuss later.                    |
+|-------------+------------------------------------------------------------------|
+| =C-x 4 f=   | *Command*: =find-file-other-window=                              |
+|             | Same as *C-x 4 C-f*                                              |
+|-------------+------------------------------------------------------------------|
+| =C-x 4 m=   | *Command*: =compose-mail-other-window=                           |
+|             | Write mail in other window. You can write email and send it      |
+|             | directly from Emacs.                                             |
+|-------------+------------------------------------------------------------------|
+| =C-x 4 r=   | *Command*: =find-file-read-only-other-window=                    |
+|             | Similar to *find-file-other-window*, but open for read-only.     |
+|-------------+------------------------------------------------------------------|
+| =M-<next>=  | *Command*: =scroll-other-window=                                 |
+|             | Scroll other window forward.                                     |
+|-------------+------------------------------------------------------------------|
+| =M-<prior>= | *Command*: =scroll-other-window-down=                            |
+|             | Scroll the other window backward.                                |
+|-------------+------------------------------------------------------------------|
+
+That's quite a long table, eh? If you forget, you can either:
+
+- Visit my manual again :)
+
+- Or much faster, access it directly from Emacs with it amazing help
+  system. So, if you want to know all key bindings to prefix *C-x 4*,
+  just *C-x 4* and then *C-h*. If you enter a prefix key and enter
+  *C-h* after it, it will list all of the key bindings and commands
+  start with that prefix. This is really nice, compare to other
+  editors that hide all this information deep within layers of menus.
+
+Help system will be discussed in later section.
+
+**** Prefix Arguments
+:PROPERTIES:
+:ID:       8bfeb59d-16e9-4ad5-9293-7fbb8135e510
+:END:
+In Emacs, behind anything is a function. Functions can accept
+arguments. You can also pass arguments into Emacs commands to modify
+its behaviours. However, you don't have to write code that calls
+a function with its arguments and then compile or evaluate it. You can
+pass arguments interactively.
+
+*_Exercise_*:
+
+Earlier, you learned motion commands such as *C-f*, *C-b*, *C-p* and
+*C-n*, remember? But, you can only move forward 1 character with
+*C-f*, move backward 1 character with *C-b*, 1 line upward with *C-p*
+and 1 line downward with *C-n*.
+
+Now, try *C-4* before any of those commands. See anything different?
+Great, instead of executing the commands once (i.e. Move forward 1
+character ...), you repeat the commands 4 times (i.e. Move forward 4
+characters...).
+
+Many commands allow multiple repetitions with prefix arguments.
+
+You can even pass negative prefix arguments. Try executing the above
+commands with *C--4*, that's right, *Control* and *-* and *4* (minus 4). You
+see that you also execute the commands 4 times, but in /reverse/. That
+is, with *C-f*, instead of moving forward 4 characters, you move
+backward 4 times. You might wonder, what does it differ from *C-4
+C-b*? You are right, it is the same. But, many commands do not have
+their reversed versions, so negative argument is always useful in
+those circumstances.
+
+Now, try executing *C-u 4 C-f*. You will see it does the same thing as
+*C-4 C-f*. Again, why do we need *C-u*? It is because in a terminal, you
+can not use *Control* with digit keys. *C-u* tells Emacs that you are
+about to enter a numeric argument, and it will be ready to accept the
+input. It's just a different way to do thing.
+
+If you do not supply any prefix argument, such as you directly execute
+*C-u C-f*, then the numeric argument is default to *4*. Try *C-u
+C-f*, and see that it moves 4 characters forward. Try it a few times
+to get used to.
+
+If you execute *C-u* consecutively, the numeric argument is a power
+of 4. If you press *C-u*, the resulting argument is 4^1; *C-u C-u*,
+the result is *4^2*, which is *16*; *C-u C-u C-u*, the result is
+*4^3*, or *64*. I know large powers are hard to calculate, but there
+is a plugin that displays the calculation and display these
+numbers. That plugin is Helm, but I will discuss that later in part 2.
+
+Why number 4 for *C-u*? I don't know.
+
+** Basic file management with Dired
+:PROPERTIES:
+:ID:       91d19428-6c3d-4805-8d8e-62f6d06a7edd
+:END:
+Emacs has a built-in one called Dired, short for
+=(Dir)ectory (Ed)itor=.
+
+This section is a shortened version of Dired in GNU Emacs Manual. After
+you read and practice these commands, read the [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Dired.html][Dired Manual]] if possible.
+
+*** Enter Dired
+:PROPERTIES:
+:ID:       578d357f-bb6f-437c-93a8-f6863b97ce25
+:END:
+
+| Key         | Binding                                                             |
+|-------------+---------------------------------------------------------------------|
+| =C-x d=     | Select directory of your choice and start Dired in that directory   |
+|-------------+---------------------------------------------------------------------|
+| =C-x 4 d=   | Select directory of your choice and start Dired in another windows. |
+|-------------+---------------------------------------------------------------------|
+| =C-x C-f=   | Select a directory to enter Dired                                   |
+|-------------+---------------------------------------------------------------------|
+
+*_Exercise_*: Execute the above commands at least once to get used to
+it. What command do you like the most?
+
+*** Navigation
+:PROPERTIES:
+:ID:       63b35a41-7ec7-4ee5-8f40-f189be084488
+:END:
+| Key   | Binding                                                        |
+|-------+----------------------------------------------------------------|
+| =n=   | Move to next entry below point.                                |
+|-------+----------------------------------------------------------------|
+| =p=   | Move to previous entry above point.                            |
+|-------+----------------------------------------------------------------|
+| =C-s= | Find text using Isearch; useful for searching entries in Dired |
+|-------+----------------------------------------------------------------|
+
+You can supply prefix arguments for these commands. i.e. =4 n= moves
+to the entry which is 4 lines below.
+
+*_Exercise_*: Execute the above commands, with and without prefix argument.
+
+*** Create files
+:PROPERTIES:
+:ID:       a0b0ebab-0bdd-4bbd-8e1c-47b9998e9ab1
+:END:
+
+To create a new file in Dired, you use the same *C-x C-f* and *C-x 4
+C-f* variant.
+
+| Key       | Binding                                                  |
+|-----------+----------------------------------------------------------|
+| =+=       | Prompts for a directory name and create one after *RET*. |
+|-----------+----------------------------------------------------------|
+| =C-x C-f= | Create a new file. This is your regular =find-file=.     |
+|-----------+----------------------------------------------------------|
+
+*_Exercise_*:
+
+- Create a new directory called =dired_practice= or a name of your
+  choice.
+- Create a new file of your choice.
+*** Visit files
+:PROPERTIES:
+:ID:       d5a3c375-0881-4620-a2ba-01fbd774e0d6
+:END:
+
+| Key                 | Binding                                                                   |
+|---------------------+---------------------------------------------------------------------------|
+| =f= or =e= or =RET= | Open current file at point.                                               |
+|---------------------+---------------------------------------------------------------------------|
+| =o=                 | Open file at point in another window.                                     |
+|---------------------+---------------------------------------------------------------------------|
+| =C-o=               | Open file at point in another window, but do not select that window.      |
+|---------------------+---------------------------------------------------------------------------|
+| =v=                 | Open file for read only.                                                  |
+|---------------------+---------------------------------------------------------------------------|
+| =^=                 | Open parent directory and create another Dired buffer of parent directory |
+|---------------------+---------------------------------------------------------------------------|
+
+*_Exercise_*:
+- Assume you are in your newly created directory in previous section.
+- Go up to the parent directory using =^=.
+- Open another directory. You will enter that directory, and a new
+  buffer is created for listing the content of that directory.
+- Go up to the parent directory using =^=.
+- Repeat opening and go up parent directory a few times.
+- *C-x b* and *TAB*. You will see a bunch of opened directory through
+  your filesystem navigation. Whenever you open a file or directory,
+  using Dired or other methods, you have a buffer of that directory.
+
+  At this point, you may feel annoyed that Dired opens too many
+  buffers and it will go out of control at some point. Worry not!
+  That's why you have =ibuffer=.
+
+- =M-x ibuffer= or =C-x C-b= if you've already replaced =list-buffers=.
+- =/ m= and select =dired-mode=. =/ g= and name the group =Dired= and
+  you have a separate group for managing directories. No more
+  cluttered view with other buffers. You can stop worrying now.
+
+  [[file:static/ibuffer-dired-group.gif][file:static/ibuffer-dired-group.gif]]
+
+  If you  want to enter directory you visited, open =ibuffer= and
+  look for it. This is efficient for a complex directory tree. For
+  example, if you have to constantly work with these many directories:
+
+  - =directory_root/dir1/dir2/dir3/dir4/=
+  - =directory_root/dir2/dir2/dir3/dir4/=
+  - =directory_root/dir5/dir6/dir7/dir8/=
+  - ....
+
+  The layouts of top two directories are common when you have to
+  create patches. Working in a normal file manager like File Explorer
+  in Windows, you only have one directory view. Going back and forth
+  is tedious and inefficient, and you have to remember different
+  directory paths. To make it easy, you have to open multiple File
+  Explorer manually. Under the terminal, you have to create symbolic
+  links for those directories to save you time. However, you still
+  have to manage the links manually, like delete when they are not
+  used, or update when directory the links pointing to are moved.
+
+  Emacs does it all for you, /automatically/. With this feature, you
+  can freely navigate the filesytem without having to remember the
+  working directory to get back later, because you can easily go back
+  to it quick and easy.
+
+*** File Marking
+:PROPERTIES:
+:ID:       683038dd-dc69-47d0-8b9c-8c708277a8e5
+:END:
+You flag files for deletion. You mark files for everything else
+(i.e. copy, move, link files...). There are many marking commands for
+specialized file types. Except for *m*, *% m* and *% g*, all marking
+commands have prefix =*=. I will list the most useful one; you can
+look up the other marking commands in [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Marks-vs-Flags.html#Marks-vs-Flags][Dired Manual]].
+
+| Key   | Binding                                                     |
+|-------+-------------------------------------------------------------|
+| =m=   | mark the entry at point. You can mark more than one, either |
+|       | downward or upward with prefix argument.                    |
+|-------+-------------------------------------------------------------|
+| =% m= | mark all files whose names match supplied regexp.           |
+|-------+-------------------------------------------------------------|
+| =% g= | match all files whose contents match the supplied           |
+|       | regexp. This is the same as using *Grep*.                   |
+|-------+-------------------------------------------------------------|
+
+*_Exercise_*: Practice the listed marking commands. Keep a few marked
+files/directories for the next section.
+
+*** Operating on files
+:PROPERTIES:
+:ID:       843b5802-eb08-4456-883b-aa986db31dc9
+:END:
+These commands use uppercase character. If you see an uppercase
+character for a command, it means *S-<character>*.
+
+| Key | Binding                                                      |
+|-----+--------------------------------------------------------------|
+| =C= | Prompt for a location to copy the file at point (if no file  |
+|     | is marked) or marked files.                                  |
+|-----+--------------------------------------------------------------|
+| =R= | Prompt for a location to rename or move file at point (if no |
+|     | file is marked) or marked files. This is the same as =mv=    |
+|     | command in shell.                                            |
+|-----+--------------------------------------------------------------|
+| =H= | Prompt for a location to create a hard link.                 |
+|-----+--------------------------------------------------------------|
+| =S= | Prompt for a location to create a symbolic link.             |
+|-----+--------------------------------------------------------------|
+| =M= | Change permission bits of file at point or marked files.     |
+|-----+--------------------------------------------------------------|
+
+*_Exercise_*:
+- Create a new directory at the current directory.
+- Assume that your still keep the marked file in the above section;
+  =C= and prompt for the directory you have created. *RET* to confirm
+  copying.
+- If you want to move marked files/directories, use =R=. If you want
+  to rename, mark only a single file/directory and put a new name in
+  the rename prompt.
+- Enter the directory you have just copied the files.
+- Move your cursor on a file and =H= to create a hard link. A prompt
+  ask for destination and the link name. Create a link at the current
+  location with different name from the original file.
+- Move your cursor on a file and =S= to create a symolic link. A prompt
+  ask for destination and the link name. Create a link at the current
+  location with different name from the original file.
+- Move your cursor on either the hardlink or symlink you created and
+  =M= and change the bit permission; set it to something like =000=.
+- After that, press =g= to refresh the Dired buffer. Look at the
+  original files the links point to, you will see the permission
+  attributes are cleared and you won't be able to access those files.
+
+*** Deleting files
+:PROPERTIES:
+:ID:       fc3bf0c1-8a22-4dd3-81cb-f811435d1e86
+:END:
+
+| Key    | Binding                                                              |
+|--------+----------------------------------------------------------------------|
+| =d=    | flags file for deletion.                                             |
+|--------+----------------------------------------------------------------------|
+| =u=    | remove flagged files.                                                |
+|--------+----------------------------------------------------------------------|
+| =#=    | flag all auto-save files (files whose names start and end with ‘#’). |
+|--------+----------------------------------------------------------------------|
+| =~=    | flag all backup files                                                |
+|--------+----------------------------------------------------------------------|
+| =% &*= | flag for deletion all files that match =dired-garbage-files-regexp=. |
+|--------+----------------------------------------------------------------------|
+| =% d=  | flag files which matches a regexp.                                   |
+|--------+----------------------------------------------------------------------|
+| =x=    | confirm and delete flagged files.                                    |
+|--------+----------------------------------------------------------------------|
+
+*** Execute shell commands in Dired
+:PROPERTIES:
+:ID:       c2f3564c-d338-4a08-a37b-a77d040d67a2
+:END:
+Just like in a shell, you can execute commands in the current
+directory in Dired too.
+
+| Key | Binding                                                     |
+|-----+-------------------------------------------------------------|
+| =!= | execute a command on selected file or files.                |
+|-----+-------------------------------------------------------------|
+| =&= | execute a command on selected file or files asynchronously. |
+|-----+-------------------------------------------------------------|
+
+*** Compare files
+:PROPERTIES:
+:ID:       cb415791-d4a8-48ba-88f7-942f70c44a88
+:END:
+
+| Key | Binding                                                            |
+|-----+--------------------------------------------------------------------|
+| *=* | compares the file at point with another file supplied by user from |
+|     | a file prompt in the minibuffer.                                   |
+|-----+--------------------------------------------------------------------|
+
+*** Subdirectories
+:PROPERTIES:
+:ID:       adb6cb47-65a4-45a8-b122-c14efa59cec8
+:END:
+This is an exciting feature of Dired. In other file explorers, you get
+a tree to browse your directory. If you have a deep directory
+structure, it will quickly become a nuisance.
+
+Dired allows user to insert the content of a directory just below the
+current directory. You can search for file names with *C-s* easily in
+both directories. You can insert as many subdirectories as you want.
+
+Move point on a directory in Dired and press *i*. You will see another
+directory insert below:
+
+[[file:static/dired-subdir.gif][file:static/dired-subdir.gif]]
+
+This is really efficient when you work on several related directories in
+a project frequently.
+
+*_Exercise_*:
+
+- Open a directory with subdirectories inside it.
+- Insert subdirectories with *i*.
+- Remember Bookmark? You can save Dired buffers with Bookmark for
+  later access. *C-x r m* and save the current Dired buffer with subdirectories.
+- Kill the current Dired buffer with subdirectories.
+- Open the Dired buffer via the bookmark list *C-x r l*. You will see
+  that not only your Dired buffer is fully restored, but your
+  subdirectories too.
+
+** Registers
+:PROPERTIES:
+:ID:       d4060b6d-0cc9-41bc-976e-d33b56b0df6b
+:END:
+When I first heard about registers in Emacs, it scared me. I thought
+"Wow, what is this "register" thing? Am I going to work directly with
+CPU registers?" As it turned out, despite the name "Register", it's
+not something that complicated to understand. Although, an Emacs
+register is similar to a CPU register in the sense that it allows
+quick access to temporal data.
+
+Each register has a name that consists of a single character, which we
+will denote by /r/; /r/ can be a letter (such as ‘a’) or a number (such as
+‘1’); case matters, so register ‘a’ is not the same as register ‘A’.
+
+In Emacs, registers are for quick access to things. Things can be a
+position, a piece of text, a rectangle, a number, a file name, or a
+window configuration (yes, you can save how Emacs organizes its
+screens and restore it later!).
+
+Saving different types of objects has different key bindings, but to jump
+to a register, you use a single command *C-x r j REG*; *REG* is a
+register of your choice.
+
+The prefix key for register commands is *C-x r*. If you forget the key
+bindings, *C-x r C-h* to get the list of key bindings.
+
+*** Save window configuration
+:PROPERTIES:
+:ID:       840ff6ae-1f2b-4796-9f7f-7cd5db33d879
+:END:
+One of the best uses of registers. It simply saves your current window
+configuration and restores the layout later.
+
+For example, you are viewing four source code buffers, but want to
+open two Dired buffers side by side to for managing files, so you
+close two windows and switch the other two windows to Dired
+buffers. But this makes you lose the perfect layout you had, and later
+it would be tedious to restore the windows one by one to finally
+recreate the original layout you were working with. Then, later, you
+have to do something else, you have to break your window
+configuration, you have to manually restore your window configuration
+again, and have to remember exactly which buffers you were working
+with.
+
+To free yourself from this burden, register is the answer. You can
+save a window configuration with four windows displaying four buffers,
+and another one having two Dired buffers for your project. You can
+more easily switch between them.
+
+| Key           | Binding                                                                      |
+|---------------+------------------------------------------------------------------------------|
+| *C-x r w REG* | *Command*: =window-configuration-to-register=                                |
+|               | Save the window configuration of current frame into register *REG*           |
+|---------------+------------------------------------------------------------------------------|
+| *C-x r f REG* | *Command*: =frame-configuration-to-register=                                 |
+|               | Save the state of all frames, including all their windows, in register *REG* |
+|---------------+------------------------------------------------------------------------------|
+| *C-x r j REG* | *Command*: =jump-to-register=                                                |
+|               | Jump to a register *REG*.                                                    |
+|---------------+------------------------------------------------------------------------------|
+
+*REG* can be a letter (such as ‘a’) or a number (such as ‘1’); case
+ matters, so register ‘a’ is not the same as register ‘A’.
+
+_Demo_: In this demo, I saved two windows configurations in two
+registers *a* and *b*, using *C-x r w*. Register *a* stores the Dired
+buffer that contains two project directories. Then, I open two files
+in the two directories, create another smaller window and open another
+file. Then, suddenly I want to go back to my project roots. It's then
+when I execute *C-x r j*, get a prompt, enter *a* and Emacs switches
+back the Dired buffer. Then, I switch back to the files I was editing
+with *C-x r j*, get a prompt, enter *b*.
+
+The demo starts when you see at the bottom a prompt with "Eval: START".
+
+[[file:static/register-windows.gif][file:static/register-windows.gif]]
+
+*_Exercise_*:
+
+- Save a few window configurations into registers. I suggest that each
+  window configuration should represent a workspace of a project. But
+  it could be anything you like, up to your imagination.
+
+- Go back and forth between window configurations by jumping into
+  appropriate registers.
+
+*** Save frame configuration
+:PROPERTIES:
+:ID:       7ecf0eed-367e-4e8c-8230-aee169a225c3
+:END:
+
+| Key           | Binding                                              |
+|---------------+------------------------------------------------------|
+| *C-x r f REG* | Save current frame configuration into register *REG* |
+|---------------+------------------------------------------------------|
+
+If you create multiple frames with frame commands (prefix *C-x 5*),
+then you may want to save your frames with different window
+configurations in it, for later use. For example, I can have a frame
+for reading documents and my main frame for writing and browsing
+code. When I finish working, I close the extra frame, leaving my main
+frame active. But later, when I need to have that exact frame setup, I
+can always restore with saved frameset in a register.
+
+*_Exercise_*:
+
+- Create a few frames with *C-x 5 2*, *C-x 5 d*, *C-x 5 f*...
+- Save the frameset into a register.
+- Close all the frames except the main one.
+- Restore the frames by jumping to the register that stores the
+  frameset.
+
+*** Save text
+:PROPERTIES:
+:ID:       cf4d74d8-e13e-4238-a5ff-9de0f006b6c5
+:END:
+You can also save a region in registers.
+
+| Key           | Binding                         |
+|---------------+---------------------------------|
+| *C-x r s REG* | *Command*: =copy-to-register=   |
+|               | Copy region into register *REG* |
+|---------------+---------------------------------|
+| *C-x r i REG* | *Command*: =insert-register=    |
+|               | Insert text from register *REG* |
+|---------------+---------------------------------|
+
+*REG* can be a letter (such as ‘a’) or a number (such as ‘1’); case
+ matters, so register ‘a’ is not the same as register ‘A’.
+
+You may wonder, what's the point of storing text into register? Haven't
+you got a kill ring? Here are the reasons:
+
+- As you already know, inserting past content from the kill ring makes
+  the chosen content the head entry. This is inconvenient, and this is
+  when registers are handy for storing many pieces of text without
+  affecting the kill ring. For example, you read a manual (man page or
+  info page), and you want to remember many keywords and paste it
+  somewhere later. Registers can help you with this use case.
+
+- You can also use registers to save many code templates. For example,
+  you can save a for loop template into register *f*, if template into
+  register *i*, function definition into register *F*... This is
+  really handy when you are learning a new language and keep
+  forgetting syntax all the time.
+
+  For example, this C++11 code snippet would be hard to remember if
+  you are new:
+
+  #+begin_src c++
+    auto it = find_if (vertices.begin(), vertices.end(), [&v_idx] (const Vertex& o) -> bool {
+	    return o.id == v_idx;
+	});
+  #+end_src
+
+  I save it to a register, insert and modify it to fit my current need
+  until I remember it. This is much faster than to go back to the
+  previous source location to look it up again, and would be time
+  consuming if your source code is large.
+
+*_Exercise_*:
+
+- Copy a few text snippets into registers.
+- Re-insert it in a buffer.
+
+*** Save rectangles
+:PROPERTIES:
+:ID:       a9136910-960b-4561-8155-1ccc8fb0bb29
+:END:
+
+| Key           | Binding                                       |
+|---------------+-----------------------------------------------|
+| *C-x r r REG* | Command: =copy-rectangle-to-register=         |
+|               | Copy the region-rectangle into register *REG* |
+|               | With *C-u* prefix, delete it as well          |
+|---------------+-----------------------------------------------|
+
+Insert the rectangle in register *REG* by *C-x r i REG*.
+
+*_Exercise_*:
+
+- Save a few rectangles in registers a few times to get used to it.
+- Insert the rectangles in the registers into some buffer.
+
+**** Save position
+
+| Key               | Binding                                                              |
+|-------------------+----------------------------------------------------------------------|
+| *C-x r <SPC> REG* | Command: =point-to-register=                                         |
+|                   | Record the position of point and the current buffer in register REG  |
+|-------------------+----------------------------------------------------------------------|
+| *C-x r j REG*     | Command: =jump-to-register=                                          |
+|                   | Jump to the position and buffer saved in register REG. If the buffer |
+|                   | is killed, revisit the file and open the buffer, then jump.          |
+|-------------------+----------------------------------------------------------------------|
+
+Saving positions are useful when it is used with Macro, which is
+discussed later.
+
+*_Important Note_*:
+
+When you jump to a position into a register, Emacs *always* jumps to
+that position, even if the content of the buffer is changed. That is,
+if you already saved a position into a register and when the buffer
+that holds that position changes, the saved position changes as
+well. For example, you save position 100 (it means the position of
+100th character) and you add or remove a number of characters before
+the 100th character, then the position in the saving register also add
+or subtract according to that number.
+
+*_Exercise_*:
+
+- Save a buffer position into register *a* with *C-x r SPC a*.
+- Move point else where.
+- Jump back to previous position with *C-x r j a*.
+- Move point backward a few characters.
+- Add some characters.
+- Jump back to position in register *a* with *C-x r j a*.
+- You see that point does not jump to original position, but away from
+  the original position a number of characters that is equal to the
+  number of your added characters.
+- Go to the beginning of line and *RET* to add a newline.
+- Jump back to position in register *a* with *C-x r j a*.
+- You see that point jumps to position in register *a*, but one line
+  below.
+
+**** Save numbers
+:PROPERTIES:
+:ID:       050dfff1-d8b1-4de0-b1c2-8aa6fcff79ee
+:END:
+
+| Key                      | Binding                                   |
+|--------------------------+-------------------------------------------|
+| *C-u number C-x r n REG* | Command: =number-to-register=             |
+|                          | Store /number/ into register *REG*        |
+|--------------------------+-------------------------------------------|
+| *C-u number C-x r + REG* | Command: =increment-register=             |
+|                          | If *REG* contains a number, increment the |
+|                          | *number* in that register by number.      |
+|--------------------------+-------------------------------------------|
+
+You can insert the number from a register *REG* with *C-x r i
+REG*. These numbers are handy when used with =Keyboard Macro=.
+
+*_Exercise_*:
+
+- Save a few numbers into registers.
+- Add a number of your choice into numbers saved in the registers.
+- Insert back the number in registers into a buffer, and see the
+  result.
+
+**** Macro
+:PROPERTIES:
+:ID:       7a1827f6-3bcf-4ff4-92a3-44bf0aae9ab9
+:END:
+Macro records your actions in Emacs and play back later.
+
+| Key             | Binding               |
+|-----------------+-----------------------|
+| =f3= or =C-x (= | Start recording macro |
+|-----------------+-----------------------|
+| =f4= or =C-x )= | Stop recording macro  |
+|-----------------+-----------------------|
+| =C-x e= or =f4= | Playback macro        |
+|-----------------+-----------------------|
+
+Personally, I use =f3= and =f4= for recording/playback, so I don't
+have to press many keys. To repeat a macro many times, use prefix
+argument. For example, =C-u 10 <f4>= executes a macro 10 times. If you
+want to cancel recording, *C-g*.
+
+*_Exercise 1_*:
+
+Copy these lines into a buffer of your choice:
+
+#+begin_src fundamental
+  aaaaabbbbbbbccccccdddddd
+  aaaaabbbbbbbccccccdddddd
+  aaaaabbbbbbbccccccdddddd
+  aaaaabbbbbbbccccccdddddd
+  aaaaabbbbbbbccccccdddddd
+  aaaaabbbbbbbccccccdddddd
+  aaaaabbbbbbbccccccdddddd
+  aaaaabbbbbbbccccccdddddd
+  aaaaabbbbbbbccccccdddddd
+  aaaaabbbbbbbccccccdddddd
+  aaaaabbbbbbbccccccdddddd
+  aaaaabbbbbbbccccccdddddd
+  aaaaabbbbbbbccccccdddddd
+  aaaaabbbbbbbccccccdddddd
+#+end_src
+
+Now, you want to separate each line into different groups, each group
+contains their own character, like this:
+
+#+BEGIN_HTML
+aaaaa bbbbbbb cccccc dddddd
+#+END_HTML
+
+In many editors, you have have to do it manually. In Emacs, you don't
+have to repeat yourself, using macro. Follow these steps:
+
+- Place point at the beginning of the first line.
+- Press *<f3>*.
+- Use C-s to search-and-jump to the beginning of each character group (or C-f if you want something simple) and add whitespace.
+- Return to the beginning of next line. Press *<f4>* to finish recording.
+- Continuously press *<f4>* and see Emacs playbacks the whole action
+  sequence you've just recorded.
+- If you want to repeat more than 1 time, using prefix argument. If
+  you want to repeat until the end of file, use prefix argument 0:
+  *C-u 0 <f4>*. Alternatively, highlight the region of remaining
+  lines, and *C-x C-k r*: run the last keyboard macro on each line
+  that begins in the region (=apply-macro-to-region-lines=).
+
+[[https://tuhdo.github.io/static/macro.gif]]
+
+After a macro is defined, it is saved in the keyboard macro ring. There is
+only one keyboard macro ring, shared by all buffers. All commands
+which operate on the keyboard macro ring use the same *C-x C-k*
+prefix. Just remember the prefix *C-x C-k* = macro commands, and you
+won't find macro key bindings difficult to remember.
+
+*_Exercise 2_*: Transform data from one format to another
+
+For example, I have this table with some data:
+
+#+begin_src fundamental
+  machine1=(aa:bb:cc:dd:ee:a1 aa:bb:cc:dd:ee:a2 aa:bb:cc:dd:ee:a3)
+  machine2=(aa:bb:cc:dd:ee:b1 aa:bb:cc:dd:ee:b2 aa:bb:cc:dd:ee:b3)
+  machine3=(aa:bb:cc:dd:ee:c1 aa:bb:cc:dd:ee:c2 aa:bb:cc:dd:ee:c3)
+  machine4=(aa:bb:cc:dd:ee:d1 aa:bb:cc:dd:ee:d2 aa:bb:cc:dd:ee:d3)
+  machine5=(aa:bb:cc:dd:ee:e1 aa:bb:cc:dd:ee:e2 aa:bb:cc:dd:ee:e3)
+  machine6=(aa:bb:cc:dd:ee:f1 aa:bb:cc:dd:ee:f2 aa:bb:cc:dd:ee:f3)
+#+end_src
+
+Basically, each row contains the MAC addresses of Ethernet interfaces
+of a machine in the server cluster at my workplace. The data are
+stored in a plain text file. But then, we want to integrate these data
+inside our YAML file to do something else. I have to basically
+transform the data in the above format to the one below:
+
+#+begin_src yaml
+  machine 1:
+      mac1: aa:bb:cc:dd:ee:a1
+      mac2: aa:bb:cc:dd:ee:a2
+      mac3: aa:bb:cc:dd:ee:a3
+#+end_src
+
+In the real data file, it contains around 50 entries. Manually
+transforming text would be tiresome. Thanks to Emacs, I solved this
+problem with a keyboard macro.
+
+- _Pre-recording setup_:
+  Before recording a macro to automate this transformation, we need to
+  properly set things up:
+
+  - Create two buffers side by side with *C-x b*. Name the left buffer
+    =buf1= and right buffer =buf2=.
+  - Yank the original data into =buf1=. Move point back to
+    beginning of buffer.
+
+    That's set and done. Here is how it should look like:
+
+    [[https://tuhdo.github.io/static/prepare_macro.gif]]
+
+- _Record_:
+
+   Point should be at =buf1=, at the first line of the data.
+
+  - Press *<f3>* to start.
+  - *C-SPC* then *M-f*. This marks the word =machine1=. Store this word
+    into register =a= with *C-x r s a*.
+
+    [[https://tuhdo.github.io/static/reg_a.gif]]
+
+  - Move point to the beginning of the first MAC address. *C-SPC* then
+    *C-s* and search to the first delimiter, which is an empty space "
+    " in this case. *C-b* to move back to the end of the first MAC
+    address. Store this region into register *b* with *C-x r s b*.
+
+    [[https://tuhdo.github.io/static/reg_b.gif]]
+
+  - After that, move point to the beginning of the 2nd MAC address,
+    *C-s* to space and *C-b* to go back one character. Save the region
+    into register *c* with *C-x r s c*.
+
+    [[https://tuhdo.github.io/static/reg_c.gif]]
+
+  - Repeat for the last MAC address and save it in register *d*.
+
+    [[https://tuhdo.github.io/static/reg_d.gif]]
+
+  - Switch to the second buffer with *C-x o*:
+  - Insert the register from =a= to =d= according to the template:
+
+    [[https://tuhdo.github.io/static/insert_buf2_macro.gif]]
+
+  - After inserting, move point to the next empty line.
+  - Switch back to =buf1= with *C-x o*.
+  - Move to the beginning of next line.
+  - Press *<f4>* to stop.
+
+- _Play_:
+
+  Now you can play back your new keyboard macro to transform the
+  remaining entries.
+
+Here is the whole process:
+
+[[https://tuhdo.github.io/static/macro2_full.gif]]
+
+**** Keyboard macro ring
+
+| Key           | Binding                                              |
+|---------------+------------------------------------------------------|
+| *C-x C-k C-k* | Command: =kmacro-end-or-call-macro-repeat=           |
+|               | Execute the keyboard macro at the head of the ring   |
+|---------------+------------------------------------------------------|
+| *C-x C-k C-n* | Command: =kmacro-cycle-ring-next=                    |
+|               | Rotate the keyboard macro ring to the next macro     |
+|               | (defined earlier).                                   |
+|---------------+------------------------------------------------------|
+| *C-x C-k C-p* | Command: =kmacro-cycle-ring-previous=                |
+|               | Rotate the keyboard macro ring to the previous macro |
+|               | (defined later)                                      |
+|---------------+------------------------------------------------------|
+
+*_Exercise_*:
+
+Define a few more keyboard macros and practice the above commands.
+
+**** The Keyboard Macro Counter
+:PROPERTIES:
+:ID:       8f80bf88-4b37-425f-8e55-d57c38a3c311
+:END:
+Each macro has a counter which is initialized to 0. Everytime a
+counter is inserted into the buffer, its value is incremented by 1.
+
+| Key           | Binding                                                     |
+|---------------+-------------------------------------------------------------|
+| *<f3>*        | Command: =kmacro-start-macro-or-insert-counter=             |
+|               | Insert the counter into the buffer and increase the counter |
+|               | by 1. This is only applicable when a macro is recording     |
+|---------------+-------------------------------------------------------------|
+| *C-x C-k C-i* | Command: =kmacro-insert-counter=                            |
+|               | Insert the counter of current macro into the buffer         |
+|---------------+-------------------------------------------------------------|
+| *C-x C-k C-c* | Command: =kmacro-set-counter=                               |
+|               | Change the counter value of current macro                   |
+|---------------+-------------------------------------------------------------|
+| *C-x C-k C-a* | Command: =kmacro-add-counter=                               |
+|               | Add a number to the current keyboard macro counter. *C-u*   |
+|               | before running this command resets the counter back to      |
+|               | previous value                                              |
+|---------------+-------------------------------------------------------------|
+| *C-x C-k C-f* | Command: =kmacro-set-format=                                |
+|               | Specify the format for inserting the keyboard macro counter |
+|---------------+-------------------------------------------------------------|
+
+Valid format specifications for *C-x C-k C-f*:
+
+| Specification | Description                                                                          |
+|---------------+--------------------------------------------------------------------------------------|
+| =%o=          | Insert *base-eight* representation of an integer.                                    |
+|---------------+--------------------------------------------------------------------------------------|
+| =%d=          | Insert *base-ten* representation of an integer.                                      |
+|---------------+--------------------------------------------------------------------------------------|
+| =%x=          | Insert *base-sixteen* representation of an integer.                                  |
+| =%X=          | ‘%x’ uses lower case and ‘%X’ uses upper case.                                       |
+|---------------+--------------------------------------------------------------------------------------|
+| =%c=          | Insert the character which is the numerical value given.                             |
+|---------------+--------------------------------------------------------------------------------------|
+| =%e=          | Insert exponential notation for a floating point number.                             |
+|---------------+--------------------------------------------------------------------------------------|
+| =%f=          | Insert decimal-point notation for a floating point number.                           |
+|---------------+--------------------------------------------------------------------------------------|
+| =%g=          | Insert notation for a floating point number, using either exponential notation or    |
+|               | decimal-point notation, whichever is shorter.                                        |
+|---------------+--------------------------------------------------------------------------------------|
+| =%%=          | Insert a single ‘%’. This format specification is unusual in in that it does not use |
+|               | a value. For example, (format "%% %d" 30) returns "% 30".                            |
+|---------------+--------------------------------------------------------------------------------------|
+
+The format must contain at least one of the valid specification above
+or combination with other text. For example, these are valid format:
+
+- =0x%x=
+- =Project %d:=
+- =Plain text=
+
+*_Exercise 1_*: Creating incremental header prefix
+
+Format specification is useful for making formatted output with macro,
+combine with the counter, it is useful for appending numbered prefix
+at beginning of line. For example: We usually write code comment that
+describes sequential steps in a high level point of view like this:
+
+#+begin_src fundamental
+  - Step 1 of 5: ...
+  - Step 2 of 5: ...
+  - Step 3 of 5: ...
+  - Step 4 of 5: ...
+  - Step 5 of 5: ...
+#+end_src
+
+Keyboard macro can help us generate such text pattern effortlessly.
+
+- *C-x C-k C-f* and enter this format: =- Step %d of 5:=
+- *<f3>* to start recording.
+- *<f3>* again to insert the first counter value, which is =- Step 0
+  of 5:=
+- *RET* to move to the next line.
+- *<f4>* to stop recording.
+- Now press *<f4>* as many time as you want and see header prefix got
+  inserted with incremental values.
+- You can insert the text any value by simply set the counter with
+  *C-x C-k C-c*.
+
+Remember to use this the next time you write comments for your code
+that need an ordered list to describe the steps of your algorithm.
+
+*_Exercise 2_*: Generate a list of numbers
+
+With macro counter, you can easily generate a list of number in
+supported base:
+
+- *C-x C-k C-f* and enter a format like this: =%d= (or a base number
+  of your choice).
+- Initialize the macro counter to a number of your choice.
+- *<f3>* to start recording.
+- If you want the numbers to be 5 units (or any number greater than 1)
+  apart from each other, *C-x  C-k a* to add a number to the
+  counter. If you only want to increase by 1, skip this step because
+  the default is 1.
+- *<f3>* to insert the first number.
+- *SPC* to create a separator.
+- *<f4>* to stop recording.
+- Now *<f4>* repeatedly to see numbers getting generated.
+
+**** Macros with Variations
+:PROPERTIES:
+:ID:       29ef199d-1fc8-49e5-aee8-a8b2e7c69b6c
+:END:
+Macro is excellent for repetitive editing tasks. However, sometimes
+you have a repetitive task that can make use of macro, but not always
+repetitive: a part of the task varies every time you repeat it. For
+example, you have a text template, with some blank fields for fitting
+in appropriate information. Keyboard macro supports this use case.
+
+When in the process of defining a keyboard macro, *C-x q* marks the
+current point in the process, and when the keyboard macro is executed
+and reaches this point, it will ask to confirm:
+
+| Response | Action                                                        |
+|----------+---------------------------------------------------------------|
+| *Y*      | Finish this iteration normally and continue with the next.    |
+|----------+---------------------------------------------------------------|
+| *N*:     | Skip the rest of this iteration, and start the next.          |
+|----------+---------------------------------------------------------------|
+| *RET*    | Stop the macro entirely right now.                            |
+|----------+---------------------------------------------------------------|
+| *C-l*    | Redisplay the screen, then ask again.                         |
+|----------+---------------------------------------------------------------|
+| *C-r*    | Start editing at point. *C-M-c* to go back to macro execution |
+|----------+---------------------------------------------------------------|
+
+*_Exercise_*: Inserting interactive template
+
+Suppose you practice Agile and have to write a lot of user stories
+like this:
+
+#+BEGIN_QUOTE
+*As a* <type of user>, *I want* <some goal> *so that* <some reason>.
+#+END_QUOTE
+
+Obviously, you do not want to repeat the template texts, such as "As
+a", "I want" or "so that". The only contents that varies are =<type of
+user>=, =<some goal>= and =<some reason>=. You can create a macro that
+stops and waits for your action at these checkpoints. *C-r* to start
+editing.
+
+- First, copy this template:
+
+#+begin_src fundamental
+  As a , I want , so that
+#+end_src
+
+- *<f3>* to start recording.
+- *C-y* to yank the template.
+- Move point to positions that need modifications, then *C-x q*.
+- *<f4>* to stop recording.
+- Now *<f4>* and you will see the macro stops at the positions where
+  you pressed *C-x q* before and ask for your action.
+- *C-r* to edit. After done editing, *C-M-c* to go back.
+- You are asked the same question as before. If you still miss
+  something, *C-r* to edit again. Otherwise, press *y* to proceed to
+  the next point.
+- Continue until the end of macro.
+
+**** Naming and Saving Macro
+
+| Key         | Binding                                                         |
+|-------------+-----------------------------------------------------------------|
+| *C-x C-k n* | Command: =kmacro-name-last-macr=                                |
+|             | Give a command name (for the duration of the Emacs session)     |
+|             | to themost recently defined keyboard macro.                     |
+|-------------+-----------------------------------------------------------------|
+| *C-x C-k b* | Command: =kmacro-bind-to-key=                                   |
+|             | Bind the most recently defined keyboard macro to a key sequence |
+|             | (for the duration of the session)                               |
+|-------------+-----------------------------------------------------------------|
+
+When macro has a name, it becomes a command and you can find it in
+*M-x* and can be saved with =M-x insert-kbd-macro=. After executing
+the command, you are prompted for a macro name (you can use *TAB* to
+complete the name); select a macro and the Lisp code of the chosen
+macro is inserted into the current buffer, then save the buffer. You
+should have a dedicated file for your own keyboard macros. You can
+reload this file for later Emacs session with the command
+=load-file=.
+
+You can also bind a macro to any key sequence. However, to avoid
+clashing with existing key bindings, you should use the prefix *C-x
+C-k*. For example, you can bind a macro to *C-x C-k 1*, another to
+*C-x C-k 2*...
+
+*_Exercise 1_*: Save your macro in a file
+
+- Record some keyboard macros.
+- Give the macros names with *C-x C-k n*.
+- Bind the macros to *C-x C-k 1*, *C-x C-k 2*... with *C-x C-k b*.
+- Create the file =~/.emacs.d/init.el=. If you do not have the
+  directory and the file, create it with =find-file=.
+- Create the file =~/.emacs.d/macros= with =find-file=. You should be
+  inside the buffer of this file after creating it.
+- Save the macros with =M-x insert-kbd-macro=.
+- To save you trouble of reloading the macro file manually, put this
+  Emacs Lisp code inside =~/.emacs.d/init.el=:
+
+  #+begin_src emacs-lisp
+    (load-file "~/.emacs.d/macros")
+  #+end_src
+
+  The above code essentially loads a file at a path. Only files that
+  are Emacs Lisp source code are valid.
+
+- Now, every time Emacs starts, it will automatically load the
+  =macros= file. By default, Emacs loads any Emacs Lisp code at
+  =~/.emacs.d/init.el= when it starts. Since you put the above code in
+  =init.el=, your =macros= file is also loaded.
+
+*_Exercise 2_*: Composite macros
+
+Back to exercise 2 at the beginning of Macro section, do you remember
+you had to create a big macro to convert text structures? Certainly it
+can be done more comfortably by splitting it into smaller macros,
+saving these macros into Emacs commands and putting them all together
+in a macro.
+
+- _Pre-recording setup_:
+  Before recording a macro to automate this transformation, we need to
+  properly set things up:
+
+  - Create two buffers side by side with *C-x b*. Name the left buffer
+    =buf1= and right buffer =buf2=.
+  - Yank the original data into =buf1=, then move point back to
+    beginning of buffer:
+
+#+begin_src fundamental
+  machine1=(aa:bb:cc:dd:ee:a1 aa:bb:cc:dd:ee:a2 aa:bb:cc:dd:ee:a3)
+  machine2=(aa:bb:cc:dd:ee:b1 aa:bb:cc:dd:ee:b2 aa:bb:cc:dd:ee:b3)
+  machine3=(aa:bb:cc:dd:ee:c1 aa:bb:cc:dd:ee:c2 aa:bb:cc:dd:ee:c3)
+  machine4=(aa:bb:cc:dd:ee:d1 aa:bb:cc:dd:ee:d2 aa:bb:cc:dd:ee:d3)
+  machine5=(aa:bb:cc:dd:ee:e1 aa:bb:cc:dd:ee:e2 aa:bb:cc:dd:ee:e3)
+  machine6=(aa:bb:cc:dd:ee:f1 aa:bb:cc:dd:ee:f2 aa:bb:cc:dd:ee:f3)
+#+end_src
+
+    That's set and done. Here is how it should look like:
+
+    [[file:static/prepare_macro.gif][file:static/prepare_macro.gif]]
+
+- _Record_:
+
+  Point should be at =buf1=, at the first line of the data. Let's
+  create the first macro command, =save-macs= that saves the
+  information of each entry into registers a,b,c,d:
+
+  - *<f3>* to start.
+  - *C-SPC* then *M-f*. This mark the word =machine1=. Store this word
+    into register =a= with *C-x r s a*.
+
+    [[file:static/reg_a.gif][file:static/reg_a.gif]]
+
+  - Move point to the beginning of the first MAC address. *C-SPC* then
+    *C-s* and search to the first delimiter, which is an empty space "
+    " in this case. *C-b* to move back to the end of the first MAC
+    address. Store this region into register *b* with *C-x r s b*.
+
+    [[file:static/reg_b.gif][file:static/reg_b.gif]]
+
+  - After that, move point to the beginning of the 2nd MAC address,
+    *C-s* to space and *C-b* to go back one character. Save the region
+    into register *c* with *C-x r s c*.
+
+    [[file:static/reg_c.gif][file:static/reg_c.gif]]
+
+  - Repeat for the last MAC address and save it in register *d*.
+
+    [[file:static/reg_d.gif][file:static/reg_d.gif]]
+
+  - Move point to the beginning of next line.
+
+  - *<f4>* to stop. *C-x C-k n* and save the macro with the name
+    =save-macs=.
+
+  Let's create the second macro command, =insert-macs=:
+
+  - Switch to the second buffer with *C-x o*:
+  - *<f3>* to start recording.
+  - Insert the register from =a= to =d= according to the template:
+
+    [[file:static/insert_buf2_macro.gif][file:static/insert_buf2_macro.gif]]
+
+  - After inserting, move point to the next empty line.
+  - *<f4>* to stop. *C-x C-k n* and save the macro with the name =insert-macs=.
+
+ We have two important macros now. Let's put them back together:
+
+  - Switch back to =buf1= with *C-x o*. Point should be on the second
+    entry.
+  - *<f3>* to start recording.
+  - =M-x save-macs=; after executing this command, point moves to the
+    next line.
+  - *C-x o* to switch to =buf2=. Point should be after the first
+    insertion of =machine1=.
+  - =M-x insert-macs=; data get inserted into the buffer after this
+    command.
+  - *C-x o* to switch back to =buf1=.
+  - Press *<f4>* to stop.
+
+- _Play_:
+
+  You can play back your new keyboard macro to transform the
+  remaining entries.
+
+**** Edit Keyboard Macro
+:PROPERTIES:
+:ID:       e757ddcb-6453-4dad-b6a7-ce66ea6b4ffb
+:END:
+
+| Key                    | Binding                                           |
+|------------------------+---------------------------------------------------|
+| *C-x C-k C-e*          | Command: =kmacro-edit-macro=                      |
+|                        | Edit the last defined keyboard macro              |
+|------------------------+---------------------------------------------------|
+| *C-x C-k e name <RET>* | Command: =edit-kbd-macro=                         |
+|                        | Edit a previously defined keyboard macro name     |
+|------------------------+---------------------------------------------------|
+| *C-x C-k l*            | Command: =kmacro-edit-lossage=                    |
+|                        | Treat the last 300 keystrokes as a keyboard macro |
+|------------------------+---------------------------------------------------|
+
+It is useful to edit a keyboard macro when you run an incorrect
+command. Instead of doing the whole thing again, you can edit the
+incorrect part. Note that, do not press *C-g* or you will kill your
+current recording macro; press *<f4>* instead to complete the macro,
+and edit it. After you're done editing, continue from the previous
+point where you left off with:
+
+- *C-u <f3>*: Re-execute last keyboard macro, then append keys to its
+  definition.
+- *C-u C-u <f3>*: Append keys to the last keyboard macro without
+  re-executing it.
+
+**** Interactive Keyboard Macro Editing:
+:PROPERTIES:
+:ID:       03e7f694-5647-452b-8fc7-8f88180b29ab
+:END:
+*C-x C-k SPC* runs =kmacro-step-edit-macro= that allows you to view
+commands of the last keyboard macro, one by one at a time, like a
+debugger. When you enter this mode, you have a set of predefined
+commands to apply on each command. Press *?* for a list of available
+interactive commands and play with it.
+
+**** Tips for using macro effectively
+:PROPERTIES:
+:ID:       47512938-6e58-4350-829e-e9c5f137195d
+:END:
+
+- Find a pattern: after going through all the exercises, you can see
+  that a successful macro is a macro that is repeatable, when a
+  certain condition is met. Basically, for text transformation, you
+  need to create a loop, with proper initialization and end
+  condition. If you data does not have a pattern, try to organize it
+  in a repeatable way. As you can see in the exercises, data are laid
+  out in a way that macro can be repeatable naturally: each line is an
+  iteration.
+- You can also use a macro for almost anything unrelated to text in
+  Emacs. For example, you can create a macro to run =find-file= and to
+  go to =~/Downloads=.
+- Use registers: As you see in the exercises, macro is a fine way to
+  store information. You can use registers as a temporary information
+  holder and organize those information into an arbitrary structure
+  later.
+- Do it slowly and think before you do: Don't rush yourself. Do it
+  slowly enough that you are sure when you press some keys and execute
+  some commands, it is correct.
+- Break large macro into smaller macros.
+
+**** Version Control
+:PROPERTIES:
+:ID:       112710a7-779a-434c-ad23-e6a9a27aae82
+:END:
+This section is taken directly from [[http://www.gnu.org/software/emacs/tour/][GNU Emacs Tour]], with
+improvements.
+
+Emacs helps you manipulate and edit files stored in version
+control. Emacs supports CVS, Subversion, bzr, git, hg, and other
+systems, but it offers a uniform interface, called VC, regardless of
+the version control system you are using. The benefit of a unified
+interface is that even if you aren't familiar with some version
+control system (VCS), you can still work with that VCS quickly,
+without the burden of learning all the little details of a particular
+VCS.
+
+Emacs automatically detects when a file you're editing is under
+version control, and displays something like this in the mode line:
+CVS-1.14 to indicate the version control system in use, and the
+current version.
+
+=M-x vc-next-action= or *C-x v v* commits the current file (prompting you
+for a log message) if you've modified it. (Under version control
+systems that require locking, this command also acquires a lock for
+you.)
+
+VC provides other commands for version control-related tasks:
+
+| Key       | Binding                                                                    |
+|-----------+----------------------------------------------------------------------------|
+| =C-x v == | *Command*: =vc-diff=                                                       |
+|           | Displays a diff showing the changes you've made to the current files.      |
+|-----------+----------------------------------------------------------------------------|
+| =C-x v ~= | *Commmand*: =vc-revision-other-window=                                     |
+|           | Prompts you for a version number and shows you that version of the current |
+|           | file in another window.                                                    |
+|-----------+----------------------------------------------------------------------------|
+| =C-x v g= | *Command*: =vc-annotate=                                                   |
+|           | Displays an annotated version of the file showing, for each line,          |
+|           | the commit where that line was last changed and by whom. On any            |
+|           | line you can press =l= to view the log message for that commit or =d=      |
+|           | to view the associated diff.                                               |
+|-----------+----------------------------------------------------------------------------|
+| =C-x v l= | *Command*: =vc-print-log=                                                  |
+|           | Displays a log of previous changes to the file. When point is              |
+|           | on a particular log entry, you can press d to view the diff                |
+|           | associated with that change or f to view that version of the file.         |
+|-----------+----------------------------------------------------------------------------|
+| =C-x v u= | *Command*: =vc-revert=                                                              |
+|           | Revert working copies of the selected fileset to their repository          |
+|           | contents. This asks for confirmation if the buffer contents are not        |
+|           | identical to the working revision (except for keyword expansion).          |
+|-----------+----------------------------------------------------------------------------|
+
+You can list more operations with *C-x v C-h*.
+
+If you use git, a more specialized package exists dedicated to Git
+only: [[https://github.com/magit/magit][Magit]] offers much better features than the general interface
+that Emacs provides, except for some features, such as *C-x v =*, *C-x
+v ~* and *C-x v u* .
+
+The prefix key bindings for all VC related commands are *C-x v*. The
+above are just a few commands that I found most useful and used
+frequently, even when I use [[https://github.com/magit/magit][Magit]].
+
+*_Exercise_*:
+Let's practice this nice Emacs feature.
+
+- First, download a random Git repository.
+- Open any file in the repository.
+- Edit that file and save. Do it in various places, so we have many
+  hunks.
+- *C-x v =* to know precise what changes you made.
+- *C-x v g* to view who changes what line on what commit.
+- *C-x v ~*, select a commit. After selecting, the version of that
+  revision will be displayed in another buffer.
+- *C-x v u* to revert the buffer back to its original state, after you
+  done playing with it.
+- Rinse and repeat until it becomes part of your workflow.
+
+**** Shell
+:PROPERTIES:
+:ID:       bb3e0977-97b2-450a-9c60-1b80b23280a9
+:END:
+In Emacs, you have 3 types of shell commands: =shell=, =term= and
+=eshell=.
+
+I will just quote a very good answer on StackExchange:
+
+#+BEGIN_QUOTE
+[[https://www.gnu.org/software/emacs/manual/html_node/emacs/Shell-Mode.html][shell]] is the oldest of these 3 choices. It uses Emacs's comint-mode to
+run a subshell (e.g. bash). In this mode, you're using Emacs to edit a
+command line. The subprocess doesn't see any input until you press
+Enter. Emacs is acting like a dumb terminal. It does support color
+codes, but not things like moving the cursor around, so you can't run
+curses-based applications.
+
+[[https://www.gnu.org/software/emacs/manual/html_node/emacs/Term-Mode.html][term]] is a terminal emulator written in Emacs Lisp. In this mode, the
+keys you press are sent directly to the subprocess; you're using
+whatever line editing capabilities the shell presents, not Emacs's. It
+also allows you to run programs that use advanced terminal
+capabilities like cursor movement (e.g. you could run nano or less
+inside Emacs).
+
+[[https://www.gnu.org/software/emacs/manual/html_node/eshell/index.html][eshell]] is a shell implemented directly in Emacs Lisp. You're not
+running bash or any other shell as a subprocess. As a result, the
+syntax is not quite the same as bash or sh. It allows things like
+redirecting the output of a process directly to an Emacs buffer (try
+echo hello >#<buffer results>).
+#+END_QUOTE
+
+[[http://unix.stackexchange.com/questions/104325/what-is-the-difference-between-shell-eshell-and-term-in-emacs][What is the difference between shell, eshell, and term in Emacs?]]
+
+I suggest you to use eshell, since you can use any Emacs commands
+within Eshell as well. However, in Eshell, to send an interrupt
+signal, instead of =Ctrl+C=, you need to press twice: =Ctrl+C
+Ctrl+C=.
 * General Settings
 ** Platform Specific Configuration
 *** OS X Desktop
@@ -2202,3 +4859,4 @@ GPATH GRTAGS GTAGS
 - [ ] Clojure Support [ Build Fun Things ]
 - [ ] Rust Support [ Build Fun Things ]
 * Credits
+
