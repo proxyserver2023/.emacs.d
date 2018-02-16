@@ -9,7 +9,6 @@
   (setq user-full-name "Alamin Mahamud")
   (setq user-mail-address "alamin.ineedahelp@gmail.com")
 #+END_SRC
-
 *** Credits
 This Emacs Config has been created by shamelessly stealing other peoples config and docs.
 Special thanks to Howard Abrams, Magnar Sveen, Tu do Hoang, John Weigley, Sacha Chua, Arjen Wiersma
