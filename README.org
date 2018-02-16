@@ -78,11 +78,8 @@ Some Demo
 Finally, [[http://jtnimoy.net/workviewer.php?q%3D178][Emacs is featured in Tron Legacy]].
 
 **** Other people's "Why Emacs?"
-1. [[http://semantic.supelec.fr/popineau/programming-emacs.html#sec-1]["Why Emacs?"]] by Fabrice Popinea. He is the maintainer of Emacs 64
-bit on Windows.
-2. [[http://batsov.com/articles/2011/11/19/why-emacs/]["Why Emacs?"]] by Bozhidar Batsov. He is the author of [[https://github.com/bbatsov/prelude][Emacs Prelude]],
-an Emacs distribution with convenient packages for new people to get
-start with Emacs.
+1. [[http://semantic.supelec.fr/popineau/programming-emacs.html#sec-1]["Why Emacs?"]] by Fabrice Popinea. He is the maintainer of Emacs 64 bit on Windows.
+2. [[http://batsov.com/articles/2011/11/19/why-emacs/]["Why Emacs?"]] by Bozhidar Batsov. He is the author of [[https://github.com/bbatsov/prelude][Emacs Prelude]], an Emacs distribution with convenient packages for new people to get start with Emacs.
 3. [[http://cs.mcgill.ca/~vfoley1/posts/2014-06-10-why-emacs.html][Why I use Emacs]] by Vincent Foley-Bourgon.
 4. [[http://gnuvince.wordpress.com/2012/02/19/why-i-still-use-emacs/][Why I Still Use Emacs]], also by Vincent Foley-Bourgon.
 5. [[http://emacs.sexy/][Emacs is sexy]].
