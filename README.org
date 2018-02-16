@@ -19,43 +19,43 @@ Some Demo
   it's not your favorite editor's fault if it crashes from editing
   such a large source file.
 
-  [[file:static/performance.gif][file:static/performance.gif]]
+  [[https://tuhdo.github.io/static/performance.gif]]
 
 - Programming:
   - Jump to any header file:
 
-    [[file:static/jump_headers.gif][file:static/jump_headers.gif]]
+    [[https://tuhdo.github.io/static/jump_headers.gif]]
 
   - Autocompletion: Pay attention to completion candidates when
     ~include <linux/printk.h>~ is present and when it's not.
 
-    [[file:static/auto_complete.gif][file:static/auto_complete.gif]]
+    [[https://tuhdo.github.io/static/auto_complete.gif]]
 
   - Showing function arguments:
 
-    [[file:static/func_args.jpg][file:static/func_args.jpg]]
+    [[https://tuhdo.github.io/static/func_args.jpg]]
 
   - Quickly comment multiple lines:
 
-    [[file:static/comment.gif][file:static/comment.gif]]
+    [[https://tuhdo.github.io/static/comment.gif]]
 
   - GDB:
 
     #+BEGIN_CENTER
-    [[file:static/c-ide/gdb-many-windows.gif][file:static/c-ide/gdb-many-windows.gif]]
+    [[https://tuhdo.github.io/static/c-ide/gdb-many-windows.gif]]
     #+END_CENTER
 
 - Diff between current editing file and latest file revision:
 
-  [[file:static/vc-diff.jpg][file:static/vc-diff.jpg]]
+  [[https://tuhdo.github.io/static/vc-diff.jpg]]
 
 - Magit: From unstage -> stage -> commit -> push
 
-  [[file:static/magit.gif][file:static/magit.gif]]
+  [[https://tuhdo.github.io/static/magit.gif]]
 
 - Live Grep:
 
-  [[file:static/live_grep.gif][file:static/live_grep.gif]]
+  [[https://tuhdo.github.io/static/live_grep.gif]]
 
 - Quickly select any file in a directory under a Version Control
   System, for example from the Linux kernel. Note that in the demos
@@ -63,17 +63,17 @@ Some Demo
   start menu in Windows, but those commands can actually be executed
   quickly with a shortcut.
 
-  [[file:static/helm-projectile/helm-projectile-find-files-1.gif][file:static/helm-projectile/helm-projectile-find-files-1.gif]]
+  [[https://tuhdo.github.io/static/helm-projectile/helm-projectile-find-files-1.gif]]
 
 - Quickly select any file/directory from a previous working session:
 
-  [[file:static/helm-buffer-list.gif][file:static/helm-buffer-list.gif]]
+  [[https://tuhdo.github.io/static/helm-buffer-list.gif]]
 
 - Emacs is a PDF Reader: I can search text in the PDF file with
   highlighting and a table of contents side by side. All can be
   controlled with keyboard.
 
-  [[file:static/emacs-read-pdf.gif][file:static/emacs-read-pdf.gif]]/
+  [[https://tuhdo.github.io/static/emacs-read-pdf.gif]]
 
 Finally, [[http://jtnimoy.net/workviewer.php?q%3D178][Emacs is featured in Tron Legacy]].
 
@@ -162,8 +162,6 @@ In Sum:
 
 Instead of wasting your time and memory on tedious tasks, you could
 save it for more interesting things.
-
-
 *** Installation
 **** Linux:
 :PROPERTIES:
@@ -239,6 +237,69 @@ Download compiled Emacs for Mac OS X: http://emacsformacosx.com/.
 
 You can also use this version that is more integrated with Mac OSX:
 https://github.com/railwaycat/emacs-mac-port
+
+*** Swap Control and Capslock
+
+Now I don't swap control and capslock.
+But those of who are interested can do this. by following these links.
+
+Swapping Control and Capslock, in general, is not required to make the
+best out of Emacs, if you at least use a regular key PC keyboard or
+better. However, it is not nice at all on a laptop keyboard. If you
+use a laptop keyboard for writing code, I strongly recommended to swap
+Control and Capslock for a better Emacs experience.
+
+Swapping Control and Caplock will not only benefit your Emacs usage,
+it is beneficial in general, as Control is a much more frequently used
+key than Capslock. Popular shells like Bash or Zsh use Control a lot
+for quick cursor movement.
+
+**** Windows
+:PROPERTIES:
+:ID:       eb9ffe1f-f726-4b15-8431-b075e9ba234d
+:END:
+   Follow this guide: [[http://www.kodiva.com/post/swapping-caps-lock-and-control-keys][Swapping Capslock and Control keys]]
+**** Linux
+:PROPERTIES:
+:ID:       32a786e9-ae18-4c7b-9d12-1940e4f2d301
+:END:
+Put this in your shell init file (.bashrc, .zshrc...):
+
+#+begin_src shell-script
+  /usr/bin/setxkbmap -option "ctrl:swapcaps"
+#+end_src
+
+If you use Ubuntu, follow this guide: [[http://askubuntu.com/a/412622/13847][Swap caps lock and ctrl in
+ubuntu 13.10]].
+**** Mac OS X
+:PROPERTIES:
+:ID:       dc1f00fd-29a6-45e0-8398-211418cba728
+:END:
+Follow this answer on StackOverflow: [[http://stackoverflow.com/a/162907/496700][Emacs on Mac OS X Leopard key
+bindings]]
+**** If you don't like to swap Capslock and Control...
+:PROPERTIES:
+:ID:       cefa92ca-8234-44bf-9ae5-66dc76aadd0d
+:END:
+You can use your palm to press Control in standard PC keyboard.
+*** Concepts
+**** Commands
+
+In Emacs, every user interaction is a function execution. You press a
+key to insert a character, Emacs runs =self-insert-command=. There are
+two types of functions in Emacs:
+
+    - *Normal functions*: These are like functions in other
+      programming languages, and are used for implementing features in
+      Emacs. Users do not need to care about these functions, unless
+      they want to implement something or modify an existing
+      implementation.
+
+    - *Commands*: Commands are like functions, but interactive. It
+      means, commands are features provided to users and users
+      directly use them.
+
+=execute-extended-command= is bound to *M-x*.
 
 * General Settings
 ** Platform Specific Configuration
