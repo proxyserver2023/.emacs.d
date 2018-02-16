@@ -1756,20 +1756,17 @@ numbers. That plugin is Helm, but I will discuss that later in part 2.
 
 Why number 4 for *C-u*? I don't know.
 
-** Basic file management with Dired
-:PROPERTIES:
-:ID:       91d19428-6c3d-4805-8d8e-62f6d06a7edd
-:END:
+**** Dired
+***** Basic file management with Dired
+
 Emacs has a built-in one called Dired, short for
 =(Dir)ectory (Ed)itor=.
 
 This section is a shortened version of Dired in GNU Emacs Manual. After
 you read and practice these commands, read the [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Dired.html][Dired Manual]] if possible.
 
-*** Enter Dired
-:PROPERTIES:
-:ID:       578d357f-bb6f-437c-93a8-f6863b97ce25
-:END:
+***** Enter Dired
+
 
 | Key         | Binding                                                             |
 |-------------+---------------------------------------------------------------------|
@@ -1783,7 +1780,7 @@ you read and practice these commands, read the [[https://www.gnu.org/software/em
 *_Exercise_*: Execute the above commands at least once to get used to
 it. What command do you like the most?
 
-*** Navigation
+***** Navigation
 :PROPERTIES:
 :ID:       63b35a41-7ec7-4ee5-8f40-f189be084488
 :END:
@@ -1801,10 +1798,7 @@ to the entry which is 4 lines below.
 
 *_Exercise_*: Execute the above commands, with and without prefix argument.
 
-*** Create files
-:PROPERTIES:
-:ID:       a0b0ebab-0bdd-4bbd-8e1c-47b9998e9ab1
-:END:
+***** Create files
 
 To create a new file in Dired, you use the same *C-x C-f* and *C-x 4
 C-f* variant.
@@ -1821,10 +1815,7 @@ C-f* variant.
 - Create a new directory called =dired_practice= or a name of your
   choice.
 - Create a new file of your choice.
-*** Visit files
-:PROPERTIES:
-:ID:       d5a3c375-0881-4620-a2ba-01fbd774e0d6
-:END:
+***** Visit files
 
 | Key                 | Binding                                                                   |
 |---------------------+---------------------------------------------------------------------------|
@@ -1859,7 +1850,7 @@ C-f* variant.
   you have a separate group for managing directories. No more
   cluttered view with other buffers. You can stop worrying now.
 
-  [[file:static/ibuffer-dired-group.gif][file:static/ibuffer-dired-group.gif]]
+  [[https://tuhdo.github.io/static/ibuffer-dired-group.gif]]
 
   If you  want to enter directory you visited, open =ibuffer= and
   look for it. This is efficient for a complex directory tree. For
@@ -1885,10 +1876,8 @@ C-f* variant.
   working directory to get back later, because you can easily go back
   to it quick and easy.
 
-*** File Marking
-:PROPERTIES:
-:ID:       683038dd-dc69-47d0-8b9c-8c708277a8e5
-:END:
+***** File Marking
+
 You flag files for deletion. You mark files for everything else
 (i.e. copy, move, link files...). There are many marking commands for
 specialized file types. Except for *m*, *% m* and *% g*, all marking
@@ -1909,10 +1898,8 @@ look up the other marking commands in [[https://www.gnu.org/software/emacs/manua
 *_Exercise_*: Practice the listed marking commands. Keep a few marked
 files/directories for the next section.
 
-*** Operating on files
-:PROPERTIES:
-:ID:       843b5802-eb08-4456-883b-aa986db31dc9
-:END:
+***** Operating on files
+
 These commands use uppercase character. If you see an uppercase
 character for a command, it means *S-<character>*.
 
@@ -1953,10 +1940,7 @@ character for a command, it means *S-<character>*.
   original files the links point to, you will see the permission
   attributes are cleared and you won't be able to access those files.
 
-*** Deleting files
-:PROPERTIES:
-:ID:       fc3bf0c1-8a22-4dd3-81cb-f811435d1e86
-:END:
+***** Deleting files
 
 | Key    | Binding                                                              |
 |--------+----------------------------------------------------------------------|
@@ -1975,10 +1959,8 @@ character for a command, it means *S-<character>*.
 | =x=    | confirm and delete flagged files.                                    |
 |--------+----------------------------------------------------------------------|
 
-*** Execute shell commands in Dired
-:PROPERTIES:
-:ID:       c2f3564c-d338-4a08-a37b-a77d040d67a2
-:END:
+***** Execute shell commands in Dired
+
 Just like in a shell, you can execute commands in the current
 directory in Dired too.
 
@@ -1989,10 +1971,7 @@ directory in Dired too.
 | =&= | execute a command on selected file or files asynchronously. |
 |-----+-------------------------------------------------------------|
 
-*** Compare files
-:PROPERTIES:
-:ID:       cb415791-d4a8-48ba-88f7-942f70c44a88
-:END:
+***** Compare files
 
 | Key | Binding                                                            |
 |-----+--------------------------------------------------------------------|
@@ -2000,10 +1979,8 @@ directory in Dired too.
 |     | a file prompt in the minibuffer.                                   |
 |-----+--------------------------------------------------------------------|
 
-*** Subdirectories
-:PROPERTIES:
-:ID:       adb6cb47-65a4-45a8-b122-c14efa59cec8
-:END:
+***** Subdirectories
+
 This is an exciting feature of Dired. In other file explorers, you get
 a tree to browse your directory. If you have a deep directory
 structure, it will quickly become a nuisance.
@@ -2015,7 +1992,7 @@ both directories. You can insert as many subdirectories as you want.
 Move point on a directory in Dired and press *i*. You will see another
 directory insert below:
 
-[[file:static/dired-subdir.gif][file:static/dired-subdir.gif]]
+[[https://tuhdo.github.io/static/dired-subdir.gif]]
 
 This is really efficient when you work on several related directories in
 a project frequently.
@@ -2031,10 +2008,8 @@ a project frequently.
   that not only your Dired buffer is fully restored, but your
   subdirectories too.
 
-** Registers
-:PROPERTIES:
-:ID:       d4060b6d-0cc9-41bc-976e-d33b56b0df6b
-:END:
+**** Registers
+
 When I first heard about registers in Emacs, it scared me. I thought
 "Wow, what is this "register" thing? Am I going to work directly with
 CPU registers?" As it turned out, despite the name "Register", it's
@@ -2058,7 +2033,7 @@ register of your choice.
 The prefix key for register commands is *C-x r*. If you forget the key
 bindings, *C-x r C-h* to get the list of key bindings.
 
-*** Save window configuration
+***** Save window configuration
 :PROPERTIES:
 :ID:       840ff6ae-1f2b-4796-9f7f-7cd5db33d879
 :END:
@@ -2118,7 +2093,7 @@ The demo starts when you see at the bottom a prompt with "Eval: START".
 - Go back and forth between window configurations by jumping into
   appropriate registers.
 
-*** Save frame configuration
+***** Save frame configuration
 :PROPERTIES:
 :ID:       7ecf0eed-367e-4e8c-8230-aee169a225c3
 :END:
@@ -2144,7 +2119,7 @@ can always restore with saved frameset in a register.
 - Restore the frames by jumping to the register that stores the
   frameset.
 
-*** Save text
+***** Save text
 :PROPERTIES:
 :ID:       cf4d74d8-e13e-4238-a5ff-9de0f006b6c5
 :END:
@@ -2197,7 +2172,7 @@ you got a kill ring? Here are the reasons:
 - Copy a few text snippets into registers.
 - Re-insert it in a buffer.
 
-*** Save rectangles
+***** Save rectangles
 :PROPERTIES:
 :ID:       a9136910-960b-4561-8155-1ccc8fb0bb29
 :END:
