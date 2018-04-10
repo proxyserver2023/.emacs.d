@@ -851,9 +851,7 @@ directory of buffer of that entry.
 To quit =ibuffer=, press *q*.
 
 **** Bookmark: save locations across Emacs sessions
-:PROPERTIES:
-:ID:       801bd37d-dd77-4d3d-9925-4980cabaefd7
-:END:
+
 When you read books, you usually cannot read all at once and place a
 bookmark to go back to continue reading later. Emacs allows you to
 bookmark too.
@@ -3144,31 +3142,41 @@ You can enjoy exploring the kernel source tree by following these steps:
   properly. Finally, close everything you don't need with *C-x k*
 
 * General Settings
+** Mac? 
+#+begin_src emacs-lisp
+(setq is-mac (equal system-type 'darwin))
+#+end_src
 ** Platform Specific Configuration
 *** OS X Desktop
 - Left option key is remapped to M-
 - M-3 prints a literal # (UK Mac keyboards being weird)
 - We use the Arjen Grey theme
 - Font is Monaco
+#+begin_src emacs-lisp
+  (when is-mac
+    (require-package 'exec-path-from-shell)
+    (exec-path-from-shell-initialize))
+#+end_src
 *** OS X CLI in <terminal>
 - When the Solarized Dark iTerm2 theme is installed, we use the solarized-dark color theme
 - Cut/paste are made to write/read from the clipboard (via pbcopy and pbpaste)
 - Mouse highlighting works via xTerm capabilities
+*** gnu/linux
 ** Maximum Workspace
 #+BEGIN_SRC emacs-lisp
-  (if
-      (fboundp 'menu-bar-mode)
-      (menu-bar-mode -1))
+  ;; (if
+  ;;     (fboundp 'menu-bar-mode)
+  ;;     (menu-bar-mode -1))
 
-  (if
-      (fboundp 'tool-bar-mode)
-      (tool-bar-mode -1))
+  ;; (if
+  ;;     (fboundp 'tool-bar-mode)
+  ;;     (tool-bar-mode -1))
 
-  (if
-      (fboundp 'scroll-bar-mode)
-      (scroll-bar-mode -1))
+  ;; (if
+  ;;     (fboundp 'scroll-bar-mode)
+  ;;     (scroll-bar-mode -1))
 
-  (setq inhibit-startup-message t)
+  ;; (setq inhibit-startup-message t)
 #+END_SRC
 ** Client/server
 
@@ -3215,7 +3223,363 @@ of Emacs we're using supports the server package:
 (when (display-graphic-p)
   (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
 #+end_src
+** User specific settings
+#+begin_src emacs-lisp
+  (setq user-settings-dir
+        (concat user-emacs-directory "users/" user-login-name))
+  (add-to-list 'load-path user-settings-dir)
+#+end_src
+** Backup files to own directory
+#+begin_src emacs-lisp
+  (setq backup-directory-alist
+        `(("." . ,(expand-file-name
+                   (concat user-emacs-directory "backups")))))
+#+end_src
 
+Make backup of files even when they're in version control
+#+begin_src emacs-lisp
+(setq vc-make-backup-files t)
+#+end_src
+** save point position between sessions
+#+begin_src emacs-lisp
+  (require 'saveplace)
+  (setq-default save-place t)
+  (setq save-place-file (expand-file-name ".places" user-emacs-directory))
+#+end_src
+** sane defaults
+#+begin_src emacs-lisp
+;; Allow pasting selection outside of Emacs
+(setq x-select-enable-clipboard t)
+
+;; Auto refresh buffers
+(global-auto-revert-mode 1)
+
+;; Also auto refresh dired, but be quiet about it
+(setq global-auto-revert-non-file-buffers t)
+(setq auto-revert-verbose nil)
+
+;; Show keystrokes in progress
+(setq echo-keystrokes 0.1)
+
+;; Move files to trash when deleting
+(setq delete-by-moving-to-trash t)
+
+;; Real emacs knights don't use shift to mark things
+(setq shift-select-mode nil)
+
+;; Transparently open compressed files
+(auto-compression-mode t)
+
+;; Enable syntax highlighting for older Emacsen that have it off
+(global-font-lock-mode t)
+
+;; Answering just 'y' or 'n' will do
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+;; UTF-8 please
+(setq locale-coding-system 'utf-8) ; pretty
+(set-terminal-coding-system 'utf-8) ; pretty
+(set-keyboard-coding-system 'utf-8) ; pretty
+(set-selection-coding-system 'utf-8) ; please
+(prefer-coding-system 'utf-8) ; with sugar on top
+
+;; Show active region
+(transient-mark-mode 1)
+(make-variable-buffer-local 'transient-mark-mode)
+(put 'transient-mark-mode 'permanent-local t)
+(setq-default transient-mark-mode t)
+
+;; Remove text in active region if inserting text
+(delete-selection-mode 1)
+
+;; Don't highlight matches with jump-char - it's distracting
+(setq jump-char-lazy-highlight-face nil)
+
+;; Always display line and column numbers
+(setq line-number-mode t)
+(setq column-number-mode t)
+
+;; Lines should be 80 characters wide, not 72
+(setq fill-column 80)
+
+;; Save a list of recent files visited. (open recent file with C-x f)
+(recentf-mode 1)
+(setq recentf-max-saved-items 100) ;; just 20 is too recent
+
+;; Save minibuffer history
+(savehist-mode 1)
+(setq history-length 1000)
+
+;; Undo/redo window configuration with C-c <left>/<right>
+(winner-mode 1)
+
+;; Never insert tabs
+(set-default 'indent-tabs-mode nil)
+
+;; Show me empty lines after buffer end
+(set-default 'indicate-empty-lines t)
+
+;; Easily navigate sillycased words
+(global-subword-mode 1)
+
+;; Don't break lines for me, please
+(setq-default truncate-lines t)
+
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+;; Keep cursor away from edges when scrolling up/down
+;; smooth-scrolling.el
+;; $Id: smooth-scrolling.el,v 1.8 2007/09/11 23:38:09 adam Exp $
+;; Adam Spiers <emacs-ss@adamspiers.org>
+;;
+;; Make emacs scroll smoothly, keeping the point away from the top and
+;; bottom of the current buffer's window in order to keep lines of
+;; context around the point visible as much as possible, whilst
+;; avoiding sudden scroll jumps which are visually confusing.
+;;
+;; This is a nice alternative to all the native scroll-* custom
+;; variables, which unfortunately cannot provide this functionality
+;; perfectly.  `scroll-margin' comes closest, but has some bugs
+;; (e.g. with handling of mouse clicks).  See
+;;
+;;   http://www.emacswiki.org/cgi-bin/wiki/SmoothScrolling
+;;
+;; for the gory details.
+;;
+;;;_* Installation
+;;
+;; Put somewhere on your `load-path' and include
+;;
+;;   (require 'smooth-scrolling)
+;;
+;; in your .emacs initialization file.
+;;
+;;;_* Notes
+;;
+;; This only affects the behaviour of the `next-line' and
+;; `previous-line' functions, usually bound to the cursor keys and
+;; C-n/C-p.  Other methods of moving the point will behave as normal
+;; according to the standard custom variables.
+;;
+;; Prefix arguments to `next-line' and `previous-line' are honoured.
+;; The minimum number of lines are scrolled in order to keep the
+;; point outside the margin.
+;;
+;; There is one case where moving the point in this fashion may cause
+;; a jump: if the point is placed inside one of the margins by another
+;; method (e.g. left mouse click, or M-x goto-line) and then moved in
+;; the normal way, the advice code will scroll the minimum number of
+;; lines in order to keep the point outside the margin.  This jump may
+;; cause some slight confusion at first, but hopefully it is justified
+;; by the benefit of automatically ensuring `smooth-scroll-margin'
+;; lines of context are visible around the point as often as possible.
+;;
+;;;_* TODO
+;;
+;; - Maybe add option to avoid scroll jumps when point is within
+;;   margin.
+;;
+;;;_* Acknowledgements
+;;
+;; Thanks to Mark Hulme-Jones and consolers on #emacs for helping
+;; debug issues with line-wrapping.
+;;
+;;;_* License
+;;
+;; Released under the GNU General Public License v2 or later, with
+;; all rights assigned to the Free Software Foundation.
+;;
+
+;;;_* Code follows
+;;;_ + disable `scroll-margin'
+(setq scroll-margin 0)
+;;;_ + defcustoms
+(defcustom smooth-scroll-margin 10
+  "Number of lines of visible margin at the top and bottom of a window.
+If the point is within these margins, then scrolling will occur
+smoothly for `previous-line' at the top of the window, and for
+`next-line' at the bottom.
+
+This is very similar in its goal to `scroll-margin'.  However, it
+is implemented by activating `smooth-scroll-down' and
+`smooth-scroll-up' advise via `defadvice' for `previous-line' and
+`next-line' respectively.  As a result it avoids problems
+afflicting `scroll-margin', such as a sudden jump and unexpected
+highlighting of a region when the mouse is clicked in the margin.
+
+Scrolling only occurs when the point is closer to the window
+boundary it is heading for (top or bottom) than the middle of the
+window.  This is to intelligently handle the case where the
+margins cover the whole buffer (e.g. `smooth-scroll-margin' set
+to 5 and `window-height' returning 10 or less).
+
+See also `smooth-scroll-strict-margins'."
+  :type  'integer
+  :group 'windows)
+
+(defcustom smooth-scroll-strict-margins t
+  "If true, the advice code supporting `smooth-scroll-margin'
+will use `count-screen-lines' to determine the number of
+*visible* lines between the point and the window top/bottom,
+rather than `count-lines' which obtains the number of actual
+newlines.  This is because there might be extra newlines hidden
+by a mode such as folding-mode, outline-mode, org-mode etc., or
+fewer due to very long lines being displayed wrapped when
+`truncate-lines' is nil.
+
+However, using `count-screen-lines' can supposedly cause
+performance issues in buffers with extremely long lines.  Setting
+`cache-long-line-scans' may be able to address this;
+alternatively you can set this variable to nil so that the advice
+code uses `count-lines', and put up with the fact that sometimes
+the point will be allowed to stray into the margin."
+  :type  'boolean
+  :group 'windows)
+;;;_ + helper functions
+(defun smooth-scroll-lines-from-window-top ()
+  "Work out, using the function indicated by
+`smooth-scroll-strict-margins', what the current screen line is,
+relative to the top of the window.  Counting starts with 1 referring
+to the top line in the window."
+  (interactive)
+  (cond ((= (window-start) (point))
+         ;; In this case, count-screen-lines would return 0, so we override.
+         1)
+        (smooth-scroll-strict-margins
+         (count-screen-lines (window-start) (point) 'count-final-newline))
+        (t
+         (count-lines (window-start) (point)))))
+
+(defun smooth-scroll-lines-from-window-bottom ()
+  "Work out, using the function indicated by
+`smooth-scroll-strict-margins', how many screen lines there are
+between the point and the bottom of the window.  Counting starts
+with 1 referring to the bottom line in the window."
+  (interactive)
+  (if smooth-scroll-strict-margins
+      (count-screen-lines (point) (window-end nil t))
+    (count-lines (point) (window-end nil t))))
+;;;_ + after advice
+(defadvice previous-line (after smooth-scroll-down
+                            (&optional arg try-vscroll)
+                            activate)
+  "Scroll down smoothly if cursor is within `smooth-scroll-margin'
+lines of the top of the window."
+  (and
+   ;; Only scroll down if there is buffer above the start of the window.
+   (> (window-start) (buffer-end -1))
+   (let ((lines-from-window-top
+          (smooth-scroll-lines-from-window-top)))
+     (and
+      ;; Only scroll down if we're within the top margin
+      (<= lines-from-window-top smooth-scroll-margin)
+      ;; Only scroll down if we're in the top half of the window
+      (<= lines-from-window-top
+          ;; N.B. `window-height' includes modeline, so if it returned 21,
+          ;; that would mean exactly 10 lines in the top half and 10 in
+          ;; the bottom.  22 (or any even number) means there's one in the
+          ;; middle.  In both cases the following expression will
+          ;; yield 10:
+          (/ (1- (window-height)) 2))
+      (save-excursion
+        (scroll-down
+              (1+ (- smooth-scroll-margin lines-from-window-top))))))))
+
+(defadvice next-line (after smooth-scroll-up
+                            (&optional arg try-vscroll)
+                            activate)
+  "Scroll up smoothly if cursor is within `smooth-scroll-margin'
+lines of the bottom of the window."
+  (and
+   ;; Only scroll up if there is buffer below the end of the window.
+   (< (window-end) (buffer-end 1))
+   (let ((lines-from-window-bottom
+          (smooth-scroll-lines-from-window-bottom)))
+     (and
+      ;; Only scroll up if we're within the bottom margin
+      (<= lines-from-window-bottom smooth-scroll-margin)
+      ;; Only scroll up if we're in the bottom half of the window.
+      (<= lines-from-window-bottom
+          ;; See above notes on `window-height'.
+          (/ (1- (window-height)) 2))
+      (save-excursion
+        (scroll-up
+         (1+ (- smooth-scroll-margin lines-from-window-bottom))))))))
+
+;;;_* Local emacs variables
+
+;;Local variables:
+;;allout-layout: (0 : -1 0)
+;;mode: allout
+;;End:
+
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+;; Allow recursive minibuffers
+(setq enable-recursive-minibuffers t)
+
+;; Don't be so stingy on the memory, we have lots now. It's the distant future.
+(setq gc-cons-threshold 20000000)
+
+;; org-mode: Don't ruin S-arrow to switch windows please (use M-+ and M-- instead to toggle)
+(setq org-replace-disputed-keys t)
+
+;; Fontify org-mode code blocks
+(setq org-src-fontify-natively t)
+
+;; Represent undo-history as an actual tree (visualize with C-x u)
+(setq undo-tree-mode-lighter "")
+(require 'undo-tree)
+(global-undo-tree-mode)
+
+;; Sentences do not need double spaces to end. Period.
+(set-default 'sentence-end-double-space nil)
+
+;; 80 chars is a good width.
+(set-default 'fill-column 80)
+
+;; Add parts of each file's directory to the buffer name if not unique
+(require 'uniquify)
+(setq uniquify-buffer-name-style 'forward)
+
+;; A saner ediff
+(setq ediff-diff-options "-w")
+(setq ediff-split-window-function 'split-window-horizontally)
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+
+;; No electric indent
+(setq electric-indent-mode nil)
+
+;; Nic says eval-expression-print-level needs to be set to nil (turned off) so
+;; that you can always see what's happening.
+(setq eval-expression-print-level nil)
+
+;; When popping the mark, continue popping until the cursor actually moves
+;; Also, if the last command was a copy - skip past all the expand-region cruft.
+(defadvice pop-to-mark-command (around ensure-new-position activate)
+  (let ((p (point)))
+    (when (eq last-command 'save-region-or-current-line)
+      ad-do-it
+      ad-do-it
+      ad-do-it)
+    (dotimes (i 10)
+      (when (= p (point)) ad-do-it))))
+
+(setq set-mark-command-repeat-pop t)
+
+;; Offer to create parent directories if they do not exist
+;; http://iqbalansari.github.io/blog/2014/12/07/automatically-create-parent-directories-on-visiting-a-new-file-in-emacs/
+(defun my-create-non-existent-directory ()
+  (let ((parent-directory (file-name-directory buffer-file-name)))
+    (when (and (not (file-exists-p parent-directory))
+               (y-or-n-p (format "Directory `%s' does not exist! Create it?" parent-directory)))
+      (make-directory parent-directory t))))
+
+(add-to-list 'find-file-not-found-functions 'my-create-non-existent-directory)
+
+#+end_src
 * Package Initialization
 #+BEGIN_SRC emacs-lisp
   (require 'package)
@@ -3255,26 +3619,93 @@ of Emacs we're using supports the server package:
 #+BEGIN_SRC emacs-lisp
   (setq initial-scratch-message (concat ";; One Brick A Day, " user-login-name " - Emacs ♥ you!\n\n"))
 #+END_SRC
-** Arjen Grey Theme
+** Themes
+#+begin_src emacs-lisp
+  (setq custom-theme-directory (concat user-emacs-directory "themes"))
+
+  (dolist
+      (path (directory-files custom-theme-directory t "\\w+"))
+    (when (file-directory-p path)
+      (add-to-list 'custom-theme-load-path path)))
+#+end_src
+
+#+begin_src emacs-lisp
+  ;; Default theme
+  (defun use-presentation-theme ()
+    (interactive)
+    (when (boundp 'magnars/presentation-font)
+      (set-face-attribute 'default nil :font magnars/presentation-font)))
+
+
+  (defun use-default-theme ()
+    (interactive)
+    (load-theme 'default-black)
+    (when (boundp 'magnars/default-font)
+      (set-face-attribute 'default nil :font magnars/default-font)))
+
+
+  (defun toggle-presentation-mode ()
+    (interactive)
+    (if (string= (frame-parameter nil 'font) magnars/default-font)
+        (use-presentation-theme)
+      (use-default-theme)))
+
+
+  (global-set-key (kbd "C-<f9>") 'toggle-presentation-mode)
+  (use-default-theme)
+#+end_src
+
+Don't defer screen updates when performing operations
+#+begin_src emacs-lisp
+  (setq redisplay-dont-pause t)
+#+end_src
+
+*** Arjen Grey Theme
 #+BEGIN_SRC emacs-lisp
-  (use-package arjen-grey-theme
-    :config
-    (when (display-graphic-p)
-      (load-theme 'arjen-grey t)))
+  ;; (use-package arjen-grey-theme
+  ;;   :ensure t)
+
 #+END_SRC
+** Highlight Matching Parenthesis
+#+begin_src emacs-lisp
+(show-paren-mode 1)
+#+end_src
+** Frame title format
+#+begin_src emacs-lisp
+  (when window-system
+    (setq frame-title-format '(buffer-file-name "%f" ("%b")))
+    (tooltip-mode -1)
+    (blink-cursor-mode -1))
+#+end_src
 ** Fonts
+
+#+begin_src emacs-lisp
+  (when (and window-system is-mac)
+    (setq magnars/default-font "-apple-Monaco-medium-normal-normal-*-16-*-*-*-m-0-iso10646-1")
+    (setq magnars/presentation-font "-apple-Monaco-medium-normal-normal-*-21-*-*-*-m-0-iso10646-1")
+    (set-face-attribute 'default nil :font magnars/default-font))
+
+  (when (and window-system (eq system-type 'gnu/linux))
+    (setq magnars/default-font "Monaco-16")
+    (setq magnars/presentation-font "Monaco-21")
+    (set-face-attribute 'default nil :font magnars/default-font)
+    )
+#+end_src
 
 For Syntax Highlighting
 #+begin_src emacs-lisp
 (global-font-lock-mode 1)
 #+end_src
 #+BEGIN_SRC emacs-lisp
-  (if (or (eq system-type 'darwin)(eq system-type 'gnu/linux) )
-  ;    (set-face-attribute 'default nil :font "Consolas-14")
-  ;    (set-face-attribute 'default nil :font "Inconsolata-14")
-       (set-face-attribute 'default nil :font "Monaco-15" :weight 'bold)
-  ;    (set-face-attribute 'default nil :font "Hack-16")
-  ;    (set-face-attribute 'default nil :font "DejaVu Sans Mono-16")
+  (if (when window-system
+        (or (eq system-type 'darwin)(eq system-type 'gnu/linux) )
+                                          ;    (set-face-attribute 'default nil :font "Consolas-14")
+                                          ;    (set-face-attribute 'default nil :font "Inconsolata-14")
+      (set-face-attribute 'default nil :font "Monaco-16" :weight 'normal)
+                                          ;    (set-face-attribute 'default nil :font "Hack-16")
+                                          ;     (set-face-attribute 'default nil :font "DejaVu Sans Mono-10")
+
+        )
     (set-face-attribute 'default nil :font "DejaVu Sans Mono" :height 110))
 
   ;; set italic font for italic face, since Emacs does not set italic
@@ -3324,24 +3755,15 @@ Don't make me type =yes= or =no= to boolean interface questions:
 
 ** Bells
 
-Don't make a sound when [[http://www.gnu.org/software/emacs/manual/html_node/elisp/Beeping.html][ringing a bell]] - flash a visual bell instead:
-
 #+begin_src emacs-lisp
-  (setq visible-bell t)
+  (setq visible-bell nil)
 #+end_src
-
-Override the =ring-bell-function= to conditionally ring the bell only when it's
-not a valid quit case like hitting =esc= or =C-g=. Generally this means the bell
-will only ring when there's actually an error raised somehow:
 
 #+begin_src emacs-lisp
   (setq ring-bell-function
         (lambda ()
-          "Only rings the bell if it's not a valid quit case, e.g
-  keyboard-quit"
-          (unless (memq this-command
-                        '(isearch-abort abort-recursive-edit exit-minibuffer keyboard-quit))
-            (ding))))
+          (invert-face 'mode-line)
+          (run-with-timer 0.05 nil 'invert-face 'mode-line)))
 #+end_src
 
 ** Buffer naming
@@ -3376,7 +3798,7 @@ Make sure that [[http://pragmaticemacs.com/emacs/add-the-system-clipboard-to-the
 #+end_src
 ** Highlight Current Line
 #+BEGIN_SRC emacs-lisp
-  (global-hl-line-mode 0)
+  (global-hl-line-mode 1)
 #+END_SRC
 ** Highlight Numbers
 #+BEGIN_SRC emacs-lisp
@@ -3408,232 +3830,271 @@ Make sure that [[http://pragmaticemacs.com/emacs/add-the-system-clipboard-to-the
 #+END_SRC
 ** Mode Line
 #+begin_src emacs-lisp
-  (use-package mode-icons
-    :ensure t
-    :config
-    (mode-icons-mode t)
-  )
+  ;; (use-package mode-icons			;
+  ;;   :ensure t
+  ;;   :config
+  ;;   (mode-icons-mode t)
+  ;; )
+#+end_src
+#+begin_src emacs-lisp
+  ;;   (use-package powerline
+  ;;     :ensure t
+  ;;     :config
+  ;;     (defvar mode-line-height 30 "A little bit taller, a little bit baller.")
+
+  ;;     (defvar mode-line-bar          (eval-when-compile (pl/percent-xpm mode-line-height 100 0 100 0 3 "#909fab" nil)))
+  ;;     (defvar mode-line-eldoc-bar    (eval-when-compile (pl/percent-xpm mode-line-height 100 0 100 0 3 "#B3EF00" nil)))
+  ;;     (defvar mode-line-inactive-bar (eval-when-compile (pl/percent-xpm mode-line-height 100 0 100 0 3 "#9091AB" nil)))
+
+  ;;     ;; Custom faces
+  ;;     (defface mode-line-is-modified nil
+  ;;       "Face for mode-line modified symbol")
+
+  ;;     (defface mode-line-2 nil
+  ;;       "The alternate color for mode-line text.")
+
+  ;;     (defface mode-line-highlight nil
+  ;;       "Face for bright segments of the mode-line.")
+
+  ;;     (defface mode-line-count-face nil
+  ;;       "Face for anzu/evil-substitute/evil-search number-of-matches display.")
+
+  ;;     ;; Git/VCS segment faces
+  ;;     (defface mode-line-vcs-info '((t (:inherit warning)))
+  ;;       "")
+  ;;     (defface mode-line-vcs-warning '((t (:inherit warning)))
+  ;;       "")
+
+  ;;     ;; Flycheck segment faces
+  ;;     (defface doom-flycheck-error '((t (:inherit error)))
+  ;;       "Face for flycheck error feedback in the modeline.")
+  ;;     (defface doom-flycheck-warning '((t (:inherit warning)))
+  ;;       "Face for flycheck warning feedback in the modeline.")
+
+
+  ;;     (defun doom-ml-flycheck-count (state)
+  ;;       "Return flycheck information for the given error type STATE."
+  ;;       (when (flycheck-has-current-errors-p state)
+  ;;         (if (eq 'running flycheck-last-status-change)
+  ;;             "?"
+  ;;           (cdr-safe (assq state (flycheck-count-errors flycheck-current-errors))))))
+
+  ;;     (defun doom-fix-unicode (font &rest chars)
+  ;;       "Display certain unicode characters in a specific font.
+  ;;   e.g. (doom-fix-unicode \"DejaVu Sans\" ?⚠ ?★ ?λ)"
+  ;;       (declare (indent 1))
+  ;;       (mapc (lambda (x) (set-fontset-font
+  ;;                     t (cons x x)
+  ;;                     (cond ((fontp font)
+  ;;                            font)
+  ;;                           ((listp font)
+  ;;                            (font-spec :family (car font) :size (nth 1 font)))
+  ;;                           ((stringp font)
+  ;;                            (font-spec :family font))
+  ;;                           (t (error "FONT is an invalid type: %s" font)))))
+  ;;             chars))
+
+  ;;     ;; Make certain unicode glyphs bigger for the mode-line.
+  ;;     ;; FIXME Replace with all-the-icons?
+  ;;     (doom-fix-unicode '("DejaVu Sans Mono" 15) ?✱) ;; modified symbol
+  ;;     (let ((font "DejaVu Sans Mono for Powerline")) ;;
+  ;;       (doom-fix-unicode (list font 12) ?)  ;; git symbol
+  ;;       (doom-fix-unicode (list font 16) ?∄)  ;; non-existent-file symbol
+  ;;       (doom-fix-unicode (list font 15) ?)) ;; read-only symbol
+
+  ;;     ;; So the mode-line can keep track of "the current window"
+  ;;     (defvar mode-line-selected-window nil)
+  ;;     (defun doom|set-selected-window (&rest _)
+  ;;       (let ((window (frame-selected-window)))
+  ;;         (when (and (windowp window)
+  ;;                    (not (minibuffer-window-active-p window)))
+  ;;           (setq mode-line-selected-window window))))
+  ;;     (add-hook 'window-configuration-change-hook #'doom|set-selected-window)
+  ;;     (add-hook 'focus-in-hook #'doom|set-selected-window)
+  ;;     (advice-add 'select-window :after 'doom|set-selected-window)
+  ;;     (advice-add 'select-frame  :after 'doom|set-selected-window)
+
+  ;;     (defun doom/project-root (&optional strict-p)
+  ;;       "Get the path to the root of your project."
+  ;;       (let (projectile-require-project-root strict-p)
+  ;;         (projectile-project-root)))
+
+  ;;     (defun *buffer-path ()
+  ;;       "Displays the buffer's full path relative to the project root (includes the
+  ;;   project root). Excludes the file basename. See `*buffer-name' for that."
+  ;;       (when buffer-file-name
+  ;;         (propertize
+  ;;          (f-dirname
+  ;;           (let ((buffer-path (file-relative-name buffer-file-name (doom/project-root)))
+  ;;                 (max-length (truncate (/ (window-body-width) 1.75))))
+  ;;             (concat (projectile-project-name) "/"
+  ;;                     (if (> (length buffer-path) max-length)
+  ;;                         (let ((path (reverse (split-string buffer-path "/" t)))
+  ;;                               (output ""))
+  ;;                           (when (and path (equal "" (car path)))
+  ;;                             (setq path (cdr path)))
+  ;;                           (while (and path (<= (length output) (- max-length 4)))
+  ;;                             (setq output (concat (car path) "/" output))
+  ;;                             (setq path (cdr path)))
+  ;;                           (when path
+  ;;                             (setq output (concat "../" output)))
+  ;;                           (when (string-suffix-p "/" output)
+  ;;                             (setq output (substring output 0 -1)))
+  ;;                           output)
+  ;;                       buffer-path))))
+  ;;          'face (if active 'mode-line-2))))
+
+  ;;     (defun *buffer-name ()
+  ;;       "The buffer's base name or id."
+  ;;       ;; FIXME Don't show uniquify tags
+  ;;       (s-trim-left (format-mode-line "%b")))
+
+  ;;     (defun *buffer-pwd ()
+  ;;       "Displays `default-directory', for special buffers like the scratch buffer."
+  ;;       (propertize
+  ;;        (concat "[" (abbreviate-file-name default-directory) "]")
+  ;;        'face 'mode-line-2))
+
+  ;;     (defun *buffer-state ()
+  ;;       "Displays symbols representing the buffer's state (non-existent/modified/read-only)"
+  ;;       (when buffer-file-name
+  ;;         (propertize
+  ;;          (concat (if (not (file-exists-p buffer-file-name))
+  ;;                      "∄"
+  ;;                    (if (buffer-modified-p) "✱"))
+  ;;                  (if buffer-read-only ""))
+  ;;          'face 'mode-line-is-modified)))
+
+  ;;     (defun *buffer-encoding-abbrev ()
+  ;;       "The line ending convention used in the buffer."
+  ;;       (if (memq buffer-file-coding-system '(utf-8 utf-8-unix))
+  ;;           ""
+  ;;         (symbol-name buffer-file-coding-system)))
+
+  ;;     (defun *major-mode ()
+  ;;       "The major mode, including process, environment and text-scale info."
+  ;;       (concat (format-mode-line mode-name)
+  ;;               (if (stringp mode-line-process) mode-line-process)
+  ;;               (and (featurep 'face-remap)
+  ;;                    (/= text-scale-mode-amount 0)
+  ;;                    (format " (%+d)" text-scale-mode-amount))))
+
+  ;;     (defun *vc ()
+  ;;       "Displays the current branch, colored based on its state."
+  ;;       (when vc-mode
+  ;;         (let ((backend (concat " " (substring vc-mode (+ 2 (length (symbol-name (vc-backend buffer-file-name)))))))
+  ;;               (face (let ((state (vc-state buffer-file-name)))
+  ;;                       (cond ((memq state '(edited added))
+  ;;                              'mode-line-vcs-info)
+  ;;                             ((memq state '(removed needs-merge needs-update conflict removed unregistered))
+  ;;                              'mode-line-vcs-warning)))))
+  ;;           (if active
+  ;;               (propertize backend 'face face)
+  ;;             backend))))
+
+  ;;     (defvar-local doom--flycheck-err-cache nil "")
+  ;;     (defvar-local doom--flycheck-cache nil "")
+  ;;     (defun *flycheck ()
+  ;;       "Persistent and cached flycheck indicators in the mode-line."
+  ;;       (when (and (featurep 'flycheck)
+  ;;                  flycheck-mode
+  ;;                  (or flycheck-current-errors
+  ;;                      (eq 'running flycheck-last-status-change)))
+  ;;         (or (and (or (eq doom--flycheck-err-cache doom--flycheck-cache)
+  ;;                      (memq flycheck-last-status-change '(running not-checked)))
+  ;;                  doom--flycheck-cache)
+  ;;             (and (setq doom--flycheck-err-cache flycheck-current-errors)
+  ;;                  (setq doom--flycheck-cache
+  ;;                        (let ((fe (doom-ml-flycheck-count 'error))
+  ;;                              (fw (doom-ml-flycheck-count 'warning)))
+  ;;                          (concat
+  ;;                           (if fe (propertize (format " •%d " fe)
+  ;;                                              'face (if active
+  ;;                                                        'doom-flycheck-error
+  ;;                                                      'mode-line)))
+  ;;                           (if fw (propertize (format " •%d " fw)
+  ;;                                              'face (if active
+  ;;                                                        'doom-flycheck-warning
+  ;;                                                      'mode-line))))))))))
+
+  ;;     (defun *buffer-position ()
+  ;;       "A more vim-like buffer position."
+  ;;       (let ((start (window-start))
+  ;;             (end (window-end))
+  ;;             (pend (point-max)))
+  ;;         (if (and (= start 1)
+  ;;                  (= end pend))
+  ;;             ":All"
+  ;;           (cond ((= start 1) ":Top")
+  ;;                 ((= end pend) ":Bot")
+  ;;                 (t (format ":%d%%%%" (/ end 0.01 pend)))))))
+
+  ;;     (defun my-mode-line (&optional id)
+  ;;       `(:eval
+  ;;         (let* ((active (eq (selected-window) mode-line-selected-window))
+  ;;                (lhs (list (propertize " " 'display (if active mode-line-bar mode-line-inactive-bar))
+  ;;                           (*flycheck)
+  ;;                           " "
+  ;;                           (*buffer-path)
+  ;;                           (*buffer-name)
+  ;;                           " "
+  ;;                           (*buffer-state)
+  ;;                           ,(if (eq id 'scratch) '(*buffer-pwd))))
+  ;;                (rhs (list (*buffer-encoding-abbrev) "  "
+  ;;                           (*vc)
+  ;; ;;                          " "
+  ;; ;;                          (when persp-curr persp-modestring)
+  ;;                           " " (*major-mode) "  "
+  ;;                           (propertize
+  ;;                            (concat "(%l,%c) " (*buffer-position))
+  ;;                            'face (if active 'mode-line-2))))
+  ;;                (middle (propertize
+  ;;                         " " 'display `((space :align-to (- (+ right right-fringe right-margin)
+  ;;                                                            ,(1+ (string-width (format-mode-line rhs)))))))))
+  ;;           (list lhs middle rhs)))))
+
+  ;; (setq-default mode-line-format (my-mode-line))
+
+#+end_src
+
+Unclutter the modeline
+#+begin_src emacs-lisp
+  (require 'diminish)
+  (eval-after-load "yasnippet" '(diminish 'yas-minor-mode))
+  (eval-after-load "eldoc" '(diminish 'eldoc-mode))
+  (eval-after-load "paredit" '(diminish 'paredit-mode))
+  (eval-after-load "tagedit" '(diminish 'tagedit-mode))
+  (eval-after-load "elisp-slime-nav" '(diminish 'elisp-slime-nav-mode))
+  (eval-after-load "skewer-mode" '(diminish 'skewer-mode))
+  (eval-after-load "skewer-css" '(diminish 'skewer-css-mode))
+  (eval-after-load "skewer-html" '(diminish 'skewer-html-mode))
+  (eval-after-load "smartparens" '(diminish 'smartparens-mode))
+  (eval-after-load "guide-key" '(diminish 'guide-key-mode))
+  (eval-after-load "whitespace-cleanup-mode" '(diminish 'whitespace-cleanup-mode))
+  (eval-after-load "subword" '(diminish 'subword-mode))
 #+end_src
 
 #+begin_src emacs-lisp
-      (use-package powerline
-        :ensure t
-        :config
-        (defvar mode-line-height 30 "A little bit taller, a little bit baller.")
-
-        (defvar mode-line-bar          (eval-when-compile (pl/percent-xpm mode-line-height 100 0 100 0 3 "#909fab" nil)))
-        (defvar mode-line-eldoc-bar    (eval-when-compile (pl/percent-xpm mode-line-height 100 0 100 0 3 "#B3EF00" nil)))
-        (defvar mode-line-inactive-bar (eval-when-compile (pl/percent-xpm mode-line-height 100 0 100 0 3 "#9091AB" nil)))
-
-        ;; Custom faces
-        (defface mode-line-is-modified nil
-          "Face for mode-line modified symbol")
-
-        (defface mode-line-2 nil
-          "The alternate color for mode-line text.")
-
-        (defface mode-line-highlight nil
-          "Face for bright segments of the mode-line.")
-
-        (defface mode-line-count-face nil
-          "Face for anzu/evil-substitute/evil-search number-of-matches display.")
-
-        ;; Git/VCS segment faces
-        (defface mode-line-vcs-info '((t (:inherit warning)))
-          "")
-        (defface mode-line-vcs-warning '((t (:inherit warning)))
-          "")
-
-        ;; Flycheck segment faces
-        (defface doom-flycheck-error '((t (:inherit error)))
-          "Face for flycheck error feedback in the modeline.")
-        (defface doom-flycheck-warning '((t (:inherit warning)))
-          "Face for flycheck warning feedback in the modeline.")
+  (defmacro rename-modeline (package-name mode new-name)
+    `(eval-after-load ,package-name
+       '(defadvice ,mode (after rename-modeline activate)
+          (setq mode-name ,new-name))))
 
 
-        (defun doom-ml-flycheck-count (state)
-          "Return flycheck information for the given error type STATE."
-          (when (flycheck-has-current-errors-p state)
-            (if (eq 'running flycheck-last-status-change)
-                "?"
-              (cdr-safe (assq state (flycheck-count-errors flycheck-current-errors))))))
-
-        (defun doom-fix-unicode (font &rest chars)
-          "Display certain unicode characters in a specific font.
-      e.g. (doom-fix-unicode \"DejaVu Sans\" ?⚠ ?★ ?λ)"
-          (declare (indent 1))
-          (mapc (lambda (x) (set-fontset-font
-                        t (cons x x)
-                        (cond ((fontp font)
-                               font)
-                              ((listp font)
-                               (font-spec :family (car font) :size (nth 1 font)))
-                              ((stringp font)
-                               (font-spec :family font))
-                              (t (error "FONT is an invalid type: %s" font)))))
-                chars))
-
-        ;; Make certain unicode glyphs bigger for the mode-line.
-        ;; FIXME Replace with all-the-icons?
-        (doom-fix-unicode '("DejaVu Sans Mono" 15) ?✱) ;; modified symbol
-        (let ((font "DejaVu Sans Mono for Powerline")) ;;
-          (doom-fix-unicode (list font 12) ?)  ;; git symbol
-          (doom-fix-unicode (list font 16) ?∄)  ;; non-existent-file symbol
-          (doom-fix-unicode (list font 15) ?)) ;; read-only symbol
-
-        ;; So the mode-line can keep track of "the current window"
-        (defvar mode-line-selected-window nil)
-        (defun doom|set-selected-window (&rest _)
-          (let ((window (frame-selected-window)))
-            (when (and (windowp window)
-                       (not (minibuffer-window-active-p window)))
-              (setq mode-line-selected-window window))))
-        (add-hook 'window-configuration-change-hook #'doom|set-selected-window)
-        (add-hook 'focus-in-hook #'doom|set-selected-window)
-        (advice-add 'select-window :after 'doom|set-selected-window)
-        (advice-add 'select-frame  :after 'doom|set-selected-window)
-
-        (defun doom/project-root (&optional strict-p)
-          "Get the path to the root of your project."
-          (let (projectile-require-project-root strict-p)
-            (projectile-project-root)))
-
-        (defun *buffer-path ()
-          "Displays the buffer's full path relative to the project root (includes the
-      project root). Excludes the file basename. See `*buffer-name' for that."
-          (when buffer-file-name
-            (propertize
-             (f-dirname
-              (let ((buffer-path (file-relative-name buffer-file-name (doom/project-root)))
-                    (max-length (truncate (/ (window-body-width) 1.75))))
-                (concat (projectile-project-name) "/"
-                        (if (> (length buffer-path) max-length)
-                            (let ((path (reverse (split-string buffer-path "/" t)))
-                                  (output ""))
-                              (when (and path (equal "" (car path)))
-                                (setq path (cdr path)))
-                              (while (and path (<= (length output) (- max-length 4)))
-                                (setq output (concat (car path) "/" output))
-                                (setq path (cdr path)))
-                              (when path
-                                (setq output (concat "../" output)))
-                              (when (string-suffix-p "/" output)
-                                (setq output (substring output 0 -1)))
-                              output)
-                          buffer-path))))
-             'face (if active 'mode-line-2))))
-
-        (defun *buffer-name ()
-          "The buffer's base name or id."
-          ;; FIXME Don't show uniquify tags
-          (s-trim-left (format-mode-line "%b")))
-
-        (defun *buffer-pwd ()
-          "Displays `default-directory', for special buffers like the scratch buffer."
-          (propertize
-           (concat "[" (abbreviate-file-name default-directory) "]")
-           'face 'mode-line-2))
-
-        (defun *buffer-state ()
-          "Displays symbols representing the buffer's state (non-existent/modified/read-only)"
-          (when buffer-file-name
-            (propertize
-             (concat (if (not (file-exists-p buffer-file-name))
-                         "∄"
-                       (if (buffer-modified-p) "✱"))
-                     (if buffer-read-only ""))
-             'face 'mode-line-is-modified)))
-
-        (defun *buffer-encoding-abbrev ()
-          "The line ending convention used in the buffer."
-          (if (memq buffer-file-coding-system '(utf-8 utf-8-unix))
-              ""
-            (symbol-name buffer-file-coding-system)))
-
-        (defun *major-mode ()
-          "The major mode, including process, environment and text-scale info."
-          (concat (format-mode-line mode-name)
-                  (if (stringp mode-line-process) mode-line-process)
-                  (and (featurep 'face-remap)
-                       (/= text-scale-mode-amount 0)
-                       (format " (%+d)" text-scale-mode-amount))))
-
-        (defun *vc ()
-          "Displays the current branch, colored based on its state."
-          (when vc-mode
-            (let ((backend (concat " " (substring vc-mode (+ 2 (length (symbol-name (vc-backend buffer-file-name)))))))
-                  (face (let ((state (vc-state buffer-file-name)))
-                          (cond ((memq state '(edited added))
-                                 'mode-line-vcs-info)
-                                ((memq state '(removed needs-merge needs-update conflict removed unregistered))
-                                 'mode-line-vcs-warning)))))
-              (if active
-                  (propertize backend 'face face)
-                backend))))
-
-        (defvar-local doom--flycheck-err-cache nil "")
-        (defvar-local doom--flycheck-cache nil "")
-        (defun *flycheck ()
-          "Persistent and cached flycheck indicators in the mode-line."
-          (when (and (featurep 'flycheck)
-                     flycheck-mode
-                     (or flycheck-current-errors
-                         (eq 'running flycheck-last-status-change)))
-            (or (and (or (eq doom--flycheck-err-cache doom--flycheck-cache)
-                         (memq flycheck-last-status-change '(running not-checked)))
-                     doom--flycheck-cache)
-                (and (setq doom--flycheck-err-cache flycheck-current-errors)
-                     (setq doom--flycheck-cache
-                           (let ((fe (doom-ml-flycheck-count 'error))
-                                 (fw (doom-ml-flycheck-count 'warning)))
-                             (concat
-                              (if fe (propertize (format " •%d " fe)
-                                                 'face (if active
-                                                           'doom-flycheck-error
-                                                         'mode-line)))
-                              (if fw (propertize (format " •%d " fw)
-                                                 'face (if active
-                                                           'doom-flycheck-warning
-                                                         'mode-line))))))))))
-
-        (defun *buffer-position ()
-          "A more vim-like buffer position."
-          (let ((start (window-start))
-                (end (window-end))
-                (pend (point-max)))
-            (if (and (= start 1)
-                     (= end pend))
-                ":All"
-              (cond ((= start 1) ":Top")
-                    ((= end pend) ":Bot")
-                    (t (format ":%d%%%%" (/ end 0.01 pend)))))))
-
-        (defun my-mode-line (&optional id)
-          `(:eval
-            (let* ((active (eq (selected-window) mode-line-selected-window))
-                   (lhs (list (propertize " " 'display (if active mode-line-bar mode-line-inactive-bar))
-                              (*flycheck)
-                              " "
-                              (*buffer-path)
-                              (*buffer-name)
-                              " "
-                              (*buffer-state)
-                              ,(if (eq id 'scratch) '(*buffer-pwd))))
-                   (rhs (list (*buffer-encoding-abbrev) "  "
-                              (*vc)
-    ;;                          " "
-    ;;                          (when persp-curr persp-modestring)
-                              " " (*major-mode) "  "
-                              (propertize
-                               (concat "(%l,%c) " (*buffer-position))
-                               'face (if active 'mode-line-2))))
-                   (middle (propertize
-                            " " 'display `((space :align-to (- (+ right right-fringe right-margin)
-                                                               ,(1+ (string-width (format-mode-line rhs)))))))))
-              (list lhs middle rhs)))))
-
-    (setq-default mode-line-format (my-mode-line))
-
+  (rename-modeline "js2-mode" js2-mode "JS2")
+  (rename-modeline "clojure-mode" clojure-mode "Clj")
+#+end_src
+** Different theme for Terminal
+#+begin_src emacs-lisp
+  ;; (defun on-frame-open (frame)
+  ;;   (if (not (display-graphic-p frame))
+  ;;       (set-face-background 'default "unspecified-bg" frame)))
+  ;; (on-frame-open (selected-frame))
+  ;; (add-hook 'after-make-frame-functions 'on-frame-open)
+#+end_src
+#+begin_src emacs-lisp
+  ;; (if (display-graphic-p) 
+  ;;     (enable-theme 'arjen-grey))
 #+end_src
 * Built In Packages Customizations
 ** Delete Selection Mode
@@ -3644,7 +4105,6 @@ Make sure that [[http://pragmaticemacs.com/emacs/add-the-system-clipboard-to-the
 #+begin_src emacs-lisp
 (global-set-key (kbd "RET") 'newline-and-indent)
 #+end_src
-
 ** Dired Details
 #+begin_src emacs-lisp
 (require 'dired-details)
@@ -3654,121 +4114,7 @@ Make sure that [[http://pragmaticemacs.com/emacs/add-the-system-clipboard-to-the
 
 #+end_src
 * Third Party Packages
-** Atomic Chrome
-#+begin_src emacs-lisp
-  (use-package atomic-chrome
-    :config
-    (require 'atomic-chrome)
-    (atomic-chrome-start-server)
-    (setq atomic-chrome-buffer-open-style 'full))
-#+end_src
-** Whitespace Mode
-#+BEGIN_SRC emacs-lisp
-  (use-package whitespace
-    :bind ("C-c T w" . whitespace-mode)
-    :init
-    (setq whitespace-line-column nil
-          whitespace-display-mappings '((space-mark 32 [183] [46])
-                                        (newline-mark 10 [9166 10])
-                                        (tab-mark 9 [9654 9] [92 9])))
-    :config
-    (set-face-attribute 'whitespace-space       nil :foreground "#666666" :background nil)
-    (set-face-attribute 'whitespace-newline     nil :foreground "#666666" :background nil)
-    (set-face-attribute 'whitespace-indentation nil :foreground "#666666" :background nil)
-    :diminish whitespace-mode)
-#+END_SRC
-** Try
-#+begin_src emacs-lisp
-(use-package try)
-#+end_src
-** Workgroups2
-- create your workspace in emacs
-- saves all your opened buffers, their locations and sizes on disk to restore later
-#+begin_src emacs-lisp
-  (use-package workgroups2
-    :config
-    (require 'workgroups2)
-
-    ;; Change prefix key (before activating WG)
-    (setq wg-prefix-key (kbd "C-c z"))
-    ;; Change workgroups session file
-    (setq wg-session-file "~/.emacs.d/.emacs_workgroups")
-    ;; What to do on Emacs exit / workgroups-mode exit?
-    (setq wg-emacs-exit-save-behavior           'save)
-    (setq wg-workgroups-mode-exit-save-behavior 'save)
-
-    ;; Mode Line Changes
-    ;; Display workgroups in Mode Line?
-    (setq wg-mode-line-display-on t)
-    (setq wg-flag-modified t)
-    (setq wg-mode-line-decor-left-brace "["
-          wg-mode-line-decor-right-brace "]"
-          wg-mode-line-decor-divider ":")
-    (workgroups-mode 1))
-#+end_src
-** Hippie Expand                                                     :Drill:
-hippe-expand is a better version of dabbrev-expand while dabbrev-expand searches for words you already types in current buffers and other buffers,
-hippie-expand includes more sources such as filenames, kill ring…
-#+begin_src emacs-lisp
-(global-set-key (kbd "M-/") 'hippie-expand) ;; replace dabbrev-expand
-(setq
- hippie-expand-try-functions-list
- '(try-expand-dabbrev ;; Try to expand word "dynamically", searching the current buffer.
-   try-expand-dabbrev-all-buffers ;; Try to expand word "dynamically", searching all other buffers.
-   try-expand-dabbrev-from-kill ;; Try to expand word "dynamically", searching the kill ring.
-   try-complete-file-name-partially ;; Try to complete text as a file name, as many characters as unique.
-   try-complete-file-name ;; Try to complete text as a file name.
-   try-expand-all-abbrevs ;; Try to expand word before point according to all abbrev tables.
-   try-expand-list ;; Try to complete the current line to an entire line in the buffer.
-   try-expand-line ;; Try to complete the current line to an entire line in the buffer.
-   try-complete-lisp-symbol-partially ;; Try to complete as an Emacs Lisp symbol, as many characters as unique.
-   try-complete-lisp-symbol) ;; Try to complete word as an Emacs Lisp symbol.
- )
-#+end_src
-** Auto Complete
-#+begin_src emacs-lisp
-  ;; (use-package auto-complete
-  ;; :config
-  ;; (require 'auto-complete-config)
-  ;; (ac-config-default)
-  ;; (setq ac-show-menu-immediately-on-auto-complete t))
-#+end_src
-Company Mode
-#+begin_src emacs-lisp
-(use-package company
-  :ensure t
-  :init
-  (setq company-dabbrev-ignore-case t
-        company-show-numbers t)
-  (add-hook 'after-init-hook 'global-company-mode)
-  :config
-  (add-to-list 'company-backends 'company-math-symbols-unicode)
-  :bind ("C-:" . company-complete)  ; In case I don't want to wait
-  :diminish company-mode)
-#+end_src
-
-Quick Documentation
-#+begin_src emacs-lisp
-(use-package company-quickhelp
-  :ensure t
-  :config
-  (company-quickhelp-mode 1))
-#+end_src
-** Expand Region
-#+begin_src emacs-lisp
-(use-package expand-region
-:config
-(require 'expand-region)
-(global-set-key (kbd "M-m") 'er/expand-region))
-#+end_src
-** Bookmarks Manager
-#+begin_src emacs-lisp
-(use-package bm
-  :bind (("C-c =" . bm-toggle)
-         ("C-c [" . bm-previous)
-         ("C-c ]" . bm-next)))
-#+end_src
-** Windows Management
+** ace-window ace-jump-mode
 #+begin_src emacs-lisp
 (use-package ace-window
 :init
@@ -3786,42 +4132,105 @@ Quick Documentation
   :config
   (define-key global-map (kbd "C-c SPC") 'ace-jump-mode))
 #+end_src
-** Indent Whole Buffer
+** atomic-chrome
 #+begin_src emacs-lisp
-(defun iwb ()
-  "indent whole buffer"
-  (interactive)
-  (delete-trailing-whitespace)
-  (indent-region (point-min) (point-max) nil)
-  (untabify (point-min) (point-max)))
-
-(global-set-key (kbd "C-c n") 'iwb)
+  (use-package atomic-chrome
+    :config
+    (require 'atomic-chrome)
+    (atomic-chrome-start-server)
+    (setq atomic-chrome-buffer-open-style 'full))
 #+end_src
-** Command Log Mode
+** Auto Complete
+#+begin_src emacs-lisp
+  ;; (use-package auto-complete
+  ;; :config
+  ;; (require 'auto-complete-config)
+  ;; (ac-config-default)
+  ;; (setq ac-show-menu-immediately-on-auto-complete t))
+#+end_src
+Company Mode
+#+begin_src emacs-lisp
+  (use-package company
+    :ensure t
+    :init
+    (setq company-dabbrev-ignore-case t
+          company-show-numbers t)
+    (add-hook 'after-init-hook 'global-company-mode)
+    :config
+    :bind ("C-:" . company-complete)  ; In case I don't want to wait
+    :diminish company-mode)
+
+#+end_src
+Quick Documentation
+#+begin_src emacs-lisp
+(use-package company-quickhelp
+  :ensure t
+  :config
+  (company-quickhelp-mode 1))
+#+end_src
+Company Backends
+#+BEGIN_SRC emacs-lisp
+  ;; (add-to-list 'company-backends 'company-math-symbols-unicode)
+  ;; (setq company-backends (delete 'company-semantic company-backends))
+  ;; (define-key c-mode-map  [(tab)] 'company-complete)
+  ;; (define-key c++-mode-map  [(tab)] 'company-complete)
+  ;; (add-to-list 'company-backends 'company-c-headers)
+  ;; (add-to-list 'company-c-headers-path-system "/usr/include/c++/7.2.0/")
+#+END_SRC
+** beacon
+#+begin_src emacs-lisp
+  (use-package beacon
+    :config
+    (beacon-mode 1)
+    (setq beacon-color "#000000"))
+#+end_src
+** beginend
+#+begin_src emacs-lisp
+(use-package beginend)
+#+end_src
+** bm
+#+begin_src emacs-lisp
+(use-package bm
+  :bind (("C-c =" . bm-toggle)
+         ("C-c [" . bm-previous)
+         ("C-c ]" . bm-next)))
+#+end_src
+** cider
+#+begin_src emacs-lisp
+(use-package cider)
+#+end_src
+** clojure-mode
+#+begin_src emacs-lisp
+(use-package clojure-mode)
+#+end_src
+** clojure-mode-extra-font-locking
+#+begin_src emacs-lisp
+(use-package clojure-mode-extra-font-locking)
+#+end_src
+** command-log-mode
 #+begin_src emacs-lisp
 (use-package command-log-mode)
 #+end_src
-** Zygospore
-
-zygospore lets you revert C-x 1 (delete-other-window) by pressing C-x 1 again
-[[https://github.com/LouisKottmann/zygospore.el/raw/master/demo.gif]]
+** css-eldoc
 #+begin_src emacs-lisp
-(use-package zygospore
-  :bind (("C-x 1" . zygospore-toggle-delete-other-windows)
-         ("RET" .   newline-and-indent)))
+(use-package css-eldoc)
 #+end_src
-
-** Origami
+** dired-details
 #+begin_src emacs-lisp
-(use-package origami
-:ensure t
-:config
-(require 'origami)
-(add-hook 'prog-mode-hook 'origami-mode)
-(define-key origami-mode-map (kbd "C-c f") 'origami-recursively-toggle-node)
-(define-key origami-mode-map (kbd "C-c F") 'origami-toggle-all-nodes))
+  (use-package dired-details)
+  (require 'dired)
+  (require 'dash)
+
+  ;; Make dired less verbose
+  (require 'dired-details)
+  (setq-default dired-details-hidden-string "---")
+  (dired-details-install)
 #+end_src
-** Duplicate Thing
+** dockerfile-mode
+#+begin_src emacs-lisp
+(use-package dockerfile-mode)
+#+end_src
+** duplicate-thing
 #+begin_src emacs-lisp
 (use-package duplicate-thing
 :ensure t
@@ -3829,190 +4238,92 @@ zygospore lets you revert C-x 1 (delete-other-window) by pressing C-x 1 again
 (require 'duplicate-thing)
 (global-set-key (kbd "M-c") 'duplicate-thing))
 #+end_src
-** Smartparens
+** elisp-slime-nav
 #+begin_src emacs-lisp
-(use-package smartparens-config
-:ensure smartparens
+(use-package elisp-slime-nav)
+#+end_src
+** expand-region
+#+begin_src emacs-lisp
+(use-package expand-region
 :config
-(progn
-(show-smartparens-global-mode t)))
-
-(add-hook 'prog-mode-hook 'turn-on-smartparens-strict-mode)
-;(add-hook 'markdown-mode-hook 'turn-on-smartparens-strict-mode)
-(bind-keys
- :map smartparens-mode-map
- ("C-M-a" . sp-beginning-of-sexp)
- ("C-M-e" . sp-end-of-sexp)
-
- ("C-<down>" . sp-down-sexp)
- ("C-<up>"   . sp-up-sexp)
- ("M-<down>" . sp-backward-down-sexp)
- ("M-<up>"   . sp-backward-up-sexp)
-
- ("C-M-f" . sp-forward-sexp)
- ("C-M-b" . sp-backward-sexp)
-
- ("C-M-n" . sp-next-sexp)
- ("C-M-p" . sp-previous-sexp)
-
- ("C-S-f" . sp-forward-symbol)
- ("C-S-b" . sp-backward-symbol)
-
- ("C-<right>" . sp-forward-slurp-sexp)
- ("M-<right>" . sp-forward-barf-sexp)
- ("C-<left>"  . sp-backward-slurp-sexp)
- ("M-<left>"  . sp-backward-barf-sexp)
-
- ("C-M-t" . sp-transpose-sexp)
- ("C-M-k" . sp-kill-sexp)
- ("C-k"   . sp-kill-hybrid-sexp)
- ("M-k"   . sp-backward-kill-sexp)
- ("C-M-w" . sp-copy-sexp)
- ("C-M-d" . delete-sexp)
-
- ("M-<backspace>" . backward-kill-word)
- ("C-<backspace>" . sp-backward-kill-word)
- ([remap sp-backward-kill-word] . backward-kill-word)
-
- ("M-[" . sp-backward-unwrap-sexp)
- ("M-]" . sp-unwrap-sexp)
-
- ("C-x C-t" . sp-transpose-hybrid-sexp)
-
- ("C-c ("  . wrap-with-parens)
- ("C-c ["  . wrap-with-brackets)
- ("C-c {"  . wrap-with-braces)
- ("C-c M-'"  . wrap-with-single-quotes)
- ("C-c \"" . wrap-with-double-quotes)
- ("C-c _"  . wrap-with-underscores)
- ("C-c `"  . wrap-with-back-quotes))
+(require 'expand-region)
+(global-set-key (kbd "M-m") 'er/expand-region))
 #+end_src
-** Which Mode
+
+** function-args
+GNU Emacs package for showing an inline arguments hint for the C/C++ function at point
+
+_Why_: C++ Completion for GNU Emacs
+
 #+begin_src emacs-lisp
-  (use-package which-key
+  (use-package function-args
     :ensure t
-    :defer 10
-    :diminish which-key-mode
     :config
-
-    ;; Replacements for how KEY is replaced when which-key displays
-    ;;   KEY → FUNCTION
-    ;; Eg: After "C-c", display "right → winner-redo" as "▶ → winner-redo"
-    (setq which-key-key-replacement-alist
-          '(("<\\([[:alnum:]-]+\\)>" . "\\1")
-            ("left"                  . "◀")
-            ("right"                 . "▶")
-            ("up"                    . "▲")
-            ("down"                  . "▼")
-            ("delete"                . "DEL") ; delete key
-            ("\\`DEL\\'"             . "BS") ; backspace key
-            ("next"                  . "PgDn")
-            ("prior"                 . "PgUp"))
-
-          ;; List of "special" keys for which a KEY is displayed as just
-          ;; K but with "inverted video" face... not sure I like this.
-          which-key-special-keys '("RET" "DEL" ; delete key
-                                   "ESC" "BS" ; backspace key
-                                   "SPC" "TAB")
-
-          ;; Replacements for how part or whole of FUNCTION is replaced:
-          which-key-description-replacement-alist
-          '(("Prefix Command" . "prefix")
-            ("\\`calc-"       . "") ; Hide "calc-" prefixes when listing M-x calc keys
-            ("\\`projectile-" . "𝓟/")
-            ("\\`org-babel-"  . "ob/"))
-
-          ;; Underlines commands to emphasize some functions:
-          which-key-highlighted-command-list
-          '("\\(rectangle-\\)\\|\\(-rectangle\\)"
-            "\\`org-"))
-
-    ;; Change what string to display for a given *complete* key binding
-    ;; Eg: After "C-x", display "8 → +unicode" instead of "8 → +prefix"
-    (which-key-add-key-based-replacements
-      "C-x 8"   "unicode"
-      "C-c T"   "toggles-"
-      "C-c p s" "projectile-search"
-      "C-c p 4" "projectile-other-buffer-"
-      "C-x a"   "abbrev/expand"
-      "C-x r"   "rect/reg"
-      "C-c /"   "engine-mode-map"
-      "C-c C-v" "org-babel")
-
-    (which-key-mode 1))
+    (require 'function-args)
+    (fa-config-default)
+    (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
+    (set-default 'semantic-case-fold t)
+    )
 #+end_src
-** Undo Tree
+*** Main Functions
+**** fa-show
+Show an overlay hint with function arguments like so:
+[[https://camo.githubusercontent.com/9f3330ac2a22fe09188b01d4a611f620d24e45b0/68747470733a2f2f7261772e6769746875622e636f6d2f61626f2d61626f2f66756e6374696f6e2d617267732f6d61737465722f646f632f73637265656e73686f742d312e706e67]]
 
-undo-tree allows you to visual the whole history of your editing in a tree. 
-It also provides regular undo/redo behaviours in other editors. 
-undo-tree can even provide a diff between two different states. 
-Highly recommended.
+The point position is tracked and the current hint argument is updated accordingly. After you've called it with M-i, you can cycle the overloaded functions with M-n/M-h. You can dismiss the hint with M-u or by editing anywhere outside the function arguments.
+**** fa-jump
+While the overlay hint is active, jump to the current function. The default shortcut is M-j. If the overlay isn't active, call whatever was bound to M-j before (usually it's c-indent-new-comment-line).
 
-[[https://camo.githubusercontent.com/85240e7df44ee70d29d68187e15d7a8a37291c4a/68747470733a2f2f747568646f2e6769746875622e696f2f7374617469632f70617274332f756e646f2d747265652e6a7067]]
-
+**** moo-complete
+It's essentially a c++-specific version of semantic-ia-complete-symbol. It behaves better, because it accounts more for function overloading and inheritance. Also it's prettier (type parts are fontified) and faster (helm is used for completion). You can invoke it with M-o by default.
+[[https://camo.githubusercontent.com/20e539f72b35d93bd8b015409c77e9ebf21f5561/68747470733a2f2f7261772e6769746875622e636f6d2f61626f2d61626f2f66756e6374696f6e2d617267732f6d61737465722f646f632f73637265656e73686f742d362e706e67]]
+This screenshot demonstrates the compatibility between fa-show and moo-complete, as well as the matching power of helm:
+[[https://camo.githubusercontent.com/235800dffdb57b46a52bcdfc70541ac75c3b45d1/68747470733a2f2f7261772e6769746875622e636f6d2f61626f2d61626f2f66756e6374696f6e2d617267732f6d61737465722f646f632f73637265656e73686f742d372e706e67]]
+**** moo-propose-virtual
+Lists the virtual members of the current class's parents. The selected candidates will be inserted at point.
+[[https://camo.githubusercontent.com/8ac8b6117fcb9e80d3d58658fdc76a7641b671b3/68747470733a2f2f7261772e6769746875622e636f6d2f61626f2d61626f2f66756e6374696f6e2d617267732f6d61737465722f646f632f73637265656e73686f742d332e706e67]]
+**** moo-propose-override
+Lists all member functions of current class' parents. The selected candidate will be inserted at point.
+[[https://camo.githubusercontent.com/ad12dfdf3cc77d6863f0ccb2c75fd2badd7e38cf/68747470733a2f2f7261772e6769746875622e636f6d2f61626f2d61626f2f66756e6374696f6e2d617267732f6d61737465722f646f632f73637265656e73686f742d322e706e67]]
+**** moo-jump-local
+Offers to jump to any tag in current buffer. This function works for all modes supported by CEDET. It has a specialization for C++ that flattens namespaces. 
+[[https://camo.githubusercontent.com/7bb30e4c0b909a8b88a11201a70dae7e419f4efc/68747470733a2f2f7261772e6769746875622e636f6d2f61626f2d61626f2f66756e6374696f6e2d617267732f6d61737465722f646f632f73637265656e73686f742d342e706e67]]
+** fill-column-indicator
 #+begin_src emacs-lisp
-  (use-package undo-tree
-    :ensure t
-    :diminish undo-tree-mode
-    :init
-    (global-undo-tree-mode 1)
-    :config
-    (defalias 'redo 'undo-tree-redo)
-    (require 'undo-tree)
-    :bind (("C-z" . undo)
-           ("C-S-z" . redo)))
+(use-package fill-column-indicator)
 #+end_src
-
-** Yasnippet
+** flycheck
 #+begin_src emacs-lisp
-  (use-package yasnippet
-  :ensure t
-  :config
-  (require 'yasnippet)
-  (yas-global-mode 1)
-  (add-to-list 'yas-snippet-dirs "~/.emacs.d/snippets"))
+  (use-package flycheck)
+  (use-package flycheck-pos-tip)
+  (use-package flycheck-clojure)
 #+end_src
-** Vimish Fold
+** flx
 #+begin_src emacs-lisp
-(use-package vimish-fold)
-(require 'vimish-fold)
-(vimish-fold-global-mode -1)
-;; this registers a region for future folding/unfolding
-(global-set-key (kbd "C-c v") #'vimish-fold)
-;; this unregisters the region under point from folding/unfolding
-(global-set-key (kbd "C-c d") #'vimish-fold-delete)
-;; this is the actual fold/unfold command
-(global-set-key (kbd "C-c t") #'vimish-fold-toggle)
+(use-package flx)
+(use-package flx-ido)
 #+end_src
-** Multiple Cursors
-#+begin_src emacs-lisp 
-  (use-package multiple-cursors
-    :config
-    (require 'multiple-cursors)
-    (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
-    (global-set-key (kbd "M-+") 'mc/mark-next-like-this)
-    (global-set-key (kbd "M--") 'mc/mark-previous-like-this)
-    (global-set-key (kbd "C-c M-+") 'mc/mark-all-like-this))
-#+end_src
-
-** Magit
+** gist
 #+begin_src emacs-lisp
-(use-package magit
-  :commands magit-status magit-blame
-  :init
-  (defadvice magit-status (around magit-fullscreen activate)
-    (window-configuration-to-register :magit-fullscreen)
-    ad-do-it
-    (delete-other-windows))
-  :config
-  (setq vc-follow-symlinks nil
-        magit-push-always-verify nil
-        magit-restore-window-configuration t)
-  :bind ("C-x g" . magit-status))
+(use-package gist)
+(require 'gist)
 #+end_src
-** Helm
+** groovy-mode
+#+begin_src emacs-lisp
+(use-package groovy-mode)
+#+end_src
+** guide key
+#+begin_src emacs-lisp
+  (use-package guide-key)
+  (require 'guide-key)
+  (setq guide-key/guide-key-sequence '("C-x r" "C-x 4" "C-x v" "C-x 8" "C-x +"))
+  (guide-key-mode 1)
+  (setq guide-key/recursive-key-sequence-flag t)
+  (setq guide-key/popup-window-position 'bottom)
+#+end_src
+** helm
 
-_Author_: Tamas Patrovic, rubikitch, thierry volpiatto [[thierry.volpaitt@gmail.com]]
+_Author_: Tamas Patrovic, rubikitch, thierry volpiatto [[mailto://thierry.volpaitt@gmail.com]]
 _Homepages_: [[https://github.com/emacs-helm/helm]]
 
 _Features_: 
@@ -4118,7 +4429,228 @@ helm-descbinds
         ("C-h b" . helm-descbinds)
         ("C-h w" . helm-descbinds)))
 #+end_src
-** Projectile                                                        :Drill:
+** helm-gtags
+#+begin_src emacs-lisp
+  (use-package helm-gtags
+    :config
+    (setq helm-gtags-ignore-case t
+          helm-gtags-auto-update t
+          helm-gtags-use-input-at-cursor t
+          helm-gtags-prefix-key "\C-cg"
+          helm-gtags-suggested-key-mapping t)
+    (require 'helm-gtags)
+    ;; Enable helm-gtags-mode
+    (add-hook 'dired-mode-hook 'helm-gtags-mode)
+    (add-hook 'eshell-mode-hook 'helm-gtags-mode)
+    (add-hook 'c-mode-hook 'helm-gtags-mode)
+    (add-hook 'c++-mode-hook 'helm-gtags-mode)
+    (add-hook 'asm-mode-hook 'helm-gtags-mode)
+
+    (define-key helm-gtags-mode-map (kbd "C-c g a") 'helm-gtags-tags-in-this-function)
+    (define-key helm-gtags-mode-map (kbd "C-j") 'helm-gtags-select)
+    (define-key helm-gtags-mode-map (kbd "C-M-.") 'helm-gtags-dwim)
+    (define-key helm-gtags-mode-map (kbd "C-M-,") 'helm-gtags-pop-stack)
+    (define-key helm-gtags-mode-map (kbd "C-c <") 'helm-gtags-previous-history)
+    (define-key helm-gtags-mode-map (kbd "C-c >") 'helm-gtags-next-history))
+#+end_src
+** hideshow
+#+BEGIN_SRC emacs-lisp
+(use-package hideshow
+    :ensure t
+    :bind (("C->" . my-toggle-hideshow-all)
+           ("C-<" . hs-hide-level)
+           ("C-;" . hs-toggle-hiding))
+    :config
+    ;; Hide the comments too when you do a 'hs-hide-all'
+    (setq hs-hide-comments nil)
+    ;; Set whether isearch opens folded comments, code, or both
+    ;; where x is code, comments, t (both), or nil (neither)
+    (setq hs-isearch-open 'x)
+    ;; Add more here
+
+
+    (setq hs-set-up-overlay
+          (defun my-display-code-line-counts (ov)
+            (when (eq 'code (overlay-get ov 'hs))
+              (overlay-put ov 'display
+                           (propertize
+                            (format " ... <%d>"
+                                    (count-lines (overlay-start ov)
+                                                 (overlay-end ov)))
+                            'face 'font-lock-type-face)))))
+
+    (defvar my-hs-hide nil "Current state of hideshow for toggling all.")
+         ;;;###autoload
+    (defun my-toggle-hideshow-all () "Toggle hideshow all."
+           (interactive)
+           (setq my-hs-hide (not my-hs-hide))
+           (if my-hs-hide
+               (hs-hide-all)
+             (hs-show-all)))
+
+    (add-hook 'prog-mode-hook (lambda ()
+                                (hs-minor-mode 1)
+                                ))
+    (add-hook 'clojure-mode-hook (lambda ()
+                                (hs-minor-mode 1)
+                                ))
+    )
+#+END_SRC
+** highlight-indent-guides
+#+begin_src emacs-lisp
+  (use-package highlight-indent-guides)
+  (setq highlight-indent-guides-method 'character)
+  (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
+  (setq highlight-indent-guides-character ?\|)
+#+end_src
+** highlight-escape-sequences
+#+begin_src emacs-lisp
+(use-package highlight-escape-sequences)
+#+end_src
+** hippie-expand
+hippe-expand is a better version of dabbrev-expand while dabbrev-expand searches for words you already types in current buffers and other buffers,
+hippie-expand includes more sources such as filenames, kill ring…
+#+begin_src emacs-lisp
+(global-set-key (kbd "M-/") 'hippie-expand) ;; replace dabbrev-expand
+(setq
+ hippie-expand-try-functions-list
+ '(try-expand-dabbrev ;; Try to expand word "dynamically", searching the current buffer.
+   try-expand-dabbrev-all-buffers ;; Try to expand word "dynamically", searching all other buffers.
+   try-expand-dabbrev-from-kill ;; Try to expand word "dynamically", searching the kill ring.
+   try-complete-file-name-partially ;; Try to complete text as a file name, as many characters as unique.
+   try-complete-file-name ;; Try to complete text as a file name.
+   try-expand-all-abbrevs ;; Try to expand word before point according to all abbrev tables.
+   try-expand-list ;; Try to complete the current line to an entire line in the buffer.
+   try-expand-line ;; Try to complete the current line to an entire line in the buffer.
+   try-complete-lisp-symbol-partially ;; Try to complete as an Emacs Lisp symbol, as many characters as unique.
+   try-complete-lisp-symbol) ;; Try to complete word as an Emacs Lisp symbol.
+ )
+#+end_src
+** hungry-delete
+#+begin_src emacs-lisp
+(use-package hungry-delete
+  :ensure t
+  :config
+  (global-hungry-delete-mode))
+#+end_src
+** Hydra
+#+begin_src emacs-lisp
+(use-package hydra)
+#+end_src
+** Indent Whole Buffer
+#+begin_src emacs-lisp
+(defun iwb ()
+  "indent whole buffer"
+  (interactive)
+  (delete-trailing-whitespace)
+  (indent-region (point-min) (point-max) nil)
+  (untabify (point-min) (point-max)))
+
+(global-set-key (kbd "C-c n") 'iwb)
+#+end_src
+** linum mode
+*** Line Numbers
+Turn =linum-mode= on/off with =Command-K=. However, I turn this on automatically for programming modes.
+#+begin_src emacs-lisp
+  (use-package linum
+    :init
+    (add-hook 'prog-mode-hook 'linum-mode)
+    (add-hook 'linum-mode-hook (lambda () (set-face-attribute 'linum nil :height 110)))
+
+    :config
+    (defun linum-fringe-toggle ()
+      "Toggles the line numbers as well as the fringe."    (interactive)
+      (cond (linum-mode (fringe-mode '(0 . 0))
+                        (linum-mode -1))
+            (t          (fringe-mode '(8 . 0))
+                        (linum-mode 1))))
+
+    :bind (("A-C-k"   . linum-mode)
+           ("s-C-k"   . linum-mode)
+           ("A-C-M-k" . linum-fringe-toggle)
+           ("s-C-M-k" . linum-fringe-toggle)))
+#+end_src
+
+The Linum-Realtive Mode allows one to see the destination line as a relative distance
+#+begin_src emacs-lisp
+  (use-package linum-relative
+    :ensure t
+    :config
+    (defun linum-new-mode ()
+      "If line numbers aren't displayed, then display them.
+       Otherwise, toggle between absolute and relative numbers."
+      (interactive)
+      (if linum-mode
+          (linum-relative-toggle)
+        (linum-mode 1)))
+
+    :bind ("C-c k" . linum-new-mode)
+          ("C-c K" . linum-new-mode))   ;; For Linux
+
+#+end_src
+** ido-vertical-mode
+#+begin_src emacs-lisp
+(use-package ido-vertical-mode)
+#+end_src
+** ido-at-point
+#+begin_src emacs-lisp
+(use-package ido-at-point)
+#+end_src
+** magit
+#+begin_src emacs-lisp
+(use-package magit
+  :commands magit-status magit-blame
+  :init
+  (defadvice magit-status (around magit-fullscreen activate)
+    (window-configuration-to-register :magit-fullscreen)
+    ad-do-it
+    (delete-other-windows))
+  :config
+  (setq vc-follow-symlinks nil
+        magit-push-always-verify nil
+        magit-restore-window-configuration t)
+  :bind ("C-x g" . magit-status))
+#+end_src
+** move-text
+Demo
+[[https://github.com/emacsfodder/move-text/raw/master/move-text.gif]]
+
+#+begin_src emacs-lisp
+(use-package move-text)
+(move-text-default-bindings)
+;; M-up move-text up
+;; M-down move-text down
+#+end_src
+** multiple cursors
+#+begin_src emacs-lisp 
+  (use-package multiple-cursors
+    :config
+    (require 'multiple-cursors)
+    (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+    (global-set-key (kbd "M-+") 'mc/mark-next-like-this)
+    (global-set-key (kbd "M--") 'mc/mark-previous-like-this)
+    (global-set-key (kbd "C-c M-+") 'mc/mark-all-like-this))
+#+end_src
+
+** nodejs-repl
+#+begin_src emacs-lisp
+(use-package nodejs-repl)
+#+end_src
+** origami
+#+begin_src emacs-lisp
+(use-package origami
+:ensure t
+:config
+(require 'origami)
+(add-hook 'prog-mode-hook 'origami-mode)
+(define-key origami-mode-map (kbd "C-c f") 'origami-recursively-toggle-node)
+(define-key origami-mode-map (kbd "C-c F") 'origami-toggle-all-nodes))
+#+end_src
+** prodigy
+#+begin_src emacs-lisp
+(use-package prodigy)
+#+end_src
+** projectile                                                        :Drill:
 _Features_:
 - jump to a file in project
 - jump to a directory in a project
@@ -4210,146 +4742,239 @@ _File Management_:
   (setq projectile-enable-caching t)
   (helm-projectile-on)
 #+end_src
-** Helm Gtags
-#+begin_src emacs-lisp
-  (use-package helm-gtags
-    :config
-    (setq helm-gtags-ignore-case t
-          helm-gtags-auto-update t
-          helm-gtags-use-input-at-cursor t
-          helm-gtags-prefix-key "\C-cg"
-          helm-gtags-suggested-key-mapping t)
-    (require 'helm-gtags)
-    ;; Enable helm-gtags-mode
-    (add-hook 'dired-mode-hook 'helm-gtags-mode)
-    (add-hook 'eshell-mode-hook 'helm-gtags-mode)
-    (add-hook 'c-mode-hook 'helm-gtags-mode)
-    (add-hook 'c++-mode-hook 'helm-gtags-mode)
-    (add-hook 'asm-mode-hook 'helm-gtags-mode)
-
-    (define-key helm-gtags-mode-map (kbd "C-c g a") 'helm-gtags-tags-in-this-function)
-    (define-key helm-gtags-mode-map (kbd "C-j") 'helm-gtags-select)
-    (define-key helm-gtags-mode-map (kbd "C-M-.") 'helm-gtags-dwim)
-    (define-key helm-gtags-mode-map (kbd "C-M-,") 'helm-gtags-pop-stack)
-    (define-key helm-gtags-mode-map (kbd "C-c <") 'helm-gtags-previous-history)
-    (define-key helm-gtags-mode-map (kbd "C-c >") 'helm-gtags-next-history))
-#+end_src
-** Hydra
-#+begin_src emacs-lisp
-(use-package hydra)
-#+end_src
-** Rest Support
+** restclient
 #+BEGIN_SRC emacs-lisp
 (use-package restclient
     :ensure t)
 #+END_SRC
-** Beacon Mode
+** smartparens
 #+begin_src emacs-lisp
-  (use-package beacon
-    :config
-    (beacon-mode 1)
-    (setq beacon-color "#000000"))
+(use-package smartparens-config
+:ensure smartparens
+:config
+(progn
+(show-smartparens-global-mode t)))
+
+(add-hook 'prog-mode-hook 'turn-on-smartparens-strict-mode)
+(add-hook 'markdown-mode-hook 'turn-on-smartparens-strict-mode)
+(bind-keys
+ :map smartparens-mode-map
+ ("C-M-a" . sp-beginning-of-sexp)
+ ("C-M-e" . sp-end-of-sexp)
+
+ ("C-<down>" . sp-down-sexp)
+ ("C-<up>"   . sp-up-sexp)
+ ("M-<down>" . sp-backward-down-sexp)
+ ("M-<up>"   . sp-backward-up-sexp)
+
+ ("C-M-f" . sp-forward-sexp)
+ ("C-M-b" . sp-backward-sexp)
+
+ ("C-M-n" . sp-next-sexp)
+ ("C-M-p" . sp-previous-sexp)
+
+ ("C-S-f" . sp-forward-symbol)
+ ("C-S-b" . sp-backward-symbol)
+
+ ("C-<right>" . sp-forward-slurp-sexp)
+ ("M-<right>" . sp-forward-barf-sexp)
+ ("C-<left>"  . sp-backward-slurp-sexp)
+ ("M-<left>"  . sp-backward-barf-sexp)
+
+ ("C-M-t" . sp-transpose-sexp)
+ ("C-M-k" . sp-kill-sexp)
+ ("C-k"   . sp-kill-hybrid-sexp)
+ ("M-k"   . sp-backward-kill-sexp)
+ ("C-M-w" . sp-copy-sexp)
+ ("C-M-d" . delete-sexp)
+
+ ("M-<backspace>" . backward-kill-word)
+ ("C-<backspace>" . sp-backward-kill-word)
+ ([remap sp-backward-kill-word] . backward-kill-word)
+
+ ("M-[" . sp-backward-unwrap-sexp)
+ ("M-]" . sp-unwrap-sexp)
+
+ ("C-x C-t" . sp-transpose-hybrid-sexp)
+
+ ("C-c ("  . wrap-with-parens)
+ ("C-c ["  . wrap-with-brackets)
+ ("C-c {"  . wrap-with-braces)
+ ("C-c M-'"  . wrap-with-single-quotes)
+ ("C-c \"" . wrap-with-double-quotes)
+ ("C-c _"  . wrap-with-underscores)
+ ("C-c `"  . wrap-with-back-quotes))
 #+end_src
-** Hungry Delete
+** simple httpd
 #+begin_src emacs-lisp
-(use-package hungry-delete
+(use-package simple-httpd)
+#+end_src
+** string-edit
+#+begin_src emacs-lisp
+(use-package string-edit)
+#+end_src
+** try
+#+begin_src emacs-lisp
+(use-package try)
+#+end_src
+** undo tee
+
+undo-tree allows you to visual the whole history of your editing in a tree. 
+It also provides regular undo/redo behaviours in other editors. 
+undo-tree can even provide a diff between two different states. 
+Highly recommended.
+
+[[https://camo.githubusercontent.com/85240e7df44ee70d29d68187e15d7a8a37291c4a/68747470733a2f2f747568646f2e6769746875622e696f2f7374617469632f70617274332f756e646f2d747265652e6a7067]]
+
+#+begin_src emacs-lisp
+  (use-package undo-tree
+    :ensure t
+    :diminish undo-tree-mode
+    :init
+    (global-undo-tree-mode 1)
+    :config
+    (defalias 'redo 'undo-tree-redo)
+    (require 'undo-tree)
+    :bind (("C-z" . undo)
+           ("C-S-z" . redo)))
+#+end_src
+** visual regexp
+#+begin_src emacs-lisp
+(use-package visual-regexp)
+#+end_src
+** vimish fld
+#+begin_src emacs-lisp
+(use-package vimish-fold)
+(require 'vimish-fold)
+(vimish-fold-global-mode -1)
+;; this registers a region for future folding/unfolding
+(global-set-key (kbd "C-c v") #'vimish-fold)
+;; this unregisters the region under point from folding/unfolding
+(global-set-key (kbd "C-c d") #'vimish-fold-delete)
+;; this is the actual fold/unfold command
+(global-set-key (kbd "C-c t") #'vimish-fold-toggle)
+#+end_src
+** whitespace mode
+#+BEGIN_SRC emacs-lisp
+  (use-package whitespace
+    :bind ("C-c T w" . whitespace-mode)
+    :init
+    (setq whitespace-line-column nil
+          whitespace-display-mappings '((space-mark 32 [183] [46])
+                                        (newline-mark 10 [9166 10])
+                                        (tab-mark 9 [9654 9] [92 9])))
+    :config
+    (set-face-attribute 'whitespace-space       nil :foreground "#666666" :background nil)
+    (set-face-attribute 'whitespace-newline     nil :foreground "#666666" :background nil)
+    (set-face-attribute 'whitespace-indentation nil :foreground "#666666" :background nil)
+    :diminish whitespace-mode)
+#+END_SRC
+** whitespace-cleanup-mode
+#+begin_src emacs-lisp
+(use-package whitespace-cleanup-mode)
+#+end_src
+** workgroups2
+- create your workspace in emacs
+- saves all your opened buffers, their locations and sizes on disk to restore later
+#+begin_src emacs-lisp
+  (use-package workgroups2
+    :config
+    (require 'workgroups2)
+
+    ;; Change prefix key (before activating WG)
+    (setq wg-prefix-key (kbd "C-c z"))
+    ;; Change workgroups session file
+    (setq wg-session-file "~/.emacs.d/.emacs_workgroups")
+    ;; What to do on Emacs exit / workgroups-mode exit?
+    (setq wg-emacs-exit-save-behavior           'save)
+    (setq wg-workgroups-mode-exit-save-behavior 'save)
+
+    ;; Mode Line Changes
+    ;; Display workgroups in Mode Line?
+    (setq wg-mode-line-display-on t)
+    (setq wg-flag-modified t)
+    (setq wg-mode-line-decor-left-brace "["
+          wg-mode-line-decor-right-brace "]"
+          wg-mode-line-decor-divider ":")
+    (workgroups-mode 1))
+#+end_src
+** which Mode
+#+begin_src emacs-lisp
+  (use-package which-key
+    :ensure t
+    :defer 10
+    :diminish which-key-mode
+    :config
+
+    ;; Replacements for how KEY is replaced when which-key displays
+    ;;   KEY → FUNCTION
+    ;; Eg: After "C-c", display "right → winner-redo" as "▶ → winner-redo"
+    (setq which-key-key-replacement-alist
+          '(("<\\([[:alnum:]-]+\\)>" . "\\1")
+            ("left"                  . "◀")
+            ("right"                 . "▶")
+            ("up"                    . "▲")
+            ("down"                  . "▼")
+            ("delete"                . "DEL") ; delete key
+            ("\\`DEL\\'"             . "BS") ; backspace key
+            ("next"                  . "PgDn")
+            ("prior"                 . "PgUp"))
+
+          ;; List of "special" keys for which a KEY is displayed as just
+          ;; K but with "inverted video" face... not sure I like this.
+          which-key-special-keys '("RET" "DEL" ; delete key
+                                   "ESC" "BS" ; backspace key
+                                   "SPC" "TAB")
+
+          ;; Replacements for how part or whole of FUNCTION is replaced:
+          which-key-description-replacement-alist
+          '(("Prefix Command" . "prefix")
+            ("\\`calc-"       . "") ; Hide "calc-" prefixes when listing M-x calc keys
+            ("\\`projectile-" . "𝓟/")
+            ("\\`org-babel-"  . "ob/"))
+
+          ;; Underlines commands to emphasize some functions:
+          which-key-highlighted-command-list
+          '("\\(rectangle-\\)\\|\\(-rectangle\\)"
+            "\\`org-"))
+
+    ;; Change what string to display for a given *complete* key binding
+    ;; Eg: After "C-x", display "8 → +unicode" instead of "8 → +prefix"
+    (which-key-add-key-based-replacements
+      "C-x 8"   "unicode"
+      "C-c T"   "toggles-"
+      "C-c p s" "projectile-search"
+      "C-c p 4" "projectile-other-buffer-"
+      "C-x a"   "abbrev/expand"
+      "C-x r"   "rect/reg"
+      "C-c /"   "engine-mode-map"
+      "C-c C-v" "org-babel")
+
+    (which-key-mode 1))
+#+end_src
+
+** yasnippet
+#+begin_src emacs-lisp
+  (use-package yasnippet
   :ensure t
   :config
-  (global-hungry-delete-mode))
+  (require 'yasnippet)
+  (yas-global-mode 1)
+  (add-to-list 'yas-snippet-dirs "~/.emacs.d/snippets"))
 #+end_src
-** Linum Mode
-*** Line Numbers
-Turn =linum-mode= on/off with =Command-K=. However, I turn this on automatically for programming modes.
+** yesql-ghosts
 #+begin_src emacs-lisp
-  (use-package linum
-    :init
-    (add-hook 'prog-mode-hook 'linum-mode)
-    (add-hook 'linum-mode-hook (lambda () (set-face-attribute 'linum nil :height 110)))
-
-    :config
-    (defun linum-fringe-toggle ()
-      "Toggles the line numbers as well as the fringe."    (interactive)
-      (cond (linum-mode (fringe-mode '(0 . 0))
-                        (linum-mode -1))
-            (t          (fringe-mode '(8 . 0))
-                        (linum-mode 1))))
-
-    :bind (("A-C-k"   . linum-mode)
-           ("s-C-k"   . linum-mode)
-           ("A-C-M-k" . linum-fringe-toggle)
-           ("s-C-M-k" . linum-fringe-toggle)))
+(use-package yesql-ghosts)
 #+end_src
+** Zygospore
 
-The Linum-Realtive Mode allows one to see the destination line as a relative distance
+zygospore lets you revert C-x 1 (delete-other-window) by pressing C-x 1 again
+[[https://github.com/LouisKottmann/zygospore.el/raw/master/demo.gif]]
 #+begin_src emacs-lisp
-  (use-package linum-relative
-    :ensure t
-    :config
-    (defun linum-new-mode ()
-      "If line numbers aren't displayed, then display them.
-       Otherwise, toggle between absolute and relative numbers."
-      (interactive)
-      (if linum-mode
-          (linum-relative-toggle)
-        (linum-mode 1)))
-
-    :bind ("C-c k" . linum-new-mode)
-          ("C-c K" . linum-new-mode))   ;; For Linux
-
+(use-package zygospore
+  :bind (("C-x 1" . zygospore-toggle-delete-other-windows)
+         ("RET" .   newline-and-indent)))
 #+end_src
-
-** Highlight Indentation
-#+begin_src emacs-lisp
-(use-package highlight-indentation)
-(require 'highlight-indentation)
-(add-hook 'prog-mode-hook 'highlight-indentation-mode)
-(add-hook 'prog-mode-hook 'highlight-indentation-current-column-mode)
-(set-face-background 'highlight-indentation-face "#616161")
-(set-face-background 'highlight-indentation-current-column-face "#607D8B")
-#+end_src
-** Code Block Folding
-#+BEGIN_SRC emacs-lisp
-(use-package hideshow
-    :ensure t
-    :bind (("C->" . my-toggle-hideshow-all)
-           ("C-<" . hs-hide-level)
-           ("C-;" . hs-toggle-hiding))
-    :config
-    ;; Hide the comments too when you do a 'hs-hide-all'
-    (setq hs-hide-comments nil)
-    ;; Set whether isearch opens folded comments, code, or both
-    ;; where x is code, comments, t (both), or nil (neither)
-    (setq hs-isearch-open 'x)
-    ;; Add more here
-
-
-    (setq hs-set-up-overlay
-          (defun my-display-code-line-counts (ov)
-            (when (eq 'code (overlay-get ov 'hs))
-              (overlay-put ov 'display
-                           (propertize
-                            (format " ... <%d>"
-                                    (count-lines (overlay-start ov)
-                                                 (overlay-end ov)))
-                            'face 'font-lock-type-face)))))
-
-    (defvar my-hs-hide nil "Current state of hideshow for toggling all.")
-         ;;;###autoload
-    (defun my-toggle-hideshow-all () "Toggle hideshow all."
-           (interactive)
-           (setq my-hs-hide (not my-hs-hide))
-           (if my-hs-hide
-               (hs-hide-all)
-             (hs-show-all)))
-
-    (add-hook 'prog-mode-hook (lambda ()
-                                (hs-minor-mode 1)
-                                ))
-    (add-hook 'clojure-mode-hook (lambda ()
-                                (hs-minor-mode 1)
-                                ))
-    )
-#+END_SRC
 
 * Key Bindings
 ** Frequent Files Shortcut
@@ -4484,6 +5109,23 @@ What does this snippet do?
 (font-lock-add-keywords 'org-mode
                           '(("^ +\\([-*]\\) "
                              (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+#+end_src
+
+Magnars settings
+#+begin_src emacs-lisp
+(defun myorg-update-parent-cookie ()
+  (when (equal major-mode 'org-mode)
+    (save-excursion
+      (ignore-errors
+        (org-back-to-heading)
+        (org-update-parent-todo-statistics)))))
+
+(defadvice org-kill-line (after fix-cookies activate)
+  (myorg-update-parent-cookie))
+
+(defadvice kill-whole-line (after fix-cookies activate)
+  (myorg-update-parent-cookie))
+
 #+end_src
 
 ** Org Todo Keywords
@@ -4862,11 +5504,14 @@ Ref: [[https://youtu.be/6BlTGPsjGJk]]
     (setq company-jedi-python-bin "python")))
 #+end_src
 ** Latex
-#+begin_src emacs-lis
+#+begin_src emacs-lisp
 ;; latex
 (use-package tex
 :ensure auctex)
-
+(setq TeX-auto-save t)
+(setq TeX-parse-self t)
+(setq TeX-save-query nil)
+(setq TeX-PDF-mode t)
 (defun tex-view ()
     (interactive)
     (tex-send-command "evince" (tex-append tex-print-file ".pdf")))
@@ -4884,7 +5529,7 @@ ref: purcell
 
 #+end_src
 ** C/C++
-_Reference_: [[tuhdo1710@gmail.com]]
+_Reference_: [[mailto://tuhdo1710@gmail.com]]
 *** Features 
 1. should be able to browse the Linux kernel source tree
 inside Emacs effortlessly, such as jump to definition/references at
@@ -5014,16 +5659,391 @@ GPATH GRTAGS GTAGS
   or following function. Demo:
 
   [[file:static/c-ide/mark-defun.gif][file:static/c-ide/mark-defun.gif]]
+**** Basic concepts of tag
+
+A tag is a name of an entity in source code. An entity can be a
+variable, a method definition, an include-operator... A tag contains
+information such as name of the tag (the name of the variable,
+class, method), location of this tag in source code and which file it
+belongs to. As an example, GNU Global generates three tag databases:
+
+- *GTAGS*: definition database
+- *GRTAGS*: reference database
+- *GPATH*: path name database
+
+A definition of a tag is where a tag is implemented. For example, a
+function definition is the body where it is actually implemented, or a
+variable definition is where the type and its property (i.e static) is
+specified.
+
+A reference of a tag is where a tag is used in a source tree, but not
+where it is defined.
+
 **** Find Definitions in current Buffer
-**** Find References in Project
+The Imenu facility offers a way to find the major definitions, such as
+function definitions, variable definitions in a file by name. =ggtags=
+can integrate Imenu:
+
+#+begin_src emacs-lisp :noexport
+  (setq-local imenu-create-index-function #'ggtags-build-imenu-index)
+#+end_src
+
+use moo-jump-local from function-args package. You can use it as an outline tree like in other IDEs. Here is a demo:
+[[https://tuhdo.github.io/static/c-ide/moo-jump-local.gif]]
+**** Find Definitions in Project
+- Using =gtags=: by default, =M-.= runs =ggtags-find-tag-dwim= when
+  =ggtags-mode= is enabled. The command =ggtags-find-tag-dwim= jump to
+  tag base on context:
+
+  - If the tag at point is a definition, =ggtags= jumps to a
+    reference. If there is more than one reference, it displays a list
+    of references.
+
+  - If the tag at point is a reference, =ggtags= jumps to tag
+    definition.
+
+  - If the tag at point is an include header, it jumps to that header.
+
+You can jump back to original location where you invoked
+=ggtags-find-tag-dwim= by =M-,=, which runs =pop-tag-mark= (if you
+follow my key bindings).
+
+You can also find arbitrary tag definition when invoking =M-.= on
+blank space. A prompt asks you for tag pattern, which is a regexp.
+
+If =ggtags= gives you a list of candidates, you can use =M-n= to move
+to next candidate and =M-p= to move back previous candidate. Use =M-g
+s= to invoke Isearch on candidate buffer list.
+
+#+BEGIN_CENTER
+[[https://tuhdo.github.io/static/c-ide/ggtags-definitions.png]]
+
+(screenshot taken from [[https://github.com/leoliu/ggtags][ggtags]])
+#+END_CENTER
+
+- Using =helm-gtags=: If key bindings are properly setup as above,
+  =M-.= runs =helm-gtags-dwim=, which behaves the same as
+  =ggtags-find-tag-dwim=. Similarly, you jump back to original
+  location by using =M-,=, which runs =tags-loop-continue= (Emacs
+  default). 
+
+#+BEGIN_CENTER
+[[https://tuhdo.github.io/static/c-ide/helm-gtags-definitions.png]]
+
+(screenshot taken from [[https://github.com/syohex/emacs-helm-gtags][helm-gtags]])
+#+END_CENTER
+
+You can also find arbitrary tag definition when invoking =M-.= on
+blank space. A prompt asks you for tag pattern, which is a
+regexp.
+
+=helm-gtags= provides a really nice feature that uses Helm to display
+all available tags in a project and incrementally filtering, and is really 
+fast using =helm-gtags-select=, which is bound to =C-j= in my setup
+above. This is useful when you want to explore tags in unfamiliar
+project. Demo: 
+
+[[https://tuhdo.github.io/static/c-ide/helm-gtags-select.gif]]
+**** Find references in project
+
+- Using =ggtags=:  Either run =ggtags-find-tag-dwim= or
+  =ggtags-find-reference=, which only finds references.
+
+- Using =helm-gtags=: Either run =helm-gtags-dwim= or
+  =helm-gtags-find-rtags=, bound to *C-c g r*, which only finds
+  references. Note that for =helm-gtags-find-rtags=: 
+
+  - if point is inside a function, the prompt will be default to the
+    function name.
+
+  - If point is on a function, it lists references of that functions
+    immediately.
+
+  - If point is on a variable, =helm-gtags-find-rtags= won't have any
+    effect. You should use =helm-gtags-find-symbol=, which is bound to
+    *C-c g s*.
+
+Find functions that calls function is actually a special case of
+finding references. That is, you gather references for a function.
+
 **** Find functions that current functions call
+If you want to list all the functions that the current function - the
+function that point is inside - calls, you can do that with
+=helm-gtags-tags-in-this-function=, which is bound to *C-c g a* in my
+setup.
+
 **** Find files in project
+
+- Using =ggtags=: Run =ggtags-find-file= to find a file from all the
+  files indexed. If point is on an included header file,
+  =ggtags-find-tag-dwim= automatically jumps to the file.
+
+- Using =helm-gtags=: Run =helm-gtags-find-files= to find files
+  matching regexp. If point is on an included header file,
+  =helm-gtags-dwim= automatically jumps to the file.
+
+Alternatively, you have a more generic solution, that is using
+Projectile. Projectile is a generic project management tool that you
+learn later. With Projectile, jumping around version controlled
+project like Linux kernel is a breeze, since you can jump to any file
+regardless of where you are standing in the project.
+
 **** View visited tags with tag stack
+- Using =ggtags=: As you know that you can jump back with
+  =pop-tag-mark= (bound to =M-,=), you can also view a list of visited
+  tags using =ggtags-view-tag-history=, which is bound to =C-c g
+  h=. It displays visited tags from newest to oldest, that is from top
+  to bottom.
+
+- Using =helm-gtags=: Similarly, =helm-gtags= also has the command
+  =helm-gtags-show-stack= that shows visited tags from newest to
+  oldest, from top to bottom.
 *** Browse Source Tree with Speedbar File Browser
+If you want a static outline tree, Emacs also has a more one:
+=Speedbar=. To use Speed bar, =M-x speedbar= and a frame that contains
+a directory tree appear. In this directory, to the left of a file or
+directory name is an icon with =+= sign in it. You can click the icon
+to open the content of a node. If the node is a file, the children of
+the files are tags (variable and function definitions) of the file; if
+the node is a directory, the children of the node are files in that
+directory. One important thing to remember, Speedbar only lists files
+that match =speedbar-file-regexp=, that contains the extensions for
+common programming languages. If you don't see files in your
+programming languages listed, consider adding it the regexp list. 
+
+Basic usage*:
+
+- Use *SPC* to open the children of a node.
+
+- *RET* to open the node in another window. If node is a file, open
+  that file; if node is a directory, enter that directory; if node is
+  a tag in a file, jump to the location of that tag in the file.
+
+- *U* to go up parent directory.
+
+- *n* or *p* moves to next or previous node.
+
+- *M-n* or *M-p* moves to next or previous node at the current level.
+
+- *b* switches to buffer list using Speedbar presentation. You can
+  also open children of each buffer.
+
+- *f* switches back to file list.
+
+To enable =speedbar= to show all files:
+
+#+begin_src emacs-lisp
+  (setq speedbar-show-unknown-files t)
+#+end_src
+**** Package: =sr-speedbar=
+
+However, you may feel that a frame is difficult to use. To solve this
+issue, you need =sr-speedbar=, which can be installed via
+MELPA.
+
+- To open =sr-speedbar=, execute the command =sr-speedbar-open= or
+  =sr-speedbar-toggle=.
+
+- To close =sr-speedbar=, execute the command =sr-speedbar-close= or
+  =sr-speedbar-toggle= again.
+
+Best is to use =sr-speedbar-toggle= only, for simplicity.
+
+=sr-speedbar= gives the following improvements:
+
+- Automatically switches directory tree - when you switch buffer - to
+  the =default-directory= of current buffer.
+- Use an Emacs window instead of frame, make it easier to use.
+- *C-x 1* deletes every window except Speedbar, so you won't have to
+  open again.
+- You can prevent *C-x o* to jump to =sr-speedbar= window by setting
+  =sr-speedbar-skip-other-window-p= to `t`. You can still move to
+  =sr-speedbar= window using either the mouse or [[http://www.emacswiki.org/emacs-en/WindMove][windmove]].
+
+_Demo_: In the demo, you can see that the function =set-cpu-active= is
+being highlighted. That's what happens when you press *RET* on a tag:
+Speedbar moves to the location of that tag and highlight it. Looking
+at the Speedbar, under =set-cpu-active= node, it contains these
+children:
+
+- The first child is always the return type, =void=.
+- The subsequent children are function parameters. Inside each
+  function parameter node is its type.
+
+[[https://tuhdo.github.io/static/c-ide/sr-speedbar.gif]]
+#+begin_src emacs-lisp
+; sr-speedbar
+#+end_src
 *** General Completion with =company-mode=
-*** Demo Project
-*** Source Code completion using Clang
+company-mode= is a text completion framework for Emacs. The name
+stands for "complete anything". It uses pluggable back-ends and
+front-ends to retrieve and display completion candidates.
+
+It comes with several back-ends such as Elisp, Clang, Semantic, Eclim,
+Ropemacs, Ispell, CMake, BBDB, Yasnippet, dabbrev, etags, gtags,
+files, keywords and a few others.
+
+After installing =company-mode= from MELPA, activate it globally:
+
+#+begin_src emacs-lisp :noexport
+  (require 'company)
+  (add-hook 'after-init-hook 'global-company-mode)
+#+end_src
+
+*General Usage*: Completion will start automatically after you type a
+few letters. Use *M-n* and *M-p* to select, *<return>* to complete or
+*<tab>* to complete the common part. Search through the completions
+with *C-s*, *C-r* and *C-o*. Press *M-(digit)* to quickly complete
+with one of the first 10 candidates. When the completion candidates
+are shown, press *<f1>* to display the documentation for the selected
+candidate, or *C-w* to see its source. Not all back-ends support
+this.
+
+The variable =company-backends= specifies a list of backends that
+=company-mode= uses to retrieves completion candidates for you.
+
+That's the basic. In the later sections, you will configure
+=company-mode= to provide completion candidates.
+*** Demo project
+
+Tuhdo uploaded a demo project for you to play with completion feature
+[[https://github.com/tuhdo/c-demo-project][here]]. The project has this structure:
+
+#+begin_src fundamental
+  project_root/
+              Makefile
+              src/
+                  main.c
+                  lib.c
+                  lib2.c
+                  feature1/
+                      feature1.c
+              include1/
+                  lib.h
+                  feature1/
+                      feature1.h
+              include2/
+                  lib2.h
+#+end_src
+
+For the =.h= files, all have this content:
+
+#+begin_src c
+  void filename_func1();
+  int filename_func2(int a, int b);
+#+end_src
+
+For =.c= files, except for =main.c=, all have this template:
+
+#+begin_src c
+  #include "filename.h"
+
+  void filename_func1() { }
+
+  int filename_func2(int a, int b) { }
+#+end_src
+
+=filename= or =FILENAME= is actual filename like =lib1=, =lib2=...
+
+The files look silly but good enough for our learning purpose.
+*** Source code completion using Clang
+
+To use =company-mode= with Clang, add this configuration:
+
+#+begin_src emacs-lisp :noexport
+;  (setq company-backends (delete 'company-semantic company-backends))
+;  (define-key c-mode-map  [(tab)] 'company-complete)
+;  (define-key c++-mode-map  [(tab)] 'company-complete)
+#+end_src
+
+You have two commands for completing C/C++ code:
+
+- =company-clang=: use =clang= to retrieve completion candidates. You
+  will have completion with system header files, but not your
+  project. By default, =company-complete= already includes
+  =company-clang= backend, so you can use =company-complete= to
+  complete for many thing. Note that in the configuration for
+  =company-mode= above, we have to delete =company-semantic=,
+  otherwise =company-complete= will use =company-semantic= instead of
+  =company-clang=, because it has higher precedence in
+  =company-backends=. =company-semantic= will be discuss in the CEDET
+  section.
+
+  To retrieve completion candidates for your projects, you will have
+  to tell Clang where your include paths are. Create a file named
+  =.dir-locals.el= at your project root:
+
+  #+begin_src emacs-lisp
+    ;; ((nil . ((company-clang-arguments . ("-I/home/<user>/project_root/include1/"
+    ;;                                      "-I/home/<user>/project_root/include2/")))))
+  #+end_src
+  
+If you put a file with a special name .dir-locals.el in a directory,
+Emacs will read it when it visits any file in that directory or any of
+its subdirectories, and apply the settings it specifies to the file’s
+buffer. If you want to know more, read [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Directory-Variables.html][GNU Emacs Manual -
+Per-Directory Local Variables]]. If you use Helm, you can easily insert
+absolute path by *C-c i* at the current path in =helm-find-files=
+(bound to *C-x C-f* by default in my demo =.emacs.d= at the beginning):
+
+[[https://tuhdo.github.io/static/c-ide/helm-files-insertion.gif]]
+
+In the above example, =nil= means apply the settings to any file or
+sub-directory visited. If =non-nil=, you have to specify a major mode
+and the settings are applied to major modes only. You set
+=company-clang= to =c-mode= and =c++-mode= anyway, so there's no
+problem setting major mode to nil. The remaining is a key-value pair
+of variable and value of that variable. =company-clang-arguments= is
+where you can tell include paths, and it takes a list of strings of
+include paths, as you can see above. After that, =company-clang= can
+see include paths in your project. If you add something new, like an
+include path, to your =.dir-locals.el= and is editing some source
+file, reopen the file for the new values to take effect.
+
+- =company-gtags=: use GTAGS database from =GNU Global= to retrieve
+  completion candidates. It displays ALL completion candidates in
+  GTAGS database regarding of scope. Use =company-gtags= to provide
+  code completion in your current project.
+
+*_Exercise_*:
+
+- Create a =.dir-locals.el= at =project_root=.
+- Add this Emacs Lisp code:
+
+  #+begin_src emacs-lisp
+    ;; ((nil . ((company-clang-arguments . ("-I/home/<user>/project_root/include1/"
+    ;;                                      "-I/home/<user>/project_root/include2/")))))
+  #+end_src
+
+Replace =<user>= with your username.
+
+- Enter any source file and start completion. You will see that
+  =company-clang= correctly retrieves completion candidates in those directories.
+ 
 *** Header file completion with =company-c-headers= Packages
+[[https://github.com/randomphrase/company-c-headers][company-c-headers]] provides auto-completion for C/C++ headers using
+Company. After installing from MELPA, set it up:
+
+#+begin_src emacs-lisp :noexport
+;  (add-to-list 'company-backends 'company-c-headers)
+#+end_src
+
+[[file:static/c-ide/company-c-header.png][file:static/c-ide/company-c-header.png]]
+
+*_IMPORTANT_*: If you want to complete C++ header files, you have to
+add its paths since by default =company-c-headers= only includes these
+two system include paths: =/usr/include/= and
+=/usr/local/include/=. To enable C++ header completion for standard
+libraries, you have to add its path, for example, like this: 
+
+#+begin_src emacs-lisp :noexport
+;  (add-to-list 'company-c-headers-path-system "/usr/include/c++/7.2.0/")
+#+end_src
+
+After that, you can complete C++ header files. To complete project
+local, use =company-c-headers-path-user= and put it in
+=.dir-locals.el=.
+
 *** CEDET
 **** What is CEDET?
 **** Why use CEDET?
@@ -5040,7 +6060,98 @@ GPATH GRTAGS GTAGS
 *** Source Code Formatting
 *** Compilation Support
 *** Debugging
+** php
+#+begin_src emacs-lisp
+  (use-package php-mode
+      :ensure t
+      :config
+      (require 'php-mode))
 
+  (autoload 'php-mode "php-mode" "Major mode for editing PHP code." t)
+  (add-to-list 'auto-mode-alist '("\\.php$" . php-mode))
+  (add-to-list 'auto-mode-alist '("\\.inc$" . php-mode))
+
+  (defun alamin/php-mode-hook ()
+    "A function to php mode hook."
+    (setq indent-tabs-mode nil)
+      (setq c-basic-offset 2)
+    (setq php-template-compatibility nil)
+    (subword-mode 1))
+
+  (add-hook 'php-mode-hook 'alamin/php-mode-hook)
+#+end_src
+#+begin_src emacs-lisp
+    (use-package web-mode)
+
+    (require 'web-mode)
+    (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.[agj]sp\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
+
+    ; Using web-mode for editing plain HTML files can be done this way
+    (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+
+
+    ;; Associate an Engine
+    (setq web-mode-engines-alist
+          '(("php"    . "\\.phtml\\'")
+            ("blade"  . "\\.blade\\.")))
+
+    ;; function for web mode hook
+    (defun alamin/web-mode-hook ()
+      "A Function for working with web mode hook."
+      (local-set-key '[backtab] 'indent-relative)
+      (setq indent-tabs-mode nil)
+      (setq web-mode-markup-indent-offset 2
+            web-mode-css-indent-offset 2
+            web-mode-code-indent-offset 2
+            web-mode-attr-indent-offset 2
+            web-mode-style-padding 1
+            web-mode-script-padding 1
+            web-mode-block-padding 0
+            web-mode-comment-style 2
+            web-mode-enable-auto-pairing t
+            web-mode-enable-block-face t
+            web-mode-enable-part-face f
+            web-mode-enable-heredoc-fontification t))
+
+    (add-hook 'web-mode-hook 'alamin/web-mode-hook)
+
+    (set-face-attribute 'web-mode-css-at-rule-face nil :foreground "Pink3")
+#+end_src
+#+begin_src emacs-lisp
+  (use-package smarty-mode
+    :ensure t)
+#+end_src
+#+begin_src emacs-lisp
+  (use-package ac-php)
+  (require 'cl)
+  (require 'php-mode)
+  (add-hook 'php-mode-hook
+          '(lambda ()
+             (require 'company-php)
+             (company-mode t)
+             (ac-php-core-eldoc-setup) ;; enable eldoc
+             (make-local-variable 'company-backends)
+             (add-to-list 'company-backends 'company-ac-php-backend)))
+#+end_src
+
+Add a quick mode toggle
+#+begin_src emacs-lisp
+(defun toggle-php-flavor-mode ()
+  (interactive)
+  "Toggle mode between PHP & Web-Mode Helper modes"
+  (cond ((string= mode-name "PHP")
+         (web-mode))
+        ((string= mode-name "Web")
+         (php-mode))))
+
+(global-set-key [f5] 'toggle-php-flavor-mode)
+#+end_src
 * Applications
 ** Email
 ** Chat
@@ -5059,6 +6170,4 @@ GPATH GRTAGS GTAGS
 - [ ] A Secure Emacs Environment [Build Fun Things]
 - [ ] Code Folding 
 - [ ] Clojure Support [ Build Fun Things ]
-- [ ] Rust Support [ Build Fun Things ]
-
-
+- [ ] Rust Support [ Build Fun Things 
