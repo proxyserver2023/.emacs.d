@@ -400,6 +400,7 @@
    `(helm-visible-mark ((t (:foreground ,azenburn-bg :background ,azenburn-dark-blue-2))))
    `(helm-candidate-number ((t (:foreground ,azenburn-violet+4 :background ,azenburn-bg-1))))
    `(helm-ff-directory ((t (:foreground ,azenburn-green))))
+   
 
    ;; hl-line-mode
    `(hl-line-face ((,class (:background "#f4f4f4"))
@@ -790,6 +791,17 @@
        (360. . ,azenburn-green)))
    `(vc-annotate-very-old-color ,azenburn-green)
    `(vc-annotate-background ,azenburn-bg-1)))
+
+;;;###autoload
+(and load-file-name
+     (boundp 'custom-theme-load-path)
+     (add-to-list 'custom-theme-load-path
+                  (file-name-as-directory
+                   (file-name-directory load-file-name))))
+
+(provide-theme 'prez)
+
+;;; prez-theme.el ends here
 
 ;;;###autoload
 (and load-file-name
