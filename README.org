@@ -6,356 +6,74 @@
 * Introduction
 
 #+BEGIN_SRC emacs-lisp
-(setq user-full-name "Alamin Mahamud")
+(setq user-full-name "Md. Alamin Mahamud")
 (setq user-email-address "alamin.ineedahelp@gmail.com")
 #+END_SRC
 
-* Why Emacs?
-
-[[https://tuhdo.github.io/c-ide.html][Sample Dev Environment]]
 
 * General Settings
-
 ** Maximum Workspace
-#+BEGIN_SRC emacs-lisp
-  (if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
-  (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
-  (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
-  (setq inhibit-startup-message t)
-#+END_SRC
-** Platform Specific Settings
-#+BEGIN_SRC emacs-lisp
-(setq is-mac (equal system-type 'darwin))
-(setq is-linux (equal system-type 'gnu/linux))
-#+END_SRC
+
+ #+BEGIN_SRC emacs-lisp
+ (if (fboundp 'menu-bar-mode)(menu-bar-mode -1))
+ (if (fboundp 'tool-bar-mode)(tool-bar-mode -1))
+ (if (fboundp 'scroll-bar-mode)(scroll-bar-mode -1))
+
+ (setq inhibit-startup-message t)
+ #+END_SRC
+
 ** Default Settings
+
 #+BEGIN_SRC emacs-lisp
-  ;; Allow pasting selection outside of Emacs
-  (setq x-select-enable-clipboard t)
-
-  ;; Auto refresh buffers
-  (global-auto-revert-mode 1)
-
-  ;; Also auto refresh dired, and be quiet about it.
-  (setq global-auto-revert-non-file-buffers t)
-  (setq auto-revert-verbose nil)
-
   ;; Show keystrokes in progress
   (setq echo-keystrokes 0.1)
-
-  ;; Move files to trash when deleting
-  (setq delete-by-moving-to-trash t)
-
-  ;; Real emacxs knights don't use shift to mark things
-  (setq shift-select-mode nil)
-
-  ;; Transparently open compressed files
-  (auto-compression-mode t)
-
-  ;; Enable syntax highlighting for older Emacsen that have it off
-  (global-font-lock-mode t)
-
-  ;; UTF-8 please
-  (setq locale-coding-system 'utf-8) ; pretty
-  (set-terminal-coding-system 'utf-8) ; pretty
-  (set-keyboard-coding-system 'utf-8) ; pretty
-  (set-selection-coding-system 'utf-8) ; please
-  (prefer-coding-system 'utf-8) ; with sugar on top
-
-  ;; Show active region
-  (transient-mark-mode 1)
-  (make-variable-buffer-local 'transient-mark-mode)
-  (put 'transient-mark-mode 'permanent-local t)
-  (setq-default transient-mark-mode t)
-
-  ;; Remove text in active region if inserting text
-  (delete-selection-mode 1)
-
-  ;; Don't highlight matches with jump-char - it's distracting
-  (setq jump-char-lazy-highlight-face nil)
-
-
-  ;; Show me empty lines after buffer end
-  (set-default 'indicate-empty-lines t)
-
-  ;; Answering just 'y' or 'n' will do
-  (defalias 'yes-or-no-p 'y-or-n-p)
-
-  ;; Lines should be 80 characters wide, not 72
-  (setq fill-column 80)
-
-  ;; Always display line and column numbers
-  (setq line-number-mode t)
-  (setq column-number-mode t)
-
-  (if (display-graphic-p)
-      (setq linum-format "%2d ")
-    (setq linum-format "%2d \u2502 "))
-
-  ;; Fontify org-mode code blocks
-  (setq org-src-fontify-natively t)
-
-  ;; Don't defer screen updates when performing operations
-  (setq redisplay-dont-pause t)
-
-  ;; Newline and Indent
-  (global-set-key (kbd "RET") 'newline-and-indent)
-
-  ;; Highlight current line
-  (global-hl-line-mode 1)
 
   ;; fringe-style
   (fringe-mode '(0 . 0))
 
-  ;; desktop-save mode
-
-  ;; (require 'desktop)
-  ;; (defun my-remove-stale-lock-file (dir)
-  ;;   (let ((pid (desktop-owner dir)))
-  ;;     (when pid
-  ;;       (let ((infile nil)
-  ;;             (destination nil)
-  ;;             (display nil))
-  ;;         (unless (= (call-process "ps" infile destination display "-p"
-  ;;                                  (number-to-string pid)) 0)
-  ;;           (let ((lock-fn (desktop-full-lock-name dir)))
-  ;;             (delete-file lock-fn)))))))
-
-  ;; (let ((dir user-emacs-directory))
-  ;;   (my-remove-stale-lock-file dir)
-  ;;   (setq desktop-path (list dir))
-  ;;   (desktop-save-mode 1))
-  ;; (desktop-read)
+  ;; Answering just 'y' or 'n' will do
+  (defalias 'yes-or-no-p 'y-or-n-p)
 
 
-
-  (setq desktop-load-locked-desktop t)
-  (call-interactively 'desktop-read t (vector "~/.emacs.d/desktops/" t))
-  (desktop-save-mode 1)
-
-  ;; everytime bookmark is changed, automatically saves it
-  (setq bookmark-save-flag 1)
-  (require 'bookmark)
-  (bookmark-bmenu-list)
-
-  ;; Save a list of recent files visited. (open recent file with C-x f)
-  (recentf-mode 1)
-  (setq recentf-max-saved-items 1000) ;; just 20 is too recent
-  ;; set F7 to list recently opened file
-  (global-set-key (kbd "<f7>") 'recentf-open-files)
-
-  ;; default coding style
-  (setq c-default-style "k&r"
-        c-basic-offset 4)
-
-
-  ;; Save minibuffer history
-  (savehist-mode 1)
-  (setq history-length 1000)
-
-  ;; Undo/redo window configuration with C-c <left>/<right>
-  (winner-mode 1)
-
-  ;; Easily navigate sillycased words
-  (global-subword-mode 1)
-
-  ;; Don't break lines for me, please
-  (setq-default truncate-lines t)
-
-  ;; Allow recursive minibuffers
-  (setq enable-recursive-minibuffers t)
-
-  ;; Don't be so stingy on the memory, we have lots now. It's the distant future.
-  (setq gc-cons-threshold 100000000)
-
-  ;; org-mode: Don't ruin S-arrow to switch windows please (use M-+ and M-- instead to toggle)
-  (setq org-replace-disputed-keys t)
-
-  ;; Fontify org-mode code blocks
-  (setq org-src-fontify-natively t)
-
-  ;; Represent undo-history as an actual tree (visualize with C-x u)
-  (setq undo-tree-mode-lighter "")
-  (require 'undo-tree)
-  (global-undo-tree-mode)
-
-  ;; Sentences do not need double spaces to end. Period.
-  (set-default 'sentence-end-double-space nil)
-
-  ;; 80 chars is a good width.
-  (set-default 'fill-column 80)
-
-  ;; Add parts of each file's directory to the buffer name if not unique
-  (require 'uniquify)
-  (setq uniquify-buffer-name-style 'forward)
-
-  ;; A saner ediff
-  (setq ediff-diff-options "-w")
-  (setq ediff-split-window-function 'split-window-horizontally)
-  (setq ediff-window-setup-function 'ediff-setup-windows-plain)
-
-  ;; No electric indent
-  (setq electric-indent-mode nil)
-
-  ;; Nic says eval-expression-print-level needs to be set to nil (turned off) so
-  ;; that you can always see what's happening.
-  (setq eval-expression-print-level nil)
-
-  ;; ? use-case not clear
-  (windmove-default-keybindings)
-
+  (if (display-graphic-p)
+      (setq linum-format "%2d ")
+    (setq linum-format "%2d \u2502 "))
 #+END_SRC
+
 ** Emacs Server
-#+BEGIN_SRC emacs-lisp
-  (require 'server)
-  (unless (server-running-p)
-    (server-start))
-#+END_SRC
+#+BEGIN_EXPORT emacs-lisp
+(require 'server)
+(unless (server-running-p)
+  (server-start))
+#+END_EXPORT
+
+
 ** Custom Settings File
 #+BEGIN_SRC emacs-lisp
-  (setq custom-file
-        (expand-file-name "custom.el" user-emacs-directory))
-  (load custom-file)
+(setq custom-file
+      (expand-file-name "custom.el" user-emacs-directory))
+(load custom-file)
 #+END_SRC
+
+
 ** Load Secrets
 #+BEGIN_SRC emacs-lisp
 (load "~/.emacs.d/.secrets")
 #+END_SRC
-** User specific settings
-#+BEGIN_SRC emacs-lisp
-  (setq user-settings-dir
-        (concat user-emacs-directory "users/" user-login-name))
-  (add-to-list 'load-path user-settings-dir)
-#+END_SRC
-** Backup files to own directory
-#+BEGIN_SRC emacs-lisp
-  (setq backup-directory-alist
-        `(("." . ,(expand-file-name
-                   (concat user-emacs-directory "backups")))))
-#+END_SRC
-Make backup of files even when they're in version control
-#+BEGIN_SRC emacs-lisp
-(setq vc-make-backup-files t)
-#+END_SRC
-** Manual Installation
-#+BEGIN_SRC emacs-lisp
-  (add-to-list 'load-path (expand-file-name "manual_installation" user-emacs-directory))
-#+END_SRC
-** Buffer Functions
-#+BEGIN_SRC emacs-lisp
-  (defun untabify-buffer ()
-    (interactive)
-    (untabify (point-min) (point-max)))
 
-  (defun indent-buffer ()
-    (interactive)
-    (indent-region (point-min) (point-max)))
-
-  (defun cleanup-buffer ()
-    "Perform a bunch of operations on the whitespace content of a buffer.
-  Including indent-buffer, which should not be called automatically on save."
-    (interactive)
-    (untabify-buffer)
-    (delete-trailing-whitespace)
-    (indent-buffer))
-#+END_SRC
-
-** howard/Modernizing Emacs
-
-With a long history of working on small machines without gigabytes
-of RAM, we might as well let Emacs be the beast it has always
-dreamed.
-
-First, let’s increase the cache before starting garbage collection:
-#+BEGIN_SRC emacs-lisp
-     (setq gc-cons-threshold 50000000)
-#+END_SRC
-
-Found [[https://github.com/wasamasa/dotemacs/blob/master/init.org#init][here]] how to remove the warnings from the GnuTLS library when
-using HTTPS... increase the minimum prime bits size:
-#+BEGIN_SRC emacs-lisp
-     (setq gnutls-min-prime-bits 4096)
-#+END_SRC
-
-** howard/tabs vs spaces
-
-I have learned to distrust tabs in my source code, so let's make
-sure that we only have spaces. See [[http://ergoemacs.org/emacs/emacs_tabs_space_indentation_setup.html][this discussion]] for details.
+* Appearnace
+** Scratch Buffer
 
 #+BEGIN_SRC emacs-lisp
-     (setq-default indent-tabs-mode t)
-     (setq tab-width 2)
+(setq initial-scratch-message (concat ";; One Brick A Day, " user-login-name " - Emacs ♥ you!\n\n"))
 #+END_SRC
 
-Make tab key do indent first then completion.
-
-#+BEGIN_SRC emacs-lisp
-     (setq-default tab-always-indent 'complete)
-#+END_SRC
-
-** howard/Strip Whitespace on Save
-
-When I save, I want to always, and I do mean always strip all
-trailing whitespace from the file.
-
-#+BEGIN_SRC emacs-lisp
-     (add-hook 'before-save-hook 'delete-trailing-whitespace)
-#+END_SRC
-* Appearance
 ** Fonts
 #+BEGIN_SRC emacs-lisp
-  (when (and window-system is-mac)
-    (setq magnars/default-font "-apple-Monaco-medium-normal-normal-*-16-*-*-*-m-0-iso10646-1")
-    (setq magnars/presentation-font "-apple-Monaco-medium-normal-normal-*-21-*-*-*-m-0-iso10646-1")
-    (set-face-attribute 'default nil :font magnars/default-font))
-
-  (when (and window-system (eq system-type 'gnu/linux))
-    (if (> (x-display-pixel-height) '768)
-        (setq magnars/default-font "MonacoB-16")
-      (setq magnars/default-font "MonacoB-11"))
-    (setq magnars/presentation-font "MonacoB-21"))
+(setq magnars/default-font "MonacoB-11")
 (set-face-attribute 'default nil :font magnars/default-font)
-(set-face-attribute 'mode-line nil :font "MonacoB-8")
-
 #+END_SRC
-** Scratch Buffer
-#+BEGIN_SRC emacs-lisp
-  (setq initial-scratch-message (concat ";; One Brick A Day, " user-login-name " - Emacs ♥ you!\n\n"))
-#+END_SRC
-** transparent background
-#+BEGIN_SRC emacs-lisp
-  ;; (defun toggle-transparency ()
-  ;;   (interactive)
-  ;;   (let ((alpha (frame-parameter nil 'alpha)))
-  ;;     (set-frame-parameter
-  ;;      nil 'alpha
-  ;;      (if (eql (cond ((numberp alpha) alpha)
-  ;; 		    ((numberp (cdr alpha)) (cdr alpha))
-  ;; 		    ;; Also handle undocumented (<active> <inactive>) form.
-  ;; 		    ((numberp (cadr alpha)) (cadr alpha)))
-  ;; 	      100)
-  ;; 	 '(65 . 50) '(100 . 100)))))
-  ;; (toggle-transparency)
-  ;; (global-set-key [f6] 'toggle-transparency)
-#+END_SRC
-** Cursor
-#+BEGIN_SRC emacs-lisp
-  ;; On Modern OS a vertical bar is used as a cursor.
-  (when (display-graphic-p)
-    (setq-default cursor-type 'box))
-
-  ;; Make the cursor blink every second.
-  (when (display-graphic-p)
-    (setq blink-cursor-interval 1.0)
-    (blink-cursor-mode 1))
-#+END_SRC
-** Modeline
-
-Unclutter the modeline
-#+BEGIN_SRC emacs-lisp
-
-#+END_SRC
-** Themes
+** Theme
 #+BEGIN_SRC emacs-lisp
   (setq custom-theme-directory (concat user-emacs-directory "themes"))
 
