@@ -81,13 +81,6 @@
       (path (directory-files custom-theme-directory t "\\w+"))
     (when (file-directory-p path)
       (add-to-list 'custom-theme-load-path path)))
-#+END_SRC
-#+BEGIN_SRC emacs-lisp
-  (defun use-presentation-theme ()
-    (interactive)
-    (when (boundp 'magnars/presentation-font)
-      (set-face-attribute 'default nil :font magnars/presentation-font)))
-
 
   (defun use-default-theme ()
     (interactive)
