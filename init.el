@@ -2,7 +2,7 @@
 
 ;;; Commentary:
 ;;; init.el --- Custom Emacs Configuration
-;;; Author   :  Md. Alamin Mahamud
+;;; Author   :  Md Alamin Mahamud
 ;;; Version  :  4.0.0
 ;;; Keywords :  Utility | Lots of customization
 ;;; URL      :  https://github.com/AlaminMahamud/.emacs.d/blob/master/init.el
