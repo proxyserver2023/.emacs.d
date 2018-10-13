@@ -10,7 +10,6 @@
 (setq user-email-address "alamin.ineedahelp@gmail.com")
 #+END_SRC
 
-
 * General Settings
 ** Maximum Workspace
 
@@ -38,23 +37,26 @@
   (if (display-graphic-p)
       (setq linum-format "%2d ")
     (setq linum-format "%2d \u2502 "))
+
+
+  ;; default tab width
+  (setq-default tab-width 2)
+  (setq-default indent-tabs-mode nil)
+
 #+END_SRC
 
 ** Emacs Server
-#+BEGIN_EXPORT emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (require 'server)
 (unless (server-running-p)
   (server-start))
-#+END_EXPORT
-
-
+#+END_SRC
 ** Custom Settings File
 #+BEGIN_SRC emacs-lisp
 (setq custom-file
       (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file)
 #+END_SRC
-
 
 ** Load Secrets
 #+BEGIN_SRC emacs-lisp
@@ -65,32 +67,223 @@
 ** Scratch Buffer
 
 #+BEGIN_SRC emacs-lisp
-(setq initial-scratch-message (concat ";; One Brick A Day, " user-login-name " - Emacs ♥ you!\n\n"))
+  (setq initial-scratch-message (
+                                 concat
+                                 "One Brick A Day, "
+                                 user-login-name
+                                 " - Emacs ♥ you!\n\n"
+                                 "| HEALTH   | SPEAK         | PROGRAMMING | Investments |\n"
+                                 "|----------|---------------|-------------|-------------|\n"
+                                 "| YOGA     | GUITAR        | Python      | Investments |\n"
+                                 "| DANCE    | CONVERSATION  | GO          |             |\n"
+                                 "|          |               | JS          |             |\n"  
+                                 "|          |               | ELISP       |             |\n"  
+                                 ))
 #+END_SRC
 
+** Icons
+#+BEGIN_SRC emacs-lisp
+(use-package all-the-icons)
+#+END_SRC
+** Neotree
+#+BEGIN_SRC emacs-lisp
+  (use-package neotree
+    :ensure t)
+
+  (require 'neotree)
+  (global-set-key [f8] 'neotree-toggle)
+#+END_SRC
 ** Fonts
 #+BEGIN_SRC emacs-lisp
-(setq magnars/default-font "MonacoB-11")
-(set-face-attribute 'default nil :font magnars/default-font)
+  (set-face-attribute 'default nil
+                      :family "Source Code Pro"
+                      :height 100
+                      :weight 'bold
+                      :width 'normal)
+#+END_SRC
+
+Firacode
+#+BEGIN_SRC emacs-lisp
+  ;;; Fira code
+  ;; This works when using emacs --daemon + emacsclient
+  (add-hook 'after-make-frame-functions (lambda (frame) (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")))
+  ;; This works when using emacs without server/client
+  (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")
+  ;; I haven't found one statement that makes both of the above situations work, so I use both for now
+
+  (defconst fira-code-font-lock-keywords-alist
+    (mapcar (lambda (regex-char-pair)
+              `(,(car regex-char-pair)
+                (0 (prog1 ()
+                     (compose-region (match-beginning 1)
+                                     (match-end 1)
+                                     ;; The first argument to concat is a string containing a literal tab
+                                     ,(concat "	" (list (decode-char 'ucs (cadr regex-char-pair)))))))))
+            '(("\\(www\\)"                   #Xe100)
+              ("[^/]\\(\\*\\*\\)[^/]"        #Xe101)
+              ("\\(\\*\\*\\*\\)"             #Xe102)
+              ("\\(\\*\\*/\\)"               #Xe103)
+              ("\\(\\*>\\)"                  #Xe104)
+              ("[^*]\\(\\*/\\)"              #Xe105)
+              ("\\(\\\\\\\\\\)"              #Xe106)
+              ("\\(\\\\\\\\\\\\\\)"          #Xe107)
+              ("\\({-\\)"                    #Xe108)
+              ("\\(\\[\\]\\)"                #Xe109)
+              ("\\(::\\)"                    #Xe10a)
+              ("\\(:::\\)"                   #Xe10b)
+              ("[^=]\\(:=\\)"                #Xe10c)
+              ("\\(!!\\)"                    #Xe10d)
+              ("\\(!=\\)"                    #Xe10e)
+              ("\\(!==\\)"                   #Xe10f)
+              ("\\(-}\\)"                    #Xe110)
+              ("\\(--\\)"                    #Xe111)
+              ("\\(---\\)"                   #Xe112)
+              ("\\(-->\\)"                   #Xe113)
+              ("[^-]\\(->\\)"                #Xe114)
+              ("\\(->>\\)"                   #Xe115)
+              ("\\(-<\\)"                    #Xe116)
+              ("\\(-<<\\)"                   #Xe117)
+              ("\\(-~\\)"                    #Xe118)
+              ("\\(#{\\)"                    #Xe119)
+              ("\\(#\\[\\)"                  #Xe11a)
+              ("\\(##\\)"                    #Xe11b)
+              ("\\(###\\)"                   #Xe11c)
+              ("\\(####\\)"                  #Xe11d)
+              ("\\(#(\\)"                    #Xe11e)
+              ("\\(#\\?\\)"                  #Xe11f)
+              ("\\(#_\\)"                    #Xe120)
+              ("\\(#_(\\)"                   #Xe121)
+              ("\\(\\.-\\)"                  #Xe122)
+              ("\\(\\.=\\)"                  #Xe123)
+              ("\\(\\.\\.\\)"                #Xe124)
+              ("\\(\\.\\.<\\)"               #Xe125)
+              ("\\(\\.\\.\\.\\)"             #Xe126)
+              ("\\(\\?=\\)"                  #Xe127)
+              ("\\(\\?\\?\\)"                #Xe128)
+              ("\\(;;\\)"                    #Xe129)
+              ("\\(/\\*\\)"                  #Xe12a)
+              ("\\(/\\*\\*\\)"               #Xe12b)
+              ("\\(/=\\)"                    #Xe12c)
+              ("\\(/==\\)"                   #Xe12d)
+              ("\\(/>\\)"                    #Xe12e)
+              ("\\(//\\)"                    #Xe12f)
+              ("\\(///\\)"                   #Xe130)
+              ("\\(&&\\)"                    #Xe131)
+              ("\\(||\\)"                    #Xe132)
+              ("\\(||=\\)"                   #Xe133)
+              ("[^|]\\(|=\\)"                #Xe134)
+              ("\\(|>\\)"                    #Xe135)
+              ("\\(\\^=\\)"                  #Xe136)
+              ("\\(\\$>\\)"                  #Xe137)
+              ("\\(\\+\\+\\)"                #Xe138)
+              ("\\(\\+\\+\\+\\)"             #Xe139)
+              ("\\(\\+>\\)"                  #Xe13a)
+              ("\\(=:=\\)"                   #Xe13b)
+              ("[^!/]\\(==\\)[^>]"           #Xe13c)
+              ("\\(===\\)"                   #Xe13d)
+              ("\\(==>\\)"                   #Xe13e)
+              ("[^=]\\(=>\\)"                #Xe13f)
+              ("\\(=>>\\)"                   #Xe140)
+              ("\\(<=\\)"                    #Xe141)
+              ("\\(=<<\\)"                   #Xe142)
+              ("\\(=/=\\)"                   #Xe143)
+              ("\\(>-\\)"                    #Xe144)
+              ("\\(>=\\)"                    #Xe145)
+              ("\\(>=>\\)"                   #Xe146)
+              ("[^-=]\\(>>\\)"               #Xe147)
+              ("\\(>>-\\)"                   #Xe148)
+              ("\\(>>=\\)"                   #Xe149)
+              ("\\(>>>\\)"                   #Xe14a)
+              ("\\(<\\*\\)"                  #Xe14b)
+              ("\\(<\\*>\\)"                 #Xe14c)
+              ("\\(<|\\)"                    #Xe14d)
+              ("\\(<|>\\)"                   #Xe14e)
+              ("\\(<\\$\\)"                  #Xe14f)
+              ("\\(<\\$>\\)"                 #Xe150)
+              ("\\(<!--\\)"                  #Xe151)
+              ("\\(<-\\)"                    #Xe152)
+              ("\\(<--\\)"                   #Xe153)
+              ("\\(<->\\)"                   #Xe154)
+              ("\\(<\\+\\)"                  #Xe155)
+              ("\\(<\\+>\\)"                 #Xe156)
+              ("\\(<=\\)"                    #Xe157)
+              ("\\(<==\\)"                   #Xe158)
+              ("\\(<=>\\)"                   #Xe159)
+              ("\\(<=<\\)"                   #Xe15a)
+              ("\\(<>\\)"                    #Xe15b)
+              ("[^-=]\\(<<\\)"               #Xe15c)
+              ("\\(<<-\\)"                   #Xe15d)
+              ("\\(<<=\\)"                   #Xe15e)
+              ("\\(<<<\\)"                   #Xe15f)
+              ("\\(<~\\)"                    #Xe160)
+              ("\\(<~~\\)"                   #Xe161)
+              ("\\(</\\)"                    #Xe162)
+              ("\\(</>\\)"                   #Xe163)
+              ("\\(~@\\)"                    #Xe164)
+              ("\\(~-\\)"                    #Xe165)
+              ("\\(~=\\)"                    #Xe166)
+              ("\\(~>\\)"                    #Xe167)
+              ("[^<]\\(~~\\)"                #Xe168)
+              ("\\(~~>\\)"                   #Xe169)
+              ("\\(%%\\)"                    #Xe16a)
+             ;; ("\\(x\\)"                   #Xe16b) This ended up being hard to do properly so i'm leaving it out.
+              ("[^:=]\\(:\\)[^:=]"           #Xe16c)
+              ("[^\\+<>]\\(\\+\\)[^\\+<>]"   #Xe16d)
+              ("[^\\*/<>]\\(\\*\\)[^\\*/<>]" #Xe16f))))
+
+  (defun add-fira-code-symbol-keywords ()
+    (font-lock-add-keywords nil fira-code-font-lock-keywords-alist))
+
+  (if (display-graphic-p)
+      (add-hook 'prog-mode-hook
+            #'add-fira-code-symbol-keywords))
 #+END_SRC
 ** Theme
 #+BEGIN_SRC emacs-lisp
-  (setq custom-theme-directory (concat user-emacs-directory "themes"))
+  ;; (setq custom-theme-directory (concat user-emacs-directory "themes"))
 
-  (dolist
-      (path (directory-files custom-theme-directory t "\\w+"))
-    (when (file-directory-p path)
-      (add-to-list 'custom-theme-load-path path)))
+  ;; (dolist
+  ;;     (path (directory-files custom-theme-directory t "\\w+"))
+  ;;   (when (file-directory-p path)
+  ;;     (add-to-list 'custom-theme-load-path path)))
 
-  (defun use-default-theme ()
-    (interactive)
-    (load-theme 'default-black)
-    (when (boundp 'magnars/default-font)
-      (set-face-attribute 'default nil :font magnars/default-font)))
+  ;; (defun use-default-theme ()
+  ;;   (interactive)
+  ;;   (load-theme 'default-black)
+  ;;   (when (boundp 'magnars/default-font)
+  ;;     (set-face-attribute 'default nil :font magnars/default-font)))
 
-  (if (display-graphic-p)
-      (use-default-theme))
+  ;; (if (display-graphic-p)
+  ;;     (use-default-theme))
 #+END_SRC
+
+Doom Themes
+#+BEGIN_SRC emacs-lisp
+  (use-package doom-themes
+    :ensure t)
+  (require 'doom-themes)
+
+  ;; Global settings (defaults)
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
+
+  ;; Load the theme (doom-one, doom-molokai, etc); keep in mind that each theme
+  ;; may have their own settings.
+  (load-theme 'doom-one t)
+
+  ;; Enable flashing mode-line on errors
+  (doom-themes-visual-bell-config)
+
+  ;; Enable custom neotree theme (all-the-icons must be installed!)
+;  (doom-themes-neotree-config)
+  ;; or for treemacs users
+;  (doom-themes-treemacs-config)
+
+  ;; Corrects (and improves) org-mode's native fontification.
+  (doom-themes-org-config)
+
+#+END_SRC
+
 * Package Initialization
 
 #+BEGIN_SRC emacs-lisp
@@ -307,8 +500,8 @@
 (setq
  org-structure-template-alist
  '(
-   ("s" "#+BEGIN_SRC shell\n\n#+END_SRC" "<src lang=\"shell\">\n\n</src>")
-   ("sq" "#+BEGIN_SRC sql\n\n#+END_SRC" "<src lang=\"sql\">\n\n</src>")
+   ("s" "#+BEGIN_SRC shell\n?\n#+END_SRC" "<src lang=\"shell\">\n?\n</src>")
+   ("sq" "#+BEGIN_SRC sql\n?\n#+END_SRC" "<src lang=\"sql\">\n?\n</src>")
    ("e" "#+BEGIN_EXAMPLE\n?\n#+END_EXAMPLE" "<example>\n?\n</example>")
    ("q" "#+BEGIN_QUOTE\n?\n#+END_QUOTE" "<quote>\n?\n</quote>")
    ("v" "#+BEGIN_VERSE\n?\n#+END_VERSE" "<verse>\n?\n</verse>")
@@ -337,7 +530,6 @@ org-babel execute functions
 
 (setq org-confirm-babel-evaluate nil)
 #+END_SRC
-
 
 ** projectile
 #+BEGIN_SRC emacs-lisp
@@ -394,17 +586,13 @@ org-babel execute functions
   (set-face-attribute 'whitespace-indentation nil :foreground "#666666" :background nil)
   :diminish whitespace-mode)
 #+END_SRC
-* Programming
-** Markdown
+** yasnippets
 #+BEGIN_SRC emacs-lisp
-(use-package markdown-mode
-  :ensure t
-  :commands (markdown-mode gfm-mode)
-  :mode (("README\\.md\\'" . gfm-mode)
-         ("\\.md\\'" . markdown-mode)
-         ("\\.markdown\\'" . markdown-mode))
-  :init (setq markdown-command "multimarkdown"))
+(use-package yasnippet)
+(require 'yasnippet)
+(yas-global-mode 1)
 #+END_SRC
+* Programming
 ** Python
 
 1. file navigation between multiple projects
@@ -428,6 +616,234 @@ org-babel execute functions
   (use-package elpy)
   (elpy-enable)
 #+END_SRC
+
+** JS
+#+BEGIN_SRC emacs-lisp
+
+#+END_SRC
+** Go
+go-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package go-mode)
+  (require 'go-mode)
+#+END_SRC
+
+get =godoc= tool
+#+BEGIN_SRC shell
+go get golang.org/x/tools/cmd/...
+#+END_SRC
+
+go-guru
+#+BEGIN_SRC emacs-lisp
+(use-package go-guru)
+(require 'go-guru)
+#+END_SRC
+
+// TODO code-analysis
+exec path from shell and setting gopath
+#+BEGIN_SRC emacs-lisp
+  (use-package exec-path-from-shell)
+
+  (defun set-exec-path-from-shell-PATH ()
+    (let ((path-from-shell (replace-regexp-in-string
+                            "[ \t\n]*$"
+                            ""
+                            (shell-command-to-string "$SHELL --login -i -c 'echo $PATH'"))))
+      (setenv "PATH" path-from-shell)
+      (setq eshell-path-env path-from-shell) ; for eshell users
+      (setq exec-path (split-string path-from-shell path-separator))))
+
+  (when window-system (set-exec-path-from-shell-PATH))
+
+  (setenv "GOPATH" (concat (getenv "HOME") "/go"))
+  (add-to-list 'exec-path (concat (getenv "GOPATH") "/bin"))
+#+END_SRC
+
+go-mode-hook
+#+BEGIN_SRC emacs-lisp
+  (defun my-go-mode-hook()
+    (add-hook 'before-save-hook 'gofmt-before-save) ; Call GoFmt before saving
+    (setq gofmt-command "goimports")                ; gofmt uses invokes goimports
+    (if (not (string-match "go" compile-command))   ; Customize compile command to run go build
+        (set (make-local-variable 'compile-command)
+           "go build -v && go test -v && go vet"))
+
+    ;; tab settings
+    (setq tab-width 2)
+    (setq indent-tabs-mode 1)
+    ;; guru settings
+    (go-guru-hl-identifier-mode)                    ; highlight identifiers
+
+    ;; Key bindings specific to go-mode
+    (local-set-key (kbd "M-.") 'godef-jump)         ; Go to definition
+    (local-set-key (kbd "M-*") 'pop-tag-mark)       ; Return from whence you came
+    (local-set-key (kbd "M-p") 'compile)            ; Invoke compiler
+    (local-set-key (kbd "M-P") 'recompile)          ; Redo most recent compile cmd
+    (local-set-key (kbd "M-]") 'next-error)         ; Go to next error (or msg)
+    (local-set-key (kbd "M-[") 'previous-error)     ; Go to previous error or msg
+
+    ; Misc go stuff
+    (auto-complete-mode 1)                         ; Enable auto-complete mode
+    )
+
+  (add-hook 'go-mode-hook 'my-go-mode-hook)
+#+END_SRC
+
+autocomplete
+#+BEGIN_SRC emacs-lisp
+(use-package auto-complete)
+
+(use-package go-autocomplete)
+
+(with-eval-after-load 'go-mode
+   (require 'go-autocomplete))
+
+(defun auto-complete-for-go ()
+  (auto-complete-mode 1))
+(add-hook 'go-mode-hook 'auto-complete-for-go)
+
+
+#+END_SRC
+
+customize the emacs compile command to run go build
+#+BEGIN_SRC emacs-lisp
+
+#+END_SRC
+
+flymake-go
+#+BEGIN_SRC shell
+go get -u github.com/dougm/goflymake
+#+END_SRC
+
+go-snippets
+#+BEGIN_SRC emacs-lisp
+(use-package go-snippets)
+#+END_SRC
+** EmacsLisp
+Show Paren Matching
+#+BEGIN_SRC emacs-lisp
+  (use-package paren
+    :init
+    (set-face-background 'show-paren-match (face-background 'default))
+    (set-face-foreground 'show-paren-match "#afa")
+    (set-face-attribute  'show-paren-match nil :weight 'black)
+    (set-face-background 'show-paren-mismatch (face-background 'default))
+    (set-face-foreground 'show-paren-mismatch "#c66")
+    (set-face-attribute  'show-paren-mismatch nil :weight 'black))
+
+  (use-package paren-face
+    :ensure t
+    :init
+    (global-paren-face-mode))
+
+  (add-hook 'after-save-hook 'check-parens nil t)
+#+END_SRC
+
+Paredit
+#+BEGIN_SRC emacs-lisp
+  (use-package paredit
+    :ensure t
+    :diminish "﹙﹚"
+    :init
+    (dolist (m (list 'emacs-lisp-mode-hook 'lisp-interaction-mode-hook 'eval-expression-minibuffer-setup-hook 'ielm-mode-hook))
+      (add-hook m 'enable-paredit-mode)))
+#+END_SRC
+** Tools
+*** Eshell
+#+BEGIN_SRC emacs-lisp
+;; (setenv "ESHELL" (expand-file-name "~/.eshell"))
+#+END_SRC
+
+set correct path
+#+BEGIN_SRC emacs-lisp
+(setenv "PATH"
+        (concat
+         "/usr/local/bin:/usr/local/sbin:"
+         (getenv "PATH")))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package eshell
+  :init
+  (setq ;; eshell-buffer-shorthand t ...  Can't see Bug#19391
+        eshell-scroll-to-bottom-on-input 'all
+        eshell-error-if-no-glob t
+        eshell-hist-ignoredups t
+        eshell-save-history-on-exit t
+        eshell-prefer-lisp-functions nil
+        eshell-destroy-buffer-when-process-dies t))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package eshell
+  :init
+  (add-hook 'eshell-mode-hook
+            (lambda ()
+              (add-to-list 'eshell-visual-commands "ssh")
+              (add-to-list 'eshell-visual-commands "tail")
+              (add-to-list 'eshell-visual-commands "top"))))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'eshell-mode-hook (lambda ()
+    (eshell/alias "e" "find-file $1")
+    (eshell/alias "ff" "find-file $1")
+    (eshell/alias "emacs" "find-file $1")
+    (eshell/alias "ee" "find-file-other-window $1")
+
+    (eshell/alias "gd" "magit-diff-unstaged")
+    (eshell/alias "gds" "magit-diff-staged")
+    (eshell/alias "d" "dired $1")
+
+    ;; The 'ls' executable requires the Gnu version on the Mac
+    (let ((ls (if (file-exists-p "/usr/local/bin/gls")
+                  "/usr/local/bin/gls"
+                "/bin/ls")))
+      (eshell/alias "ls" (concat ls " -AlohG --color=always")))))
+#+END_SRC
+
+clear
+#+BEGIN_SRC emacs-lisp
+  (defun eshell/clear ()
+    "Clear the eshell buffer."
+    (let ((inhibit-read-only t))
+      (erase-buffer)
+      (eshell-send-input)))
+#+END_SRC
+
+shell here
+#+BEGIN_SRC emacs-lisp
+(defun eshell-here ()
+  "Opens up a new shell in the directory associated with the
+current buffer's file. The eshell is renamed to match that
+directory to make multiple eshell windows easier."
+  (interactive)
+  (let* ((parent (if (buffer-file-name)
+                     (file-name-directory (buffer-file-name))
+                   default-directory))
+         (height (/ (window-total-height) 3))
+         (name   (car (last (split-string parent "/" t)))))
+    (split-window-vertically (- height))
+    (other-window 1)
+    (eshell "new")
+    (rename-buffer (concat "*eshell: " name "*"))
+
+    (insert (concat "ls"))
+    (eshell-send-input)))
+
+(bind-key "C-`" 'eshell-here)
+#+END_SRC
+*** Markdown
+#+BEGIN_SRC emacs-lisp
+(use-package markdown-mode
+  :ensure t
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown"))
+#+END_SRC
+*** YAML
 * Keybindings
 
 ** Frequent Files Shortcut
