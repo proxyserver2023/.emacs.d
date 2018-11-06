@@ -35,21 +35,38 @@
 
 
   (if (display-graphic-p)
-      (setq linum-format "%2d ")
-    (setq linum-format "%2d \u2502 "))
+      (setq linum-format "%4d ")
+    (setq linum-format "%4d \u2502 "))
 
+  (add-hook 'prog-mode-hook 'linum-mode)
 
   ;; default tab width
   (setq-default tab-width 2)
   (setq-default indent-tabs-mode nil)
 
+  ;; auto save
+  (defun full-auto-save ()
+    (interactive)
+    (save-excursion
+      (dolist (buf (buffer-list))
+        (set-buffer buf)
+        (if (and (buffer-file-name) (buffer-modified-p))
+            (basic-save-buffer)))))
+  (add-hook 'auto-save-hook 'full-auto-save)
+
+(setq gc-cons-threshold 100000000)
+
+(windmove-default-keybindings)
 #+END_SRC
 
 ** Emacs Server
 #+BEGIN_SRC emacs-lisp
-(require 'server)
-(unless (server-running-p)
-  (server-start))
+  (require 'server)
+  (unless (server-running-p)
+    (server-start))
+
+  ;; (progn (setq kill-emacs-hook 'nil) (kill-emacs))
+
 #+END_SRC
 ** Custom Settings File
 #+BEGIN_SRC emacs-lisp
@@ -62,7 +79,186 @@
 #+BEGIN_SRC emacs-lisp
 (load "~/.emacs.d/.secrets")
 #+END_SRC
+** Backup files
+#+BEGIN_SRC emacs-lisp
+  ;; Put Backup files neatly away
+  (let ((backup-dir "~/.emacs.d/backups")
+        (auto-saves-dir "~/.emacs.d/auto-saves/"))
 
+    (dolist (dir (list backup-dir auto-saves-dir))
+      (when (not (file-directory-p dir))
+        (make-directory dir t)))
+
+    (setq backup-directory-alist         `(("." . ,backup-dir))
+          auto-save-file-name-transforms `((".*" ,auto-saves-dir t))
+          auto-save-list-file-prefix     (concat auto-saves-dir ".saves-")
+          tramp-backup-directory-alist   `((".*" . ,backup-dir))
+          tramp-auto-save-directory       auto-saves-dir
+    )
+    
+    )
+
+
+  (setq backup-by-copying   t   ; Don't delink hardlinks
+        delete-old-versions t   ; Clean up the backups
+        version-control     t   ; Use version numbers on backups
+        kept-new-versions   5   ; keep some new versions
+        kept-old-versions   2   ; and some old ones, too
+        )
+
+#+END_SRC
+** Editing Settings
+#+BEGIN_SRC emacs-lisp
+(setq global-mark-ring-max 5000         ; increase mark ring to contains 5000 entries
+      mark-ring-max 5000                ; increase kill ring to contains 5000 entries
+      mode-require-final-newline t      ; add a newline to end of file
+      tab-width 4                       ; default to 4 visible spaces to display a tab
+      )
+
+
+(delete-selection-mode)
+(global-set-key (kbd "RET") 'newline-and-indent)
+
+(setq kill-ring-max 5000 ; increase kill-ring capacity
+      kill-whole-line t  ; if NIL, kill whole line and move the next line up
+      )
+
+(add-hook 'diff-mode-hook (lambda ()
+                            (setq-local whitespace-style
+                                        '(face
+                                          tabs
+                                          tab-mark
+                                          spaces
+                                          space-mark
+                                          trailing
+                                          indentation::space
+                                          indentation::tab
+                                          newline
+                                          newline-mark))
+                            (whitespace-mode 1)))
+
+
+#+END_SRC
+* Keybindings
+
+** Frequent Files Shortcut
+#+BEGIN_SRC emacs-lisp
+
+;; notes.org
+(global-set-key
+ (kbd "\e\en")
+ (lambda()
+   (interactive)
+   (find-file "~/Dropbox/org/notes.org")))
+
+
+
+;; main config file
+(global-set-key
+ (kbd "\e\ec")
+ (lambda()
+   (interactive)
+   (find-file "~/.emacs.d/README.org")))
+
+;; main index file
+(global-set-key
+ (kbd "\e\ei")
+ (lambda()
+   (interactive)
+   (find-file "~/Dropbox/org/index.org")))
+
+
+;; reference for future use
+(global-set-key
+ (kbd "\e\er")
+ (lambda()
+   (interactive)
+   (find-file "~/Dropbox/org/reference.org")))
+
+;; tickler.org
+(global-set-key
+ (kbd "\e\et")
+ (lambda()
+   (interactive)
+   (find-file "~/Dropbox/org/tickler.org")))
+
+;; someday.org
+(global-set-key
+ (kbd "\e\es")
+ (lambda()
+   (interactive)
+   (find-file "~/Dropbox/org/someday.org")))
+
+;; projects.org
+(global-set-key
+ (kbd "\e\ep")
+ (lambda()
+   (interactive)
+   (find-file "~/Dropbox/org/projects.org")))
+
+;; waiting.org
+(global-set-key
+ (kbd "\e\ew")
+ (lambda()
+   (interactive)
+   (find-file "~/Dropbox/org/waiting.org")))
+
+;; now.org
+(global-set-key
+ (kbd "\e\eN")
+ (lambda()
+   (interactive)
+   (find-file "~/Dropbox/org/now.org")))
+
+;; links
+(global-set-key
+ (kbd "\e\el")
+ (lambda()
+   (interactive)
+   (find-file "~/Dropbox/org/links.org")))
+
+;; hotlist
+(global-set-key
+ (kbd "\e\eh")
+ (lambda()
+   (interactive)
+   (find-file "~/Dropbox/org/hotlist.org")))
+
+;; finance
+(global-set-key
+ (kbd "\e\ef")
+ (lambda()
+   (interactive)
+   (find-file "~/Dropbox/org/finance.org")))
+
+;; appointments meetings
+(global-set-key
+ (kbd "\e\eg")
+ (lambda()
+   (interactive)
+   (find-file "~/Dropbox/org/gcal.org")))
+
+;; i3wm config
+(global-set-key
+ (kbd "\e\e3")
+ (lambda()
+   (interactive)
+   (find-file "~/.i3/config")))
+
+
+;; .zshrc
+(global-set-key
+ (kbd "\e\ez")
+ (lambda()
+   (interactive)
+   (find-file "~/.zshrc")))
+
+;; ends here
+#+END_SRC
+** Kill this buffer
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-x k") 'kill-this-buffer)
+#+END_SRC
 * Appearnace
 ** Scratch Buffer
 
@@ -96,148 +292,149 @@
 ** Fonts
 #+BEGIN_SRC emacs-lisp
   (set-face-attribute 'default nil
+                      ;; :family "Source Code Pro"
                       :family "Source Code Pro"
                       :height 100
-                      :weight 'bold
+                      :weight 'regular
                       :width 'normal)
 #+END_SRC
 
-Firacode
-#+BEGIN_SRC emacs-lisp
-  ;;; Fira code
-  ;; This works when using emacs --daemon + emacsclient
-  (add-hook 'after-make-frame-functions (lambda (frame) (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")))
-  ;; This works when using emacs without server/client
-  (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")
-  ;; I haven't found one statement that makes both of the above situations work, so I use both for now
+# Firacode
+# #+BEGIN_SRC emacs-lisp
+#   ;;; Fira code
+#   ;; This works when using emacs --daemon + emacsclient
+#   (add-hook 'after-make-frame-functions (lambda (frame) (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")))
+#   ;; This works when using emacs without server/client
+#   (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")
+#   ;; I haven't found one statement that makes both of the above situations work, so I use both for now
 
-  (defconst fira-code-font-lock-keywords-alist
-    (mapcar (lambda (regex-char-pair)
-              `(,(car regex-char-pair)
-                (0 (prog1 ()
-                     (compose-region (match-beginning 1)
-                                     (match-end 1)
-                                     ;; The first argument to concat is a string containing a literal tab
-                                     ,(concat "	" (list (decode-char 'ucs (cadr regex-char-pair)))))))))
-            '(("\\(www\\)"                   #Xe100)
-              ("[^/]\\(\\*\\*\\)[^/]"        #Xe101)
-              ("\\(\\*\\*\\*\\)"             #Xe102)
-              ("\\(\\*\\*/\\)"               #Xe103)
-              ("\\(\\*>\\)"                  #Xe104)
-              ("[^*]\\(\\*/\\)"              #Xe105)
-              ("\\(\\\\\\\\\\)"              #Xe106)
-              ("\\(\\\\\\\\\\\\\\)"          #Xe107)
-              ("\\({-\\)"                    #Xe108)
-              ("\\(\\[\\]\\)"                #Xe109)
-              ("\\(::\\)"                    #Xe10a)
-              ("\\(:::\\)"                   #Xe10b)
-              ("[^=]\\(:=\\)"                #Xe10c)
-              ("\\(!!\\)"                    #Xe10d)
-              ("\\(!=\\)"                    #Xe10e)
-              ("\\(!==\\)"                   #Xe10f)
-              ("\\(-}\\)"                    #Xe110)
-              ("\\(--\\)"                    #Xe111)
-              ("\\(---\\)"                   #Xe112)
-              ("\\(-->\\)"                   #Xe113)
-              ("[^-]\\(->\\)"                #Xe114)
-              ("\\(->>\\)"                   #Xe115)
-              ("\\(-<\\)"                    #Xe116)
-              ("\\(-<<\\)"                   #Xe117)
-              ("\\(-~\\)"                    #Xe118)
-              ("\\(#{\\)"                    #Xe119)
-              ("\\(#\\[\\)"                  #Xe11a)
-              ("\\(##\\)"                    #Xe11b)
-              ("\\(###\\)"                   #Xe11c)
-              ("\\(####\\)"                  #Xe11d)
-              ("\\(#(\\)"                    #Xe11e)
-              ("\\(#\\?\\)"                  #Xe11f)
-              ("\\(#_\\)"                    #Xe120)
-              ("\\(#_(\\)"                   #Xe121)
-              ("\\(\\.-\\)"                  #Xe122)
-              ("\\(\\.=\\)"                  #Xe123)
-              ("\\(\\.\\.\\)"                #Xe124)
-              ("\\(\\.\\.<\\)"               #Xe125)
-              ("\\(\\.\\.\\.\\)"             #Xe126)
-              ("\\(\\?=\\)"                  #Xe127)
-              ("\\(\\?\\?\\)"                #Xe128)
-              ("\\(;;\\)"                    #Xe129)
-              ("\\(/\\*\\)"                  #Xe12a)
-              ("\\(/\\*\\*\\)"               #Xe12b)
-              ("\\(/=\\)"                    #Xe12c)
-              ("\\(/==\\)"                   #Xe12d)
-              ("\\(/>\\)"                    #Xe12e)
-              ("\\(//\\)"                    #Xe12f)
-              ("\\(///\\)"                   #Xe130)
-              ("\\(&&\\)"                    #Xe131)
-              ("\\(||\\)"                    #Xe132)
-              ("\\(||=\\)"                   #Xe133)
-              ("[^|]\\(|=\\)"                #Xe134)
-              ("\\(|>\\)"                    #Xe135)
-              ("\\(\\^=\\)"                  #Xe136)
-              ("\\(\\$>\\)"                  #Xe137)
-              ("\\(\\+\\+\\)"                #Xe138)
-              ("\\(\\+\\+\\+\\)"             #Xe139)
-              ("\\(\\+>\\)"                  #Xe13a)
-              ("\\(=:=\\)"                   #Xe13b)
-              ("[^!/]\\(==\\)[^>]"           #Xe13c)
-              ("\\(===\\)"                   #Xe13d)
-              ("\\(==>\\)"                   #Xe13e)
-              ("[^=]\\(=>\\)"                #Xe13f)
-              ("\\(=>>\\)"                   #Xe140)
-              ("\\(<=\\)"                    #Xe141)
-              ("\\(=<<\\)"                   #Xe142)
-              ("\\(=/=\\)"                   #Xe143)
-              ("\\(>-\\)"                    #Xe144)
-              ("\\(>=\\)"                    #Xe145)
-              ("\\(>=>\\)"                   #Xe146)
-              ("[^-=]\\(>>\\)"               #Xe147)
-              ("\\(>>-\\)"                   #Xe148)
-              ("\\(>>=\\)"                   #Xe149)
-              ("\\(>>>\\)"                   #Xe14a)
-              ("\\(<\\*\\)"                  #Xe14b)
-              ("\\(<\\*>\\)"                 #Xe14c)
-              ("\\(<|\\)"                    #Xe14d)
-              ("\\(<|>\\)"                   #Xe14e)
-              ("\\(<\\$\\)"                  #Xe14f)
-              ("\\(<\\$>\\)"                 #Xe150)
-              ("\\(<!--\\)"                  #Xe151)
-              ("\\(<-\\)"                    #Xe152)
-              ("\\(<--\\)"                   #Xe153)
-              ("\\(<->\\)"                   #Xe154)
-              ("\\(<\\+\\)"                  #Xe155)
-              ("\\(<\\+>\\)"                 #Xe156)
-              ("\\(<=\\)"                    #Xe157)
-              ("\\(<==\\)"                   #Xe158)
-              ("\\(<=>\\)"                   #Xe159)
-              ("\\(<=<\\)"                   #Xe15a)
-              ("\\(<>\\)"                    #Xe15b)
-              ("[^-=]\\(<<\\)"               #Xe15c)
-              ("\\(<<-\\)"                   #Xe15d)
-              ("\\(<<=\\)"                   #Xe15e)
-              ("\\(<<<\\)"                   #Xe15f)
-              ("\\(<~\\)"                    #Xe160)
-              ("\\(<~~\\)"                   #Xe161)
-              ("\\(</\\)"                    #Xe162)
-              ("\\(</>\\)"                   #Xe163)
-              ("\\(~@\\)"                    #Xe164)
-              ("\\(~-\\)"                    #Xe165)
-              ("\\(~=\\)"                    #Xe166)
-              ("\\(~>\\)"                    #Xe167)
-              ("[^<]\\(~~\\)"                #Xe168)
-              ("\\(~~>\\)"                   #Xe169)
-              ("\\(%%\\)"                    #Xe16a)
-             ;; ("\\(x\\)"                   #Xe16b) This ended up being hard to do properly so i'm leaving it out.
-              ("[^:=]\\(:\\)[^:=]"           #Xe16c)
-              ("[^\\+<>]\\(\\+\\)[^\\+<>]"   #Xe16d)
-              ("[^\\*/<>]\\(\\*\\)[^\\*/<>]" #Xe16f))))
+#   (defconst fira-code-font-lock-keywords-alist
+#     (mapcar (lambda (regex-char-pair)
+#               `(,(car regex-char-pair)
+#                 (0 (prog1 ()
+#                      (compose-region (match-beginning 1)
+#                                      (match-end 1)
+#                                      ;; The first argument to concat is a string containing a literal tab
+#                                      ,(concat "	" (list (decode-char 'ucs (cadr regex-char-pair)))))))))
+#             '(("\\(www\\)"                   #Xe100)
+#               ("[^/]\\(\\*\\*\\)[^/]"        #Xe101)
+#               ("\\(\\*\\*\\*\\)"             #Xe102)
+#               ("\\(\\*\\*/\\)"               #Xe103)
+#               ("\\(\\*>\\)"                  #Xe104)
+#               ("[^*]\\(\\*/\\)"              #Xe105)
+#               ("\\(\\\\\\\\\\)"              #Xe106)
+#               ("\\(\\\\\\\\\\\\\\)"          #Xe107)
+#               ("\\({-\\)"                    #Xe108)
+#               ("\\(\\[\\]\\)"                #Xe109)
+#               ("\\(::\\)"                    #Xe10a)
+#               ("\\(:::\\)"                   #Xe10b)
+#               ("[^=]\\(:=\\)"                #Xe10c)
+#               ("\\(!!\\)"                    #Xe10d)
+#               ("\\(!=\\)"                    #Xe10e)
+#               ("\\(!==\\)"                   #Xe10f)
+#               ("\\(-}\\)"                    #Xe110)
+#               ("\\(--\\)"                    #Xe111)
+#               ("\\(---\\)"                   #Xe112)
+#               ("\\(-->\\)"                   #Xe113)
+#               ("[^-]\\(->\\)"                #Xe114)
+#               ("\\(->>\\)"                   #Xe115)
+#               ("\\(-<\\)"                    #Xe116)
+#               ("\\(-<<\\)"                   #Xe117)
+#               ("\\(-~\\)"                    #Xe118)
+#               ("\\(#{\\)"                    #Xe119)
+#               ("\\(#\\[\\)"                  #Xe11a)
+#               ("\\(##\\)"                    #Xe11b)
+#               ("\\(###\\)"                   #Xe11c)
+#               ("\\(####\\)"                  #Xe11d)
+#               ("\\(#(\\)"                    #Xe11e)
+#               ("\\(#\\?\\)"                  #Xe11f)
+#               ("\\(#_\\)"                    #Xe120)
+#               ("\\(#_(\\)"                   #Xe121)
+#               ("\\(\\.-\\)"                  #Xe122)
+#               ("\\(\\.=\\)"                  #Xe123)
+#               ("\\(\\.\\.\\)"                #Xe124)
+#               ("\\(\\.\\.<\\)"               #Xe125)
+#               ("\\(\\.\\.\\.\\)"             #Xe126)
+#               ("\\(\\?=\\)"                  #Xe127)
+#               ("\\(\\?\\?\\)"                #Xe128)
+#               ("\\(;;\\)"                    #Xe129)
+#               ("\\(/\\*\\)"                  #Xe12a)
+#               ("\\(/\\*\\*\\)"               #Xe12b)
+#               ("\\(/=\\)"                    #Xe12c)
+#               ("\\(/==\\)"                   #Xe12d)
+#               ("\\(/>\\)"                    #Xe12e)
+#               ("\\(//\\)"                    #Xe12f)
+#               ("\\(///\\)"                   #Xe130)
+#               ("\\(&&\\)"                    #Xe131)
+#               ("\\(||\\)"                    #Xe132)
+#               ("\\(||=\\)"                   #Xe133)
+#               ("[^|]\\(|=\\)"                #Xe134)
+#               ("\\(|>\\)"                    #Xe135)
+#               ("\\(\\^=\\)"                  #Xe136)
+#               ("\\(\\$>\\)"                  #Xe137)
+#               ("\\(\\+\\+\\)"                #Xe138)
+#               ("\\(\\+\\+\\+\\)"             #Xe139)
+#               ("\\(\\+>\\)"                  #Xe13a)
+#               ("\\(=:=\\)"                   #Xe13b)
+#               ("[^!/]\\(==\\)[^>]"           #Xe13c)
+#               ("\\(===\\)"                   #Xe13d)
+#               ("\\(==>\\)"                   #Xe13e)
+#               ("[^=]\\(=>\\)"                #Xe13f)
+#               ("\\(=>>\\)"                   #Xe140)
+#               ("\\(<=\\)"                    #Xe141)
+#               ("\\(=<<\\)"                   #Xe142)
+#               ("\\(=/=\\)"                   #Xe143)
+#               ("\\(>-\\)"                    #Xe144)
+#               ("\\(>=\\)"                    #Xe145)
+#               ("\\(>=>\\)"                   #Xe146)
+#               ("[^-=]\\(>>\\)"               #Xe147)
+#               ("\\(>>-\\)"                   #Xe148)
+#               ("\\(>>=\\)"                   #Xe149)
+#               ("\\(>>>\\)"                   #Xe14a)
+#               ("\\(<\\*\\)"                  #Xe14b)
+#               ("\\(<\\*>\\)"                 #Xe14c)
+#               ("\\(<|\\)"                    #Xe14d)
+#               ("\\(<|>\\)"                   #Xe14e)
+#               ("\\(<\\$\\)"                  #Xe14f)
+#               ("\\(<\\$>\\)"                 #Xe150)
+#               ("\\(<!--\\)"                  #Xe151)
+#               ("\\(<-\\)"                    #Xe152)
+#               ("\\(<--\\)"                   #Xe153)
+#               ("\\(<->\\)"                   #Xe154)
+#               ("\\(<\\+\\)"                  #Xe155)
+#               ("\\(<\\+>\\)"                 #Xe156)
+#               ("\\(<=\\)"                    #Xe157)
+#               ("\\(<==\\)"                   #Xe158)
+#               ("\\(<=>\\)"                   #Xe159)
+#               ("\\(<=<\\)"                   #Xe15a)
+#               ("\\(<>\\)"                    #Xe15b)
+#               ("[^-=]\\(<<\\)"               #Xe15c)
+#               ("\\(<<-\\)"                   #Xe15d)
+#               ("\\(<<=\\)"                   #Xe15e)
+#               ("\\(<<<\\)"                   #Xe15f)
+#               ("\\(<~\\)"                    #Xe160)
+#               ("\\(<~~\\)"                   #Xe161)
+#               ("\\(</\\)"                    #Xe162)
+#               ("\\(</>\\)"                   #Xe163)
+#               ("\\(~@\\)"                    #Xe164)
+#               ("\\(~-\\)"                    #Xe165)
+#               ("\\(~=\\)"                    #Xe166)
+#               ("\\(~>\\)"                    #Xe167)
+#               ("[^<]\\(~~\\)"                #Xe168)
+#               ("\\(~~>\\)"                   #Xe169)
+#               ("\\(%%\\)"                    #Xe16a)
+#              ;; ("\\(x\\)"                   #Xe16b) This ended up being hard to do properly so i'm leaving it out.
+#               ("[^:=]\\(:\\)[^:=]"           #Xe16c)
+#               ("[^\\+<>]\\(\\+\\)[^\\+<>]"   #Xe16d)
+#               ("[^\\*/<>]\\(\\*\\)[^\\*/<>]" #Xe16f))))
 
-  (defun add-fira-code-symbol-keywords ()
-    (font-lock-add-keywords nil fira-code-font-lock-keywords-alist))
+#   (defun add-fira-code-symbol-keywords ()
+#     (font-lock-add-keywords nil fira-code-font-lock-keywords-alist))
 
-  (if (display-graphic-p)
-      (add-hook 'prog-mode-hook
-            #'add-fira-code-symbol-keywords))
-#+END_SRC
+#   (if (display-graphic-p)
+#       (add-hook 'prog-mode-hook
+#             #'add-fira-code-symbol-keywords))
+# #+END_SRC
 ** Theme
 #+BEGIN_SRC emacs-lisp
   ;; (setq custom-theme-directory (concat user-emacs-directory "themes"))
@@ -287,31 +484,35 @@ Doom Themes
 * Package Initialization
 
 #+BEGIN_SRC emacs-lisp
-(require 'package)
-(setq package-archives nil)
-(setq package-archives
-      '(
-        ("org"       . "https://orgmode.org/elpa/")
-        ("gnu"       . "http://elpa.gnu.org/packages/")
-        ("melpa"     . "http://melpa.org/packages/")
-        ("marmalade" . "http://marmalade-repo.org/packages/")))
+  (require 'package)
+  (setq package-archives nil)
+  (setq package-archives
+        '(
+          ("org"       . "https://orgmode.org/elpa/")
+          ("gnu"       . "http://elpa.gnu.org/packages/")
+          ("melpa"     . "http://melpa.org/packages/")
+          ("marmalade" . "http://marmalade-repo.org/packages/")))
 
-(package-initialize)
-(unless (and (file-exists-p "~/.emacs.d/elpa/archives/gnu")
-             (file-exists-p "~/.emacs.d/elpa/archives/melpa")
-             (file-exists-p "~/.emacs.d/elpa/archives/melpa-stable")
-             (file-exists-p "~/.emacs.d/elpa/archives/marmalade")
-             )
-  (package-refresh-contents))
+  (package-initialize)
+  ;; (when (memq window-system '(mac ns x))
+  ;;   (exec-path-from-shell-initialize))
 
-;; use-package
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
+  (unless (and (file-exists-p "~/.emacs.d/elpa/archives/gnu")
+               (file-exists-p "~/.emacs.d/elpa/archives/melpa")
+               (file-exists-p "~/.emacs.d/elpa/archives/melpa-stable")
+               (file-exists-p "~/.emacs.d/elpa/archives/marmalade")
+               )
+    (package-refresh-contents))
 
-(setq use-package-verbose t)
-(setq use-package-always-ensure t)
-(require 'use-package)
+
+  ;; use-package
+  (unless (package-installed-p 'use-package)
+    (package-refresh-contents)
+    (package-install 'use-package))
+
+  (setq use-package-verbose t)
+  (setq use-package-always-ensure t)
+  (require 'use-package)
 #+END_SRC
 
 * Packages
@@ -333,13 +534,72 @@ Doom Themes
     :config
     (define-key global-map (kbd "C-c SPC") 'ace-jump-mode))
 #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(require 'cc-mode)
+(require 'semantic)
+
+(global-semanticdb-minor-mode 1)
+(global-semantic-idle-scheduler-mode 1)
+(global-semantic-stickyfunc-mode 1)
+
+(semantic-mode 1)
+
+(defun alexott/cedet-hook ()
+  (local-set-key "\C-c\C-j" 'semantic-ia-fast-jump)
+  (local-set-key "\C-c\C-s" 'semantic-ia-show-summary))
+
+(add-hook 'c-mode-common-hook 'alexott/cedet-hook)
+(add-hook 'c-mode-hook 'alexott/cedet-hook)
+(add-hook 'c++-mode-hook 'alexott/cedet-hook)
+
+;; Enable EDE only in C/C++
+(require 'ede)
+(global-ede-mode)
+#+END_SRC
+** anzu
+#+BEGIN_SRC emacs-lisp
+(use-package anzu
+  :init
+  (global-anzu-mode)
+  (global-set-key (kbd "M-%") 'anzu-query-replace)
+  (global-set-key (kbd "C-M-%") 'anzu-query-replace-regexp))
+
+#+END_SRC
+** clean-aindent mode
+#+BEGIN_SRC emacs-lisp
+  (use-package clean-aindent-mode
+    :init
+    (add-hook 'prog-mode-hook 'clean-aindent-mode))
+#+END_SRC
+** comment-dwim-2
+#+BEGIN_SRC emacs-lisp
+(use-package comment-dwim-2
+  :bind (("M-;" . comment-dwim-2))
+  )
+#+END_SRC
+** company
+#+BEGIN_SRC emacs-lisp
+  (use-package company
+    :init
+    (global-company-mode 1)
+    (delete 'company-semantic company-backends))
+  (require 'company)
+#+END_SRC
+** dtrt indent
+#+BEGIN_SRC emacs-lisp
+
+(use-package dtrt-indent
+  :init
+  (dtrt-indent-mode 1)
+  (setq dtrt-indent-verbosity 0))
+#+END_SRC
 ** duplicate-thing
 #+BEGIN_SRC emacs-lisp
-(use-package duplicate-thing
-:ensure t
-:config
-(require 'duplicate-thing)
-(global-set-key (kbd "M-c") 'duplicate-thing))
+  (use-package duplicate-thing
+  :ensure t
+  :config
+  (require 'duplicate-thing)
+  (global-set-key (kbd "M-c") 'duplicate-thing))
 #+END_SRC
 ** editorconfig
 #+BEGIN_SRC emacs-lisp
@@ -366,37 +626,41 @@ Doom Themes
 #+END_SRC
 ** helm
 #+BEGIN_SRC emacs-lisp
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; Helm
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   (use-package helm
-    :config
-    (require 'helm-config)
-    (require 'helm-grep)
+    :init
+    (progn
+      (require 'helm-config)
+      (require 'helm-grep)
+      ;; To fix error at compile:
+      ;; Error (bytecomp): Forgot to expand macro with-helm-buffer in
+      ;; (with-helm-buffer helm-echo-input-in-header-line)
+      (if (version< "26.0.50" emacs-version)
+          (eval-when-compile (require 'helm-lib)))
 
-    (defun helm-hide-minibuffer-maybe ()
-      (when (with-helm-buffer helm-echo-input-in-header-line)
-        (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
-          (overlay-put ov 'window (selected-window))
-          (overlay-put ov 'face (let ((bg-color (face-background 'default nil)))
-                                  `(:background ,bg-color :foreground ,bg-color)))
-          (setq-local cursor-type nil))))
-    (add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
-    ;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs.
-    ;; Changed to "C-c h". Note: We must set "C-c h" globally, because we
-    ;; cannot change `helm-command-prefix-key' once `helm-config' is loaded.
-    (global-set-key (kbd "C-c h") 'helm-command-prefix)
-    (global-unset-key (kbd "C-x c"))
+      (defun helm-hide-minibuffer-maybe ()
+        (when (with-helm-buffer helm-echo-input-in-header-line)
+          (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
+            (overlay-put ov 'window (selected-window))
+            (overlay-put ov 'face (let ((bg-color (face-background 'default nil)))
+                                    `(:background ,bg-color :foreground ,bg-color)))
+            (setq-local cursor-type nil))))
 
-    (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebihnd tab to do persistent action
-    (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB works in terminal
-    (define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
+      (add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
+      ;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs.
+      ;; Changed to "C-c h". Note: We must set "C-c h" globally, because we
+      ;; cannot change `helm-command-prefix-key' once `helm-config' is loaded.
+      (global-set-key (kbd "C-c h") 'helm-command-prefix)
+      (global-unset-key (kbd "C-x c"))
 
-    (define-key helm-grep-mode-map (kbd "<return>")  'helm-grep-mode-jump-other-window)
-    (define-key helm-grep-mode-map (kbd "n")  'helm-grep-mode-jump-other-window-forward)
-    (define-key helm-grep-mode-map (kbd "p")  'helm-grep-mode-jump-other-window-backward)
+      (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebihnd tab to do persistent action
+      (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB works in terminal
+      (define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
 
-  (when (executable-find "curl")
+      (define-key helm-grep-mode-map (kbd "<return>")  'helm-grep-mode-jump-other-window)
+      (define-key helm-grep-mode-map (kbd "n")  'helm-grep-mode-jump-other-window-forward)
+      (define-key helm-grep-mode-map (kbd "p")  'helm-grep-mode-jump-other-window-backward)
+
+      (when (executable-find "curl")
         (setq helm-google-suggest-use-curl-p t))
 
       (setq helm-google-suggest-use-curl-p t
@@ -431,6 +695,7 @@ Doom Themes
             helm-buffer-skip-remote-checking t
             helm-locate-fuzzy-match t
             helm-display-header-line nil)
+
       (add-to-list 'helm-sources-using-default-as-input 'helm-source-man-pages)
 
       (global-set-key (kbd "M-x") 'helm-M-x)
@@ -439,7 +704,34 @@ Doom Themes
       (global-set-key (kbd "C-x C-f") 'helm-find-files)
       (global-set-key (kbd "C-c r") 'helm-recentf)
       (global-set-key (kbd "C-h SPC") 'helm-all-mark-rings)
-      (global-set-key (kbd "C-c h o") 'helm-occur))
+      (global-set-key (kbd "C-c h o") 'helm-occur)
+      (global-set-key (kbd "C-c h o") 'helm-occur)
+
+      (global-set-key (kbd "C-c h w") 'helm-wikipedia-suggest)
+      (global-set-key (kbd "C-c h g") 'helm-google-suggest)
+
+      (global-set-key (kbd "C-c h x") 'helm-register)
+      ;; (global-set-key (kbd "C-x r j") 'jump-to-register)
+
+      (define-key 'help-command (kbd "C-f") 'helm-apropos)
+      (define-key 'help-command (kbd "r") 'helm-info-emacs)
+      (define-key 'help-command (kbd "C-l") 'helm-locate-library)
+
+      ;; use helm to list eshell history
+      (add-hook 'eshell-mode-hook
+                #'(lambda ()
+                    (define-key eshell-mode-map (kbd "M-l")  'helm-eshell-history)))
+
+  ;;; Save current position to mark ring
+      (add-hook 'helm-goto-line-before-hook 'helm-save-current-pos-to-mark-ring)
+
+      ;; show minibuffer history with Helm
+      (define-key minibuffer-local-map (kbd "M-p") 'helm-minibuffer-history)
+      (define-key minibuffer-local-map (kbd "M-n") 'helm-minibuffer-history)
+
+      (define-key global-map [remap find-tag] 'helm-etags-select)
+
+      (define-key global-map [remap list-buffers] 'helm-buffers-list)
 
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
       ;; PACKAGE: helm-swoop                ;;
@@ -447,7 +739,7 @@ Doom Themes
       ;; Locate the helm-swoop folder to your path
       (use-package helm-swoop
         :bind (("C-c h o" . helm-swoop)
-               ("C-c h s" . helm-multi-swoop-all))
+               ("C-c s" . helm-multi-swoop-all))
         :config
         ;; When doing isearch, hand the word over to helm-swoop
         (define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
@@ -467,7 +759,54 @@ Doom Themes
         ;; If nil, you can slightly boost invoke speed in exchange for text color
         (setq helm-swoop-speed-or-color t))
 
-  (helm-mode 1)
+      (helm-mode 1)
+
+      (use-package helm-projectile
+        :init
+        (helm-projectile-on)
+        (setq projectile-completion-system 'helm)
+        (setq projectile-indexing-method 'alien))))
+
+#+END_SRC
+
+helm-gtags
+#+BEGIN_SRC emacs-lisp
+  ;; this variables must be set before load helm-gtags
+  ;; you can change to any prefix key of your choice
+  (setq helm-gtags-prefix-key "\C-cg")
+
+  (use-package helm-gtags
+    :init
+    (progn
+      (setq helm-gtags-ignore-case t
+            helm-gtags-auto-update t
+            helm-gtags-use-input-at-cursor t
+            helm-gtags-pulse-at-cursor t
+            helm-gtags-prefix-key "\C-cg"
+            helm-gtags-suggested-key-mapping t)
+
+      ;; Enable helm-gtags-mode in Dired so you can jump to any tag
+      ;; when navigate project tree with Dired
+      (add-hook 'dired-mode-hook 'helm-gtags-mode)
+
+      ;; Enable helm-gtags-mode in Eshell for the same reason as above
+      (add-hook 'eshell-mode-hook 'helm-gtags-mode)
+
+      ;; Enable helm-gtags-mode in languages that GNU Global supports
+      (add-hook 'c-mode-hook 'helm-gtags-mode)
+      (add-hook 'c++-mode-hook 'helm-gtags-mode)
+      (add-hook 'java-mode-hook 'helm-gtags-mode)
+      (add-hook 'asm-mode-hook 'helm-gtags-mode)
+
+      ;; key bindings
+      (with-eval-after-load 'helm-gtags
+        (define-key helm-gtags-mode-map (kbd "C-c g a") 'helm-gtags-tags-in-this-function)
+        (define-key helm-gtags-mode-map (kbd "C-j") 'helm-gtags-select)
+        (define-key helm-gtags-mode-map (kbd "M-.") 'helm-gtags-dwim)
+        (define-key helm-gtags-mode-map (kbd "M-,") 'helm-gtags-pop-stack)
+        (define-key helm-gtags-mode-map (kbd "C-c <") 'helm-gtags-previous-history)
+        (define-key helm-gtags-mode-map (kbd "C-c >") 'helm-gtags-next-history))))
+
 #+END_SRC
 ** highlight-indent-guides
 #+BEGIN_SRC emacs-lisp
@@ -476,6 +815,21 @@ Doom Themes
 (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
 (add-hook 'yaml-mode-hook 'highlight-indent-guides-mode)
 (setq highlight-indent-guides-character ?\|)
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+;; customize colors
+(setq highlight-indent-guides-auto-enabled nil)
+
+(set-face-background 'highlight-indent-guides-odd-face "darkgray")
+(set-face-background 'highlight-indent-guides-even-face "dimgray")
+(set-face-foreground 'highlight-indent-guides-character-face "dimgray")
+#+END_SRC
+** iedit
+#+BEGIN_SRC emacs-lisp
+(use-package iedit
+  :bind (("C-;" . iedit-mode))
+  :init
+  (setq iedit-toggle-key-default nil))
 #+END_SRC
 ** magit
 
@@ -494,6 +848,18 @@ Doom Themes
   :bind ("C-x g" . magit-status))
 #+END_SRC
 
+** multiple-cursors
+#+BEGIN_SRC emacs-lisp
+  (use-package multiple-cursors
+    :config
+    (require 'multiple-cursors)
+    (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+    (global-set-key (kbd "C->") 'mc/mark-next-like-this)
+    (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+    (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+    )
+
+#+END_SRC
 ** org-mode
 #+BEGIN_SRC emacs-lisp
 ;; Code-Block shortcuts
@@ -533,22 +899,10 @@ org-babel execute functions
 
 ** projectile
 #+BEGIN_SRC emacs-lisp
-(use-package projectile
-  :config
-  (require 'projectile)
-  (projectile-global-mode))
-#+END_SRC
-
-*** helm-projectile
-#+BEGIN_SRC emacs-lisp
-(use-package helm-projectile
-  :init
-  (projectile-global-mode)
-  (setq projectile-completion-system 'helm)
-  (setq projectile-switch-project-action 'helm-projectile)
-  (setq projectile-enable-caching t)
-  (setq projectile-indexing-method 'alien)
-  (helm-projectile-on))
+  (use-package projectile
+    :init
+    (projectile-global-mode)
+    (setq projectile-enable-caching t))
 #+END_SRC
 ** undo-tree
 
@@ -564,6 +918,12 @@ org-babel execute functions
          ("C-S-z" . redo)))
 #+END_SRC
 
+** volatile highlights
+#+BEGIN_SRC emacs-lisp
+(use-package volatile-highlights
+  :init
+  (volatile-highlights-mode t))
+#+END_SRC
 ** which key
 #+BEGIN_SRC emacs-lisp
 (use-package which-key
@@ -574,7 +934,7 @@ org-babel execute functions
 ** whitespace mode
 #+BEGIN_SRC emacs-lisp
 (use-package whitespace
-  :bind ("C-c T w" . whitespace-mode)
+  :bind ("C-c w" . whitespace-mode)
   :init
   (setq whitespace-line-column nil
         whitespace-display-mappings '((space-mark 32 [183] [46])
@@ -586,13 +946,56 @@ org-babel execute functions
   (set-face-attribute 'whitespace-indentation nil :foreground "#666666" :background nil)
   :diminish whitespace-mode)
 #+END_SRC
+** ws-butler
+#+BEGIN_SRC emacs-lisp
+(use-package ws-butler
+  :init
+  (add-hook 'prog-mode-hook 'ws-butler-mode)
+  (add-hook 'text-mode 'ws-butler-mode)
+  (add-hook 'fundamental-mode 'ws-butler-mode))
+#+END_SRC
 ** yasnippets
 #+BEGIN_SRC emacs-lisp
 (use-package yasnippet)
 (require 'yasnippet)
 (yas-global-mode 1)
 #+END_SRC
+#* Programming
+** zygospore
+#+BEGIN_SRC emacs-lisp
+(use-package zygospore
+  :bind (("C-x 1" . zygospore-toggle-delete-other-windows)
+         ("RET" .   newline-and-indent)))
+#+END_SRC
+
 * Programming
+** General
+show unncessary whitespace that can mess up your diff
+#+BEGIN_SRC emacs-lisp
+(add-hook 'prog-mode-hook
+          (lambda () (interactive)
+            (setq show-trailing-whitespace 1)))
+#+END_SRC
+
+Compilation
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "<f5>") (lambda ()
+                               (interactive)
+                               (setq-local compilation-read-command nil)
+                               (call-interactively 'compile)))
+#+END_SRC
+
+GDB
+#+BEGIN_SRC emacs-lisp
+;; setup GDB
+(setq
+ ;; use gdb-many-windows by default
+ gdb-many-windows t
+
+ ;; Non-nil means display source file containing the main routine at startup
+ gdb-show-main t
+ )
+#+END_SRC
 ** Python
 
 1. file navigation between multiple projects
@@ -619,18 +1022,66 @@ org-babel execute functions
 
 ** JS
 #+BEGIN_SRC emacs-lisp
+  (use-package js2-mode)
+  (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 
 #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(use-package js2-refactor)
+(use-package xref-js2)
+
+(require 'js2-refactor)
+(require 'xref-js2)
+
+(add-hook 'js2-mode-hook #'js2-refactor-mode)
+(js2r-add-keybindings-with-prefix "C-c C-r")
+(define-key js2-mode-map (kbd "C-k") #'js2r-kill)
+
+;; js-mode (which js2 is based on) binds "M-." which conflicts with xref, so
+;; unbind it.
+(define-key js-mode-map (kbd "M-.") nil)
+
+(add-hook 'js2-mode-hook (lambda ()
+  (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)))
+
+(use-package company-tern)
+(require 'company-tern)
+
+(add-to-list 'company-backends 'company-tern)
+(add-hook 'js2-mode-hook (lambda ()
+                           (tern-mode)
+                           (company-mode)))
+                           
+;; Disable completion keybindings, as we use xref-js2 instead
+(define-key tern-mode-keymap (kbd "M-.") nil)
+(define-key tern-mode-keymap (kbd "M-,") nil)
+#+END_SRC
+
+indent settings
+#+BEGIN_SRC emacs-lisp
+(setq js-indent-level 2)
+(setq js2-indent-level 2)
+(setq js2-basic-offset 2)
+#+END_SRC
 ** Go
+
+Install This Tools before working with Emacs
+
+A lot of the config is based on gocode, godef, goimports and gotags packages that you should install separately.
+
+go get golang.org/x/tools/cmd/...
+go get -u github.com/nsf/gocode
+go get -u github.com/rogpeppe/godef
+go get -u golang.org/x/tools/cmd/goimports
+go get -u github.com/jstemmer/gotags
+go get github.com/matryer/moq
+go get -u github.com/dougm/goflymake
+go get -u golang.org/x/lint/golint
+
 go-mode
 #+BEGIN_SRC emacs-lisp
   (use-package go-mode)
   (require 'go-mode)
-#+END_SRC
-
-get =godoc= tool
-#+BEGIN_SRC shell
-go get golang.org/x/tools/cmd/...
 #+END_SRC
 
 go-guru
@@ -639,24 +1090,30 @@ go-guru
 (require 'go-guru)
 #+END_SRC
 
-// TODO code-analysis
+Enable GoPath
+#+BEGIN_SRC emacs-lisp
+ (use-package go-gopath)
+#+END_SRC
+
 exec path from shell and setting gopath
 #+BEGIN_SRC emacs-lisp
   (use-package exec-path-from-shell)
 
-  (defun set-exec-path-from-shell-PATH ()
-    (let ((path-from-shell (replace-regexp-in-string
-                            "[ \t\n]*$"
-                            ""
-                            (shell-command-to-string "$SHELL --login -i -c 'echo $PATH'"))))
-      (setenv "PATH" path-from-shell)
-      (setq eshell-path-env path-from-shell) ; for eshell users
-      (setq exec-path (split-string path-from-shell path-separator))))
+  ;; (defun set-exec-path-from-shell-PATH ()
+  ;;   (let ((path-from-shell (replace-regexp-in-string
+  ;;                           "[ \t\n]*$"
+  ;;                           ""
+  ;;                           (shell-command-to-string "$SHELL --login -i -c 'echo $PATH'"))))
+  ;;     (setenv "PATH" path-from-shell)
+  ;;     (setq eshell-path-env path-from-shell) ; for eshell users
+  ;;     (setq exec-path (split-string path-from-shell path-separator))))
 
-  (when window-system (set-exec-path-from-shell-PATH))
+  ;; (when window-system (set-exec-path-from-shell-PATH))
 
-  (setenv "GOPATH" (concat (getenv "HOME") "/go"))
-  (add-to-list 'exec-path (concat (getenv "GOPATH") "/bin"))
+  ;; (setenv "GOPATH" (concat (getenv "HOME") "/go"))
+  ;; (add-to-list 'exec-path (concat (getenv "GOPATH") "/bin"))
+
+  (exec-path-from-shell-copy-env "GOPATH")
 #+END_SRC
 
 go-mode-hook
@@ -666,7 +1123,7 @@ go-mode-hook
     (setq gofmt-command "goimports")                ; gofmt uses invokes goimports
     (if (not (string-match "go" compile-command))   ; Customize compile command to run go build
         (set (make-local-variable 'compile-command)
-           "go build -v && go test -v && go vet"))
+           "go build -v && go test -v && go vet && go run main.go"))
 
     ;; tab settings
     (setq tab-width 2)
@@ -691,33 +1148,105 @@ go-mode-hook
 
 autocomplete
 #+BEGIN_SRC emacs-lisp
-(use-package auto-complete)
+  (use-package auto-complete)
 
-(use-package go-autocomplete)
+  (use-package go-autocomplete)
 
-(with-eval-after-load 'go-mode
-   (require 'go-autocomplete))
+  (with-eval-after-load 'go-mode
+    (require 'go-autocomplete)
+    (require 'auto-complete-config)
+    (ac-config-default)
+     )
 
-(defun auto-complete-for-go ()
-  (auto-complete-mode 1))
-(add-hook 'go-mode-hook 'auto-complete-for-go)
+  (defun auto-complete-for-go ()
+    (auto-complete-mode 1))
+  (add-hook 'go-mode-hook 'auto-complete-for-go) 
+#+END_SRC
 
-
+//REMOVE: company
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package company-go)
+  ;; (add-hook 'go-mode-hook (lambda ()
+  ;;   (set (make-local-variable 'company-backends) '(company-go))
+  ;;   (company-mode)))
 #+END_SRC
 
 customize the emacs compile command to run go build
-#+BEGIN_SRC emacs-lisp
-
-#+END_SRC
 
 flymake-go
-#+BEGIN_SRC shell
-go get -u github.com/dougm/goflymake
-#+END_SRC
+#+BEGIN_EXAMPLE
+#install it in bash
+
+#+END_EXAMPLE
 
 go-snippets
 #+BEGIN_SRC emacs-lisp
 (use-package go-snippets)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package go-projectile)
+  (require 'go-projectile)
+
+  (eval-after-load 'go-mode
+    '(progn
+       (go-projectile-set-gopath)
+       (go-projectile-tools-add-path)
+       ))
+#+END_SRC
+
+ELDoc
+#+BEGIN_SRC emacs-lisp
+(use-package go-eldoc
+  :diminish eldoc-mode
+  :config (add-hook 'go-mode-hook 'go-eldoc-setup))
+#+END_SRC
+
+Go StackTracer
+#+BEGIN_SRC emacs-lisp
+(use-package go-stacktracer)
+#+END_SRC
+
+Go Add Tags
+#+BEGIN_SRC emacs-lisp
+(use-package go-add-tags)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package go-direx)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package gotest)
+#+END_SRC
+
+Integrate =moq=
+
+Quick custom function to integrate with the =moq= tool to generate quick mocks
+#+BEGIN_SRC emacs-lisp
+(defun moq ()
+  (interactive)
+  (let ((interface (word-at-point))
+        (test-file (concat (downcase (word-at-point)) "_test.go")))
+    (shell-command
+     (concat "moq -out " test-file " . " interface))
+    (find-file test-file)))
+#+END_SRC
+
+See Test Coverage Faster
+#+BEGIN_SRC emacs-lis
+(defun go-coverage-here ()
+  (interactive)
+  (shell-command "go test . -coverprofile=cover.out")
+  (go-coverage "cover.out")
+  (rotate:even-horizontal))
+#+END_SRC
+
+golint
+#+BEGIN_SRC emacs-lisp
+(use-package golint)
+(add-to-list 'load-path (concat (getenv "GOPATH")  "/src/github.com/golang/lint/misc/emacs"))
+(require 'golint)
 #+END_SRC
 ** EmacsLisp
 Show Paren Matching
@@ -834,6 +1363,16 @@ directory to make multiple eshell windows easier."
 (bind-key "C-`" 'eshell-here)
 #+END_SRC
 *** Markdown
+#+BEGIN_SRC sh
+sudo apt-get install libglib2.0-dev
+cd ~/src
+export TEMP_NAME=multimarkdown_dir
+git clone --recursive git://github.com/fletcher/peg-multimarkdown.git $TEMP_NAME
+cd ./$TEMP_NAME
+make
+sudo ln -sf ~/src/$TEMP_NAME/multimarkdown /usr/local/bin/multimarkdown
+#+END_SRC
+
 #+BEGIN_SRC emacs-lisp
 (use-package markdown-mode
   :ensure t
@@ -844,115 +1383,14 @@ directory to make multiple eshell windows easier."
   :init (setq markdown-command "multimarkdown"))
 #+END_SRC
 *** YAML
-* Keybindings
-
-** Frequent Files Shortcut
+*** Docker
 #+BEGIN_SRC emacs-lisp
-;; main config file
-(global-set-key
- (kbd "\e\ec")
- (lambda()
-   (interactive)
-   (find-file "~/.emacs.d/README.org")))
-
-;; main index file
-(global-set-key
- (kbd "\e\ei")
- (lambda()
-   (interactive)
-   (find-file "~/Dropbox/org/index.org")))
-
-
-;; reference for future use
-(global-set-key
- (kbd "\e\er")
- (lambda()
-   (interactive)
-   (find-file "~/Dropbox/org/reference.org")))
-
-;; tickler.org
-(global-set-key
- (kbd "\e\et")
- (lambda()
-   (interactive)
-   (find-file "~/Dropbox/org/tickler.org")))
-
-;; someday.org
-(global-set-key
- (kbd "\e\es")
- (lambda()
-   (interactive)
-   (find-file "~/Dropbox/org/someday.org")))
-
-;; projects.org
-(global-set-key
- (kbd "\e\ep")
- (lambda()
-   (interactive)
-   (find-file "~/Dropbox/org/projects.org")))
-
-;; waiting.org
-(global-set-key
- (kbd "\e\ew")
- (lambda()
-   (interactive)
-   (find-file "~/Dropbox/org/waiting.org")))
-
-;; now.org
-(global-set-key
- (kbd "\e\en")
- (lambda()
-   (interactive)
-   (find-file "~/Dropbox/org/now.org")))
-
-;; links
-(global-set-key
- (kbd "\e\el")
- (lambda()
-   (interactive)
-   (find-file "~/Dropbox/org/links.org")))
-
-;; hotlist
-(global-set-key
- (kbd "\e\eh")
- (lambda()
-   (interactive)
-   (find-file "~/Dropbox/org/hotlist.org")))
-
-;; finance
-(global-set-key
- (kbd "\e\ef")
- (lambda()
-   (interactive)
-   (find-file "~/Dropbox/org/finance.org")))
-
-;; appointments meetings
-(global-set-key
- (kbd "\e\eg")
- (lambda()
-   (interactive)
-   (find-file "~/Dropbox/org/gcal.org")))
-
-;; i3wm config
-(global-set-key
- (kbd "\e\e3")
- (lambda()
-   (interactive)
-   (find-file "~/.i3/config")))
-
-
-;; .zshrc
-(global-set-key
- (kbd "\e\ez")
- (lambda()
-   (interactive)
-   (find-file "~/.zshrc")))
-
-;; ends here
-#+END_SRC
-** Kill this buffer
-#+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "C-x k") 'kill-this-buffer)
+(use-package dockerfile-mode)
+(require 'dockerfile-mode)
+(add-to-list 'auto-mode-alist '("Dockerfile\\'" . dockerfile-mode))
+(use-package docker-compose-mode)
+(use-package docker-tramp)
+(use-package eshell-bookmark)
 #+END_SRC
 * User Specific Emacs Settings
 #+BEGIN_SRC emacs-lisp
@@ -964,4 +1402,164 @@ directory to make multiple eshell windows easier."
 ;; Conclude init by setting up specifics for the current user
 (when (file-exists-p user-settings-dir)
   (mapc 'load (directory-files user-settings-dir nil "^[^#].*el$")))
+#+END_SRC
+
+* Customized Functions
+#+BEGIN_SRC emacs-lisp
+(defun prelude-move-beginning-of-line (arg)
+  "Move point back to indentation of beginning of line.
+Move point to the first non-whitespace character on this line.
+If point is already there, move to the beginning of the line.
+Effectively toggle between the first non-whitespace character and
+the beginning of the line.
+If ARG is not nil or 1, move forward ARG - 1 lines first. If
+point reaches the beginning or end of the buffer, stop there."
+  (interactive "^p")
+  (setq arg (or arg 1))
+
+  ;; Move lines first
+  (when (/= arg 1)
+    (let ((line-move-visual nil))
+      (forward-line (1- arg))))
+
+  (let ((orig-point (point)))
+    (back-to-indentation)
+    (when (= orig-point (point))
+      (move-beginning-of-line 1))))
+
+(global-set-key (kbd "C-a") 'prelude-move-beginning-of-line)
+
+(defadvice kill-ring-save (before slick-copy activate compile)
+  "When called interactively with no active region, copy a single
+line instead."
+  (interactive
+   (if mark-active (list (region-beginning) (region-end))
+     (message "Copied line")
+     (list (line-beginning-position)
+           (line-beginning-position 2)))))
+
+(defadvice kill-region (before slick-cut activate compile)
+  "When called interactively with no active region, kill a single
+  line instead."
+  (interactive
+   (if mark-active (list (region-beginning) (region-end))
+     (list (line-beginning-position)
+           (line-beginning-position 2)))))
+
+;; kill a line, including whitespace characters until next non-whiepsace character
+;; of next line
+(defadvice kill-line (before check-position activate)
+  (if (member major-mode
+              '(emacs-lisp-mode scheme-mode lisp-mode
+                                c-mode c++-mode objc-mode
+                                latex-mode plain-tex-mode))
+      (if (and (eolp) (not (bolp)))
+          (progn (forward-char 1)
+                 (just-one-space 0)
+                 (backward-char 1)))))
+
+;; taken from prelude-editor.el
+;; automatically indenting yanked text if in programming-modes
+(defvar yank-indent-modes
+  '(LaTeX-mode TeX-mode)
+  "Modes in which to indent regions that are yanked (or yank-popped).
+Only modes that don't derive from `prog-mode' should be listed here.")
+
+(defvar yank-indent-blacklisted-modes
+  '(python-mode slim-mode haml-mode)
+  "Modes for which auto-indenting is suppressed.")
+
+(defvar yank-advised-indent-threshold 1000
+  "Threshold (# chars) over which indentation does not automatically occur.")
+
+(defun yank-advised-indent-function (beg end)
+  "Do indentation, as long as the region isn't too large."
+  (if (<= (- end beg) yank-advised-indent-threshold)
+      (indent-region beg end nil)))
+
+(defadvice yank (after yank-indent activate)
+  "If current mode is one of 'yank-indent-modes,
+indent yanked text (with prefix arg don't indent)."
+  (if (and (not (ad-get-arg 0))
+           (not (member major-mode yank-indent-blacklisted-modes))
+           (or (derived-mode-p 'prog-mode)
+               (member major-mode yank-indent-modes)))
+      (let ((transient-mark-mode nil))
+        (yank-advised-indent-function (region-beginning) (region-end)))))
+
+(defadvice yank-pop (after yank-pop-indent activate)
+  "If current mode is one of `yank-indent-modes',
+indent yanked text (with prefix arg don't indent)."
+  (when (and (not (ad-get-arg 0))
+             (not (member major-mode yank-indent-blacklisted-modes))
+             (or (derived-mode-p 'prog-mode)
+                 (member major-mode yank-indent-modes)))
+    (let ((transient-mark-mode nil))
+      (yank-advised-indent-function (region-beginning) (region-end)))))
+
+;; prelude-core.el
+(defun indent-buffer ()
+  "Indent the currently visited buffer."
+  (interactive)
+  (indent-region (point-min) (point-max)))
+
+;; prelude-editing.el
+(defcustom prelude-indent-sensitive-modes
+  '(coffee-mode python-mode slim-mode haml-mode yaml-mode)
+  "Modes for which auto-indenting is suppressed."
+  :type 'list)
+
+(defun indent-region-or-buffer ()
+  "Indent a region if selected, otherwise the whole buffer."
+  (interactive)
+  (unless (member major-mode prelude-indent-sensitive-modes)
+    (save-excursion
+      (if (region-active-p)
+          (progn
+            (indent-region (region-beginning) (region-end))
+            (message "Indented selected region."))
+        (progn
+          (indent-buffer)
+          (message "Indented buffer.")))
+      (whitespace-cleanup))))
+
+(global-set-key (kbd "C-c i") 'indent-region-or-buffer)
+
+;; add duplicate line function from Prelude
+;; taken from prelude-core.el
+(defun prelude-get-positions-of-line-or-region ()
+  "Return positions (beg . end) of the current line
+or region."
+  (let (beg end)
+    (if (and mark-active (> (point) (mark)))
+        (exchange-point-and-mark))
+    (setq beg (line-beginning-position))
+    (if mark-active
+        (exchange-point-and-mark))
+    (setq end (line-end-position))
+    (cons beg end)))
+
+;; smart openline
+(defun prelude-smart-open-line (arg)
+  "Insert an empty line after the current line.
+Position the cursor at its beginning, according to the current mode.
+With a prefix ARG open line above the current line."
+  (interactive "P")
+  (if arg
+      (prelude-smart-open-line-above)
+    (progn
+      (move-end-of-line nil)
+      (newline-and-indent))))
+
+(defun prelude-smart-open-line-above ()
+  "Insert an empty line above the current line.
+Position the cursor at it's beginning, according to the current mode."
+  (interactive)
+  (move-beginning-of-line nil)
+  (newline-and-indent)
+  (forward-line -1)
+  (indent-according-to-mode))
+
+(global-set-key (kbd "M-o") 'prelude-smart-open-line)
+(global-set-key (kbd "M-o") 'open-line)
 #+END_SRC
