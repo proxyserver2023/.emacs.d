@@ -38,11 +38,11 @@
       (setq linum-format "%4d ")
     (setq linum-format "%4d \u2502 "))
 
-  (add-hook 'prog-mode-hook 'linum-mode)
+  (add-hook 'global-mode-hook 'linum-mode)
 
   ;; default tab width
-  (setq-default tab-width 2)
-  (setq-default indent-tabs-mode nil)
+  (setq-default tab-width 4)
+  (setq-default indent-tabs-mode 1)
 
   ;; auto save
   (defun full-auto-save ()
@@ -54,7 +54,7 @@
             (basic-save-buffer)))))
   (add-hook 'auto-save-hook 'full-auto-save)
 
-(setq gc-cons-threshold 100000000)
+(setq gc-cons-threshold 10000000)
 
 (windmove-default-keybindings)
 #+END_SRC
@@ -64,15 +64,16 @@
   (require 'server)
   (unless (server-running-p)
     (server-start))
-
-  ;; (progn (setq kill-emacs-hook 'nil) (kill-emacs))
-
 #+END_SRC
 ** Custom Settings File
 #+BEGIN_SRC emacs-lisp
 (setq custom-file
       (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file)
+#+END_SRC
+** Load Path
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'load-path (concat user-emacs-directory "lisp"))
 #+END_SRC
 
 ** Load Secrets
@@ -138,6 +139,18 @@
                             (whitespace-mode 1)))
 
 
+#+END_SRC
+** Helpers
+*** Editing As ROOT
+#+BEGIN_SRC emacs-lisp
+(defun edit-current-file-as-root ()
+  "Edit the file that is associated with the current buffer as root"
+  (interactive)
+  (if (buffer-file-name)
+      (progn
+        (setq file (concat "/sudo:localhost:" (buffer-file-name)))
+        (find-file file))
+    (message "Current buffer does not have an associated file.")))
 #+END_SRC
 * Keybindings
 
@@ -292,10 +305,10 @@
 ** Fonts
 #+BEGIN_SRC emacs-lisp
   (set-face-attribute 'default nil
-                      ;; :family "Source Code Pro"
                       :family "Source Code Pro"
+                      ;; :family "Monaco Bold"
                       :height 100
-                      :weight 'regular
+                      :weight 'normal
                       :width 'normal)
 #+END_SRC
 
@@ -437,54 +450,15 @@
 # #+END_SRC
 ** Theme
 #+BEGIN_SRC emacs-lisp
-  ;; (setq custom-theme-directory (concat user-emacs-directory "themes"))
-
-  ;; (dolist
-  ;;     (path (directory-files custom-theme-directory t "\\w+"))
-  ;;   (when (file-directory-p path)
-  ;;     (add-to-list 'custom-theme-load-path path)))
-
-  ;; (defun use-default-theme ()
-  ;;   (interactive)
-  ;;   (load-theme 'default-black)
-  ;;   (when (boundp 'magnars/default-font)
-  ;;     (set-face-attribute 'default nil :font magnars/default-font)))
-
-  ;; (if (display-graphic-p)
-  ;;     (use-default-theme))
-#+END_SRC
-
-Doom Themes
-#+BEGIN_SRC emacs-lisp
-  (use-package doom-themes
-    :ensure t)
-  (require 'doom-themes)
-
-  ;; Global settings (defaults)
-  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-        doom-themes-enable-italic t) ; if nil, italics is universally disabled
-
-  ;; Load the theme (doom-one, doom-molokai, etc); keep in mind that each theme
-  ;; may have their own settings.
-  (load-theme 'doom-one t)
-
-  ;; Enable flashing mode-line on errors
-  (doom-themes-visual-bell-config)
-
-  ;; Enable custom neotree theme (all-the-icons must be installed!)
-;  (doom-themes-neotree-config)
-  ;; or for treemacs users
-;  (doom-themes-treemacs-config)
-
-  ;; Corrects (and improves) org-mode's native fontification.
-  (doom-themes-org-config)
-
+(use-package atom-one-dark-theme)
+(load-theme 'atom-one-dark t) 
 #+END_SRC
 
 * Package Initialization
 
 #+BEGIN_SRC emacs-lisp
   (require 'package)
+  
   (setq package-archives nil)
   (setq package-archives
         '(
@@ -494,8 +468,6 @@ Doom Themes
           ("marmalade" . "http://marmalade-repo.org/packages/")))
 
   (package-initialize)
-  ;; (when (memq window-system '(mac ns x))
-  ;;   (exec-path-from-shell-initialize))
 
   (unless (and (file-exists-p "~/.emacs.d/elpa/archives/gnu")
                (file-exists-p "~/.emacs.d/elpa/archives/melpa")
@@ -522,13 +494,12 @@ Doom Themes
   :init
   (progn
   (setq aw-scope 'frame)
-  (global-set-key (kbd "C-x O") `'other-frame)
+  (global-set-key (kbd "C-x O") 'other-frame)
   (setq aw-keys '(?a ?s ?d ?f ?j ?k ?l ?o))
   (global-set-key [remap other-window] 'ace-window)
   (custom-set-faces
    '(aw-leading-char-face
      ((t (:inherit ace-jump-face-foreground :height 3.0)))))))
-
 
   (use-package ace-jump-mode
     :config
@@ -579,12 +550,31 @@ Doom Themes
 #+END_SRC
 ** company
 #+BEGIN_SRC emacs-lisp
-  (use-package company
-    :init
-    (global-company-mode 1)
-    (delete 'company-semantic company-backends))
-  (require 'company)
+(use-package company
+    :ensure t
+    :diminish
+    :config
+    (add-hook 'after-init-hook 'global-company-mode)
+
+    (setq company-idle-delay t)
+
+    (use-package company-go
+      :ensure t
+      :config
+      (add-to-list 'company-backends 'company-go))
+
+    (use-package company-anaconda
+      :ensure t
+      :config
+      (add-to-list 'company-backends 'company-anaconda)))
 #+END_SRC
+
+I don't want suggestions from open files / buffers to be automatically lowercased as these are often camelcase function names.
+
+#+BEGIN_SRC emacs-lisp
+  (setq company-dabbrev-downcase nil)
+#+END_SRC
+
 ** dtrt indent
 #+BEGIN_SRC emacs-lisp
 
@@ -608,6 +598,15 @@ Doom Themes
   :config
   (editorconfig-mode 1))
 #+END_SRC
+** exec-path-from-shell
+#+BEGIN_SRC emacs-lisp
+  (use-package exec-path-from-shell
+    :ensure t
+    :if (memq window-system '(mac ns x))
+    :config
+    (setq exec-path-from-shell-variables '("PATH" "GOPATH" "GOROOT"))
+    (exec-path-from-shell-initialize))
+#+END_SRC
 ** expand-region
 #+BEGIN_SRC emacs-lisp
 (use-package expand-region
@@ -622,6 +621,9 @@ Doom Themes
     :diminish flycheck-mode
     :config
     (global-flycheck-mode))
+
+; As-you-type error highlighting
+(add-hook 'after-init-hook #'global-flycheck-mode)
   
 #+END_SRC
 ** helm
@@ -848,6 +850,22 @@ helm-gtags
   :bind ("C-x g" . magit-status))
 #+END_SRC
 
+Display line changes in gutter based on git history. Enable it everywhere.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package diff-hl
+    :config
+    (require 'diff-hl)
+    (diff-hl-flydiff-mode))
+#+END_SRC
+
+TimeMachine lets us step through the history of a file as recorded in git.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package git-timemachine
+    :ensure t)
+#+END_SRC
+
 ** multiple-cursors
 #+BEGIN_SRC emacs-lisp
   (use-package multiple-cursors
@@ -892,17 +910,29 @@ org-babel execute functions
  'org-babel-load-languages
  '((python . t)
    (shell  . t)
-   (js     . t)))
+   (js     . t)
+   (go     . t)))
 
 (setq org-confirm-babel-evaluate nil)
 #+END_SRC
 
+** origami
+#+BEGIN_SRC emacs-lisp
+(use-package origami)
+(require 'origami)
+#+END_SRC
 ** projectile
 #+BEGIN_SRC emacs-lisp
   (use-package projectile
     :init
     (projectile-global-mode)
     (setq projectile-enable-caching t))
+
+(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+#+END_SRC
+** try
+#+BEGIN_SRC emacs-lisp
+(use-package try)
 #+END_SRC
 ** undo-tree
 
@@ -955,12 +985,21 @@ org-babel execute functions
   (add-hook 'fundamental-mode 'ws-butler-mode))
 #+END_SRC
 ** yasnippets
+
+Type the shortcut and press =TAB= to complete, or =M-/= to autosuggest a snippet.
+
+
 #+BEGIN_SRC emacs-lisp
-(use-package yasnippet)
-(require 'yasnippet)
-(yas-global-mode 1)
+  (use-package yasnippet
+      :ensure t
+      :diminish yas-minor-mode
+      :config
+      (add-to-list 'yas-snippet-dirs "~/.emacs.d/yasnippet-snippets")
+      (add-to-list 'yas-snippet-dirs "~/.emacs.d/snippets")
+      (yas-global-mode)
+      (global-set-key (kbd "M-/") 'company-yasnippet))
 #+END_SRC
-#* Programming
+
 ** zygospore
 #+BEGIN_SRC emacs-lisp
 (use-package zygospore
@@ -970,6 +1009,59 @@ org-babel execute functions
 
 * Programming
 ** General
+When programming I like my editor to try to help me with keeping parentheses balanced.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package smartparens
+    :ensure t
+    :diminish smartparens-mode
+    :config
+    (add-hook 'prog-mode-hook 'smartparens-mode))
+#+END_SRC
+
+Highlight parens etc. for improved readability.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package rainbow-delimiters
+    :ensure t
+    :config
+    (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
+#+END_SRC
+
+
+Highlight strings which represent colours. I only want this in programming modes, and I don't want colour names to be highlighted (x-colors).
+
+#+BEGIN_SRC emacs-lisp
+  (use-package rainbow-mode
+    :ensure t
+    :config
+    (setq rainbow-x-colors nil)
+    (add-hook 'prog-mode-hook 'rainbow-mode))
+#+END_SRC
+
+
+Keep things indented correctly for me.
+
+#+BEGIN_SRC emacs-lisp
+(use-package aggressive-indent
+      :ensure t)
+#+END_SRC
+
+Expand parentheses for me.
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'prog-mode-hook 'electric-pair-mode)
+#+END_SRC
+
+Smart dash guesses _ vs - depending on context.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package smart-dash
+    :ensure t
+    :config
+    (add-hook 'python-mode-hook 'smart-dash-mode))
+#+END_SRC
+
 show unncessary whitespace that can mess up your diff
 #+BEGIN_SRC emacs-lisp
 (add-hook 'prog-mode-hook
@@ -1020,49 +1112,6 @@ GDB
   (elpy-enable)
 #+END_SRC
 
-** JS
-#+BEGIN_SRC emacs-lisp
-  (use-package js2-mode)
-  (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-
-#+END_SRC
-#+BEGIN_SRC emacs-lisp
-(use-package js2-refactor)
-(use-package xref-js2)
-
-(require 'js2-refactor)
-(require 'xref-js2)
-
-(add-hook 'js2-mode-hook #'js2-refactor-mode)
-(js2r-add-keybindings-with-prefix "C-c C-r")
-(define-key js2-mode-map (kbd "C-k") #'js2r-kill)
-
-;; js-mode (which js2 is based on) binds "M-." which conflicts with xref, so
-;; unbind it.
-(define-key js-mode-map (kbd "M-.") nil)
-
-(add-hook 'js2-mode-hook (lambda ()
-  (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)))
-
-(use-package company-tern)
-(require 'company-tern)
-
-(add-to-list 'company-backends 'company-tern)
-(add-hook 'js2-mode-hook (lambda ()
-                           (tern-mode)
-                           (company-mode)))
-                           
-;; Disable completion keybindings, as we use xref-js2 instead
-(define-key tern-mode-keymap (kbd "M-.") nil)
-(define-key tern-mode-keymap (kbd "M-,") nil)
-#+END_SRC
-
-indent settings
-#+BEGIN_SRC emacs-lisp
-(setq js-indent-level 2)
-(setq js2-indent-level 2)
-(setq js2-basic-offset 2)
-#+END_SRC
 ** Go
 
 Install This Tools before working with Emacs
@@ -1070,13 +1119,26 @@ Install This Tools before working with Emacs
 A lot of the config is based on gocode, godef, goimports and gotags packages that you should install separately.
 
 go get golang.org/x/tools/cmd/...
-go get -u github.com/nsf/gocode
+go get -u -v github.com/rogpeppe/godef
+go get -u -v golang.org/x/tools/cmd/gorename
+go get -u -v github.com/jstemmer/gotags
+go get -u -v github.com/davecgh/go-spew/spew
+go get -u -v github.com/motemen/gore
+go get -u -v github.com/golang/example/hello
+go get -u -v github.com/tleyden/checkers-bot-minimax
+go get -u -v golang.org/x/tour/gotour
+go get -u -v github.com/nsf/gocode
+go get -u -v github.com/alecthomas/gometalinter
+gometalinter --install
 go get -u github.com/rogpeppe/godef
-go get -u golang.org/x/tools/cmd/goimports
-go get -u github.com/jstemmer/gotags
 go get github.com/matryer/moq
 go get -u github.com/dougm/goflymake
 go get -u golang.org/x/lint/golint
+gocode set package-lookup-mode gb
+
+# go get -u golang.org/x/tools/cmd/goimports
+# go get -u -v golang.org/x/tools/cmd/godoc
+# go get -u -v golang.org/x/tools/cmd/guru
 
 go-mode
 #+BEGIN_SRC emacs-lisp
@@ -1086,34 +1148,19 @@ go-mode
 
 go-guru
 #+BEGIN_SRC emacs-lisp
-(use-package go-guru)
-(require 'go-guru)
-#+END_SRC
+  (use-package go-guru)
+  (require 'go-guru)
 
-Enable GoPath
-#+BEGIN_SRC emacs-lisp
- (use-package go-gopath)
-#+END_SRC
-
-exec path from shell and setting gopath
-#+BEGIN_SRC emacs-lisp
-  (use-package exec-path-from-shell)
-
-  ;; (defun set-exec-path-from-shell-PATH ()
-  ;;   (let ((path-from-shell (replace-regexp-in-string
-  ;;                           "[ \t\n]*$"
-  ;;                           ""
-  ;;                           (shell-command-to-string "$SHELL --login -i -c 'echo $PATH'"))))
-  ;;     (setenv "PATH" path-from-shell)
-  ;;     (setq eshell-path-env path-from-shell) ; for eshell users
-  ;;     (setq exec-path (split-string path-from-shell path-separator))))
-
-  ;; (when window-system (set-exec-path-from-shell-PATH))
-
-  ;; (setenv "GOPATH" (concat (getenv "HOME") "/go"))
-  ;; (add-to-list 'exec-path (concat (getenv "GOPATH") "/bin"))
-
-  (exec-path-from-shell-copy-env "GOPATH")
+  ; Go guru needs a scope to look at, this function sets it to the current package.
+  (defun jc/go-guru-set-current-package-as-main ()
+	"GoGuru requires the scope to be set to a go package which
+	  contains a main, this function will make the current package the
+	  active go guru scope, assuming it contains a main"
+	(interactive)
+	(let* ((filename (buffer-file-name))
+		   (gopath-src-path (concat (file-name-as-directory (go-guess-gopath)) "src"))
+		   (relative-package-path (directory-file-name (file-name-directory (file-relative-name filename gopath-src-path)))))
+	  (setq go-guru-scope relative-package-path)))
 #+END_SRC
 
 go-mode-hook
@@ -1123,10 +1170,10 @@ go-mode-hook
     (setq gofmt-command "goimports")                ; gofmt uses invokes goimports
     (if (not (string-match "go" compile-command))   ; Customize compile command to run go build
         (set (make-local-variable 'compile-command)
-           "go build -v && go test -v && go vet && go run main.go"))
+             "go build -v && go test -v && go vet && go run main.go"))
 
     ;; tab settings
-    (setq tab-width 2)
+    (setq tab-width 8)
     (setq indent-tabs-mode 1)
     ;; guru settings
     (go-guru-hl-identifier-mode)                    ; highlight identifiers
@@ -1139,44 +1186,30 @@ go-mode-hook
     (local-set-key (kbd "M-]") 'next-error)         ; Go to next error (or msg)
     (local-set-key (kbd "M-[") 'previous-error)     ; Go to previous error or msg
 
-    ; Misc go stuff
+                                          ; Misc go stuff
     (auto-complete-mode 1)                         ; Enable auto-complete mode
+
+
+                                          ;set-guru scope
+    ; (jc/go-guru-set-current-package-as-main)
     )
 
   (add-hook 'go-mode-hook 'my-go-mode-hook)
 #+END_SRC
 
-autocomplete
+company
 #+BEGIN_SRC emacs-lisp
-  (use-package auto-complete)
-
-  (use-package go-autocomplete)
-
-  (with-eval-after-load 'go-mode
-    (require 'go-autocomplete)
-    (require 'auto-complete-config)
-    (ac-config-default)
-     )
-
-  (defun auto-complete-for-go ()
-    (auto-complete-mode 1))
-  (add-hook 'go-mode-hook 'auto-complete-for-go) 
-#+END_SRC
-
-//REMOVE: company
-#+BEGIN_SRC emacs-lisp
-  ;; (use-package company-go)
-  ;; (add-hook 'go-mode-hook (lambda ()
-  ;;   (set (make-local-variable 'company-backends) '(company-go))
-  ;;   (company-mode)))
+  (use-package company-go)
+  (add-hook 'go-mode-hook (lambda ()
+     (set (make-local-variable 'company-backends) '(company-go))
+     (company-mode)))
 #+END_SRC
 
 customize the emacs compile command to run go build
 
 flymake-go
 #+BEGIN_EXAMPLE
-#install it in bash
-
+install it in bash
 #+END_EXAMPLE
 
 go-snippets
@@ -1184,6 +1217,7 @@ go-snippets
 (use-package go-snippets)
 #+END_SRC
 
+go-projectile
 #+BEGIN_SRC emacs-lisp
   (use-package go-projectile)
   (require 'go-projectile)
@@ -1212,16 +1246,17 @@ Go Add Tags
 (use-package go-add-tags)
 #+END_SRC
 
+Go Direx
 #+BEGIN_SRC emacs-lisp
 (use-package go-direx)
 #+END_SRC
 
+Go Test
 #+BEGIN_SRC emacs-lisp
 (use-package gotest)
 #+END_SRC
 
 Integrate =moq=
-
 Quick custom function to integrate with the =moq= tool to generate quick mocks
 #+BEGIN_SRC emacs-lisp
 (defun moq ()
@@ -1248,35 +1283,21 @@ golint
 (add-to-list 'load-path (concat (getenv "GOPATH")  "/src/github.com/golang/lint/misc/emacs"))
 (require 'golint)
 #+END_SRC
+
+go-scratch
+#+BEGIN_SRC emacs-lisp
+(use-package go-scratch)
+#+END_SRC
+
+godoctor
+#+BEGIN_SRC emacs-lisp
+
+(use-package godoctor
+    :ensure t)
+
+#+END_SRC
+
 ** EmacsLisp
-Show Paren Matching
-#+BEGIN_SRC emacs-lisp
-  (use-package paren
-    :init
-    (set-face-background 'show-paren-match (face-background 'default))
-    (set-face-foreground 'show-paren-match "#afa")
-    (set-face-attribute  'show-paren-match nil :weight 'black)
-    (set-face-background 'show-paren-mismatch (face-background 'default))
-    (set-face-foreground 'show-paren-mismatch "#c66")
-    (set-face-attribute  'show-paren-mismatch nil :weight 'black))
-
-  (use-package paren-face
-    :ensure t
-    :init
-    (global-paren-face-mode))
-
-  (add-hook 'after-save-hook 'check-parens nil t)
-#+END_SRC
-
-Paredit
-#+BEGIN_SRC emacs-lisp
-  (use-package paredit
-    :ensure t
-    :diminish "﹙﹚"
-    :init
-    (dolist (m (list 'emacs-lisp-mode-hook 'lisp-interaction-mode-hook 'eval-expression-minibuffer-setup-hook 'ielm-mode-hook))
-      (add-hook m 'enable-paredit-mode)))
-#+END_SRC
 ** Tools
 *** Eshell
 #+BEGIN_SRC emacs-lisp
@@ -1393,6 +1414,7 @@ sudo ln -sf ~/src/$TEMP_NAME/multimarkdown /usr/local/bin/multimarkdown
 (use-package eshell-bookmark)
 #+END_SRC
 * User Specific Emacs Settings
+
 #+BEGIN_SRC emacs-lisp
 ;; Settings for currently logged in user
 (setq user-settings-dir
@@ -1562,4 +1584,25 @@ Position the cursor at it's beginning, according to the current mode."
 
 (global-set-key (kbd "M-o") 'prelude-smart-open-line)
 (global-set-key (kbd "M-o") 'open-line)
+#+END_SRC
+
+Move lines up/down
+#+BEGIN_SRC emacs-lisp
+  (defun move-line-up ()
+    "Move up the current line."
+    (interactive)
+    (transpose-lines 1)
+    (forward-line -2)
+    (indent-according-to-mode))
+
+  (defun move-line-down ()
+    "Move down the current line."
+    (interactive)
+    (forward-line 1)
+    (transpose-lines 1)
+    (forward-line -1)
+    (indent-according-to-mode))
+
+  (global-set-key [(control shift up)]  'move-line-up)
+  (global-set-key [(control shift down)]  'move-line-down)
 #+END_SRC
