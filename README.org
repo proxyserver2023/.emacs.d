@@ -283,10 +283,10 @@
                                  " - Emacs ♥ you!\n\n"
                                  "| HEALTH   | SPEAK         | PROGRAMMING | Investments |\n"
                                  "|----------|---------------|-------------|-------------|\n"
-                                 "| YOGA     | GUITAR        | Python      | Investments |\n"
-                                 "| DANCE    | CONVERSATION  | GO          |             |\n"
-                                 "|          |               | JS          |             |\n"  
-                                 "|          |               | ELISP       |             |\n"  
+                                 "| YOGA     | SPEAKING      | GO          | Investments |\n"
+                                 "| EXCR     | CONVERSATION  |             |             |\n"
+                                 "|          |               |             |             |\n"  
+                                 "|          |               |             |             |\n"  
                                  ))
 #+END_SRC
 
@@ -296,20 +296,21 @@
 #+END_SRC
 ** Neotree
 #+BEGIN_SRC emacs-lisp
-  (use-package neotree
-    :ensure t)
+  ; (use-package neotree
+  ;   :ensure t)
 
-  (require 'neotree)
-  (global-set-key [f8] 'neotree-toggle)
+  ; (require 'neotree)
+  ; (global-set-key [f8] 'neotree-toggle)
 #+END_SRC
 ** Fonts
 #+BEGIN_SRC emacs-lisp
   (set-face-attribute 'default nil
-                      :family "Source Code Pro"
-                      ;; :family "Monaco Bold"
+                      ;;:family "Source Code Pro"
+                      :family "MonacoB"
                       :height 100
-                      :weight 'normal
-                      :width 'normal)
+                      :weight 'bold
+                      :width 'normal
+  )
 #+END_SRC
 
 # Firacode
@@ -457,34 +458,36 @@
 * Package Initialization
 
 #+BEGIN_SRC emacs-lisp
-  (require 'package)
+    (require 'package)
   
-  (setq package-archives nil)
-  (setq package-archives
-        '(
-          ("org"       . "https://orgmode.org/elpa/")
-          ("gnu"       . "http://elpa.gnu.org/packages/")
-          ("melpa"     . "http://melpa.org/packages/")
-          ("marmalade" . "http://marmalade-repo.org/packages/")))
+    (setq package-archives nil)
+    (setq package-archives
+          '(
+            ("org"       . "https://orgmode.org/elpa/")
+            ("gnu"       . "http://elpa.gnu.org/packages/")
+            ("melpa"     . "http://melpa.org/packages/")
+            ;("marmalade" . "http://marmalade-repo.org/packages/")
+            )
+          )
 
-  (package-initialize)
+    (package-initialize)
 
-  (unless (and (file-exists-p "~/.emacs.d/elpa/archives/gnu")
-               (file-exists-p "~/.emacs.d/elpa/archives/melpa")
-               (file-exists-p "~/.emacs.d/elpa/archives/melpa-stable")
-               (file-exists-p "~/.emacs.d/elpa/archives/marmalade")
-               )
-    (package-refresh-contents))
+    (unless (and (file-exists-p "~/.emacs.d/elpa/archives/gnu")
+                 (file-exists-p "~/.emacs.d/elpa/archives/melpa")
+                 (file-exists-p "~/.emacs.d/elpa/archives/melpa-stable")
+                 (file-exists-p "~/.emacs.d/elpa/archives/marmalade")
+                 )
+      (package-refresh-contents))
 
 
-  ;; use-package
-  (unless (package-installed-p 'use-package)
-    (package-refresh-contents)
-    (package-install 'use-package))
+    ;; use-package
+    (unless (package-installed-p 'use-package)
+      (package-refresh-contents)
+      (package-install 'use-package))
 
-  (setq use-package-verbose t)
-  (setq use-package-always-ensure t)
-  (require 'use-package)
+    (setq use-package-verbose t)
+    (setq use-package-always-ensure t)
+    (require 'use-package)
 #+END_SRC
 
 * Packages
