@@ -304,13 +304,14 @@
 #+END_SRC
 ** Fonts
 #+BEGIN_SRC emacs-lisp
-  (set-face-attribute 'default nil
-                      ;;:family "Source Code Pro"
-                      :family "MonacoB"
-                      :height 100
-                      :weight 'bold
-                      :width 'normal
-  )
+   (set-face-attribute 'default nil
+                        ;;:font "Source Code Pro"
+                        :font "MonacoB"
+                        :height 80
+                        :weight 'bold
+                        :width 'normal
+    )
+;; (set-face-attribute 'default nil :font "MonacoB" :weight 'bold :height '10)
 #+END_SRC
 
 # Firacode
